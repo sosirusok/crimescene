@@ -1,0 +1,746 @@
+[
+  {
+    "url": "http://www.crimesceneplay.com/",
+    "final": "http://www.crimesceneplay.com/",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 1796,
+    "path": "research/mirror/www.crimesceneplay.com/index.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/main.html",
+    "final": "http://www.crimesceneplay.com/main.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 14196,
+    "path": "research/mirror/www.crimesceneplay.com/main.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/",
+    "final": "http://yunell1206.cafe24.com/",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 1796,
+    "path": "research/mirror/yunell1206.cafe24.com/index.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/main.html",
+    "final": "http://yunell1206.cafe24.com/main.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 14196,
+    "path": "research/mirror/yunell1206.cafe24.com/main.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/*",
+    "error": "<HTTPError 400: 'Bad Request'>"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/css/import.css",
+    "final": "http://www.crimesceneplay.com/css/import.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 81,
+    "path": "research/mirror/www.crimesceneplay.com/css/import.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/css/main.css",
+    "final": "http://www.crimesceneplay.com/css/main.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 14442,
+    "path": "research/mirror/www.crimesceneplay.com/css/main.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/slick/slick.css",
+    "final": "http://www.crimesceneplay.com/slick/slick.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 1717,
+    "path": "research/mirror/www.crimesceneplay.com/slick/slick.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/slick/slick-theme.css",
+    "final": "http://www.crimesceneplay.com/slick/slick-theme.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 2736,
+    "path": "research/mirror/www.crimesceneplay.com/slick/slick-theme.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/slick/slick.min.js",
+    "final": "http://www.crimesceneplay.com/slick/slick.min.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 36928,
+    "path": "research/mirror/www.crimesceneplay.com/slick/slick.min.js"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/so.html",
+    "final": "http://www.crimesceneplay.com/sub/so.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 8625,
+    "path": "research/mirror/www.crimesceneplay.com/sub/so.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_L.html",
+    "final": "http://www.crimesceneplay.com/sub/RESER_L.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 28290,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_L.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/location.html",
+    "final": "http://www.crimesceneplay.com/sub/location.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 8400,
+    "path": "research/mirror/www.crimesceneplay.com/sub/location.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/sub03.html?B_BOARDNAME=문의상담",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/sub03.html?B_BOARDNAME=문의상담 HTTP/1.1', 32, 36, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_L.html?JIJEM=S1",
+    "final": "http://www.crimesceneplay.com/sub/RESER_L.html?JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 28290,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_L.html__q_2f7aec7bb7"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_L.html?D_ROOM=A&JIJEM=S1",
+    "final": "http://www.crimesceneplay.com/sub/RESER_L.html?D_ROOM=A&JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 15551,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_L.html__q_99b7ba7aba"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_L.html?D_ROOM=B&JIJEM=S1",
+    "final": "http://www.crimesceneplay.com/sub/RESER_L.html?D_ROOM=B&JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 15554,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_L.html__q_aa33ef0c95"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_L.html?D_ROOM=C&JIJEM=S1",
+    "final": "http://www.crimesceneplay.com/sub/RESER_L.html?D_ROOM=C&JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 15497,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_L.html__q_676e107381"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_L.html?D_ROOM=D&JIJEM=S1",
+    "final": "http://www.crimesceneplay.com/sub/RESER_L.html?D_ROOM=D&JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 15645,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_L.html__q_080f1d831e"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/sub_ya.html",
+    "final": "http://www.crimesceneplay.com/sub/sub_ya.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 16059,
+    "path": "research/mirror/www.crimesceneplay.com/sub/sub_ya.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/sub_info.html",
+    "final": "http://www.crimesceneplay.com/sub/sub_info.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 9227,
+    "path": "research/mirror/www.crimesceneplay.com/sub/sub_info.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/*",
+    "error": "<HTTPError 400: 'Bad Request'>"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/css/import.css",
+    "final": "http://yunell1206.cafe24.com/css/import.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 81,
+    "path": "research/mirror/yunell1206.cafe24.com/css/import.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/css/main.css",
+    "final": "http://yunell1206.cafe24.com/css/main.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 14442,
+    "path": "research/mirror/yunell1206.cafe24.com/css/main.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/slick/slick.css",
+    "final": "http://yunell1206.cafe24.com/slick/slick.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 1717,
+    "path": "research/mirror/yunell1206.cafe24.com/slick/slick.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/slick/slick-theme.css",
+    "final": "http://yunell1206.cafe24.com/slick/slick-theme.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 2736,
+    "path": "research/mirror/yunell1206.cafe24.com/slick/slick-theme.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/slick/slick.min.js",
+    "final": "http://yunell1206.cafe24.com/slick/slick.min.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 36928,
+    "path": "research/mirror/yunell1206.cafe24.com/slick/slick.min.js"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/so.html",
+    "final": "http://yunell1206.cafe24.com/sub/so.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 8625,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/so.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_L.html",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_L.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 28290,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_L.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/location.html",
+    "final": "http://yunell1206.cafe24.com/sub/location.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 8400,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/location.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/sub03.html?B_BOARDNAME=문의상담",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/sub03.html?B_BOARDNAME=문의상담 HTTP/1.1', 32, 36, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_L.html?JIJEM=S1",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_L.html?JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 28290,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_L.html__q_2f7aec7bb7"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_L.html?D_ROOM=A&JIJEM=S1",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_L.html?D_ROOM=A&JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 15551,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_L.html__q_99b7ba7aba"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_L.html?D_ROOM=B&JIJEM=S1",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_L.html?D_ROOM=B&JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 15554,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_L.html__q_aa33ef0c95"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_L.html?D_ROOM=C&JIJEM=S1",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_L.html?D_ROOM=C&JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 15497,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_L.html__q_676e107381"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_L.html?D_ROOM=D&JIJEM=S1",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_L.html?D_ROOM=D&JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 15645,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_L.html__q_080f1d831e"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/sub_ya.html",
+    "final": "http://yunell1206.cafe24.com/sub/sub_ya.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 16059,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/sub_ya.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/sub_info.html",
+    "final": "http://yunell1206.cafe24.com/sub/sub_info.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 9227,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/sub_info.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/css/so.css",
+    "final": "http://www.crimesceneplay.com/css/so.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 967,
+    "path": "research/mirror/www.crimesceneplay.com/css/so.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/css/reser_l.css",
+    "final": "http://www.crimesceneplay.com/css/reser_l.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 14195,
+    "path": "research/mirror/www.crimesceneplay.com/css/reser_l.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/themes/base/ui.all.css",
+    "final": "http://www.crimesceneplay.com/themes/base/ui.all.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 47,
+    "path": "research/mirror/www.crimesceneplay.com/themes/base/ui.all.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/ui/demos.css",
+    "final": "http://www.crimesceneplay.com/ui/demos.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 13153,
+    "path": "research/mirror/www.crimesceneplay.com/ui/demos.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/js/jquery-1.3.2.js",
+    "final": "http://www.crimesceneplay.com/js/jquery-1.3.2.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 120619,
+    "path": "research/mirror/www.crimesceneplay.com/js/jquery-1.3.2.js"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/ui/ui.core.js",
+    "final": "http://www.crimesceneplay.com/ui/ui.core.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 13932,
+    "path": "research/mirror/www.crimesceneplay.com/ui/ui.core.js"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/ui/ui.datepicker.js",
+    "final": "http://www.crimesceneplay.com/ui/ui.datepicker.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 69877,
+    "path": "research/mirror/www.crimesceneplay.com/ui/ui.datepicker.js"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/ui/ui.datepicker-ko.js",
+    "final": "http://www.crimesceneplay.com/ui/ui.datepicker-ko.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 769,
+    "path": "research/mirror/www.crimesceneplay.com/ui/ui.datepicker-ko.js"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_C.html",
+    "final": "http://www.crimesceneplay.com/sub/RESER_C.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 9809,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_C.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_D.html",
+    "final": "http://www.crimesceneplay.com/sub/RESER_D.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 9790,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_D.html"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_L.HTML?JIJEM=S1",
+    "final": "http://www.crimesceneplay.com/sub/RESER_L.HTML?JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 28290,
+    "path": "research/mirror/www.crimesceneplay.com/sub/RESER_L.HTML__q_2f7aec7bb7"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=10:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=10:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=13:20&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=13:20&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=15:10&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=15:10&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=17:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=17:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=18:50&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=18:50&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=20:40&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=20:40&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=22:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=22:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=10:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=10:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=11:50&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=11:50&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=15:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=15:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=17:20&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=17:20&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=19:10&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=19:10&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=21:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=21:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=22:50&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=22:50&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=10:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=10:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=14:00&ROOM_WEEK=주말&D_OPEN=Y&OPEN_INWON=5",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=14:00&ROOM_WEEK=주말&D_OPEN=Y&OPEN_INWON=5 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=17:40&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=17:40&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=19:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=19:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=21:20&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=21:20&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=23:10&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=23:10&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=11:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=11:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=12:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=12:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=14:20&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=14:20&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=16:10&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=16:10&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=18:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=18:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=19:50&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=19:50&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=21:40&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=21:40&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=23:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=23:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/css/location.css",
+    "final": "http://www.crimesceneplay.com/css/location.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 1283,
+    "path": "research/mirror/www.crimesceneplay.com/css/location.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/css/sub05.css",
+    "final": "http://www.crimesceneplay.com/css/sub05.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 4995,
+    "path": "research/mirror/www.crimesceneplay.com/css/sub05.css"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/_lib/lib.js",
+    "error": "<HTTPError 404: 'Not Found'>"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/css/so.css",
+    "final": "http://yunell1206.cafe24.com/css/so.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 967,
+    "path": "research/mirror/yunell1206.cafe24.com/css/so.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/css/reser_l.css",
+    "final": "http://yunell1206.cafe24.com/css/reser_l.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 14195,
+    "path": "research/mirror/yunell1206.cafe24.com/css/reser_l.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/themes/base/ui.all.css",
+    "final": "http://yunell1206.cafe24.com/themes/base/ui.all.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 47,
+    "path": "research/mirror/yunell1206.cafe24.com/themes/base/ui.all.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/ui/demos.css",
+    "final": "http://yunell1206.cafe24.com/ui/demos.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 13153,
+    "path": "research/mirror/yunell1206.cafe24.com/ui/demos.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/js/jquery-1.3.2.js",
+    "final": "http://yunell1206.cafe24.com/js/jquery-1.3.2.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 120619,
+    "path": "research/mirror/yunell1206.cafe24.com/js/jquery-1.3.2.js"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/ui/ui.core.js",
+    "final": "http://yunell1206.cafe24.com/ui/ui.core.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 13932,
+    "path": "research/mirror/yunell1206.cafe24.com/ui/ui.core.js"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/ui/ui.datepicker.js",
+    "final": "http://yunell1206.cafe24.com/ui/ui.datepicker.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 69877,
+    "path": "research/mirror/yunell1206.cafe24.com/ui/ui.datepicker.js"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/ui/ui.datepicker-ko.js",
+    "final": "http://yunell1206.cafe24.com/ui/ui.datepicker-ko.js",
+    "status": 200,
+    "contentType": "application/javascript",
+    "bytes": 769,
+    "path": "research/mirror/yunell1206.cafe24.com/ui/ui.datepicker-ko.js"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_C.html",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_C.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 9809,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_C.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_D.html",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_D.html",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 9790,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_D.html"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_L.HTML?JIJEM=S1",
+    "final": "http://yunell1206.cafe24.com/sub/RESER_L.HTML?JIJEM=S1",
+    "status": 200,
+    "contentType": "text/html",
+    "bytes": 28290,
+    "path": "research/mirror/yunell1206.cafe24.com/sub/RESER_L.HTML__q_2f7aec7bb7"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=10:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=10:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=13:20&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=13:20&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=15:10&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=15:10&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=17:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=17:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=18:50&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=18:50&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=20:40&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=20:40&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=22:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=A&ROOM_TIME=22:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=10:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=10:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=11:50&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=11:50&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=15:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=15:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=17:20&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=17:20&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=19:10&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=19:10&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=21:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=21:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=22:50&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=B&ROOM_TIME=22:50&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=10:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=10:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=14:00&ROOM_WEEK=주말&D_OPEN=Y&OPEN_INWON=5",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=14:00&ROOM_WEEK=주말&D_OPEN=Y&OPEN_INWON=5 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=17:40&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=17:40&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=19:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=19:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=21:20&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=21:20&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=23:10&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=C&ROOM_TIME=23:10&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=11:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=11:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=12:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=12:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=14:20&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=14:20&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=16:10&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=16:10&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=18:00&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=18:00&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=19:50&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=19:50&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=21:40&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=21:40&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=23:30&ROOM_WEEK=주말",
+    "error": "UnicodeEncodeError('ascii', 'GET /sub/RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=23:30&ROOM_WEEK=주말 HTTP/1.1', 96, 98, 'ordinal not in range(128)')"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/css/location.css",
+    "final": "http://yunell1206.cafe24.com/css/location.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 1283,
+    "path": "research/mirror/yunell1206.cafe24.com/css/location.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/css/sub05.css",
+    "final": "http://yunell1206.cafe24.com/css/sub05.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 4995,
+    "path": "research/mirror/yunell1206.cafe24.com/css/sub05.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/_lib/lib.js",
+    "error": "<HTTPError 404: 'Not Found'>"
+  },
+  {
+    "url": "http://www.crimesceneplay.com/css/sub02_1_1.css",
+    "final": "http://www.crimesceneplay.com/css/sub02_1_1.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 15934,
+    "path": "research/mirror/www.crimesceneplay.com/css/sub02_1_1.css"
+  },
+  {
+    "url": "http://yunell1206.cafe24.com/css/sub02_1_1.css",
+    "final": "http://yunell1206.cafe24.com/css/sub02_1_1.css",
+    "status": 200,
+    "contentType": "text/css",
+    "bytes": 15934,
+    "path": "research/mirror/yunell1206.cafe24.com/css/sub02_1_1.css"
+  }
+]

@@ -1,0 +1,171 @@
+/* 환경설정영역 */
+
+div#header ul.nav li:nth-of-type(3) a{color:#ffeb3b !important;}
+
+@media only screen and (max-width:1023px){
+
+div#sub_content div.wrap { width: 100%; margin: 0 auto; padding-bottom: 30px; }
+div#sub_content div#sub_title { margin: 50px auto 0 auto; text-align: center; padding-bottom: 50px; }
+div#sub_content div#sub_title h2 { color: white; font-size: 32px; letter-spacing: -1px; text-align: center; margin: 0; }
+
+#sub_content {width:98%;margin:100px auto;}
+#sub_content h2 {color:#F2EB00;font-size:32px;margin-bottom:30px; letter-spacing: 1px;}
+#sub_content p {color:#ddd;font-size:14px;line-height:1.5;}
+#sub_content p strong {font-weight:bold;font-size:18px;}
+  table { border-collapse: collapse; }
+
+  input.box100 {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:100px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  input.box200 {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:200px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  input.box300 {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:300px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  input.box700 {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:700px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  input.searchbox {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:380px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  select.in {
+        border: 1px solid #e7e7e7;
+		padding:6px;
+        height: 34px;
+		width:100%;
+    	font-size: 16px;
+
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+
+}
+
+@media only screen and (min-width:1024px){
+
+div#sub_content div.wrap { width: 1080px; margin: 0 auto; padding-bottom: 30px; }
+div#sub_content div#sub_title { margin: 50px auto 0 auto; text-align: center; padding-bottom: 50px; }
+div#sub_content div#sub_title h2 { color: white; font-size: 32px; letter-spacing: -1px; text-align: center; margin: 0; }
+
+#sub_content {width:980px;margin:100px auto;}
+#sub_content h2 {color:#F2EB00;font-size:32px;margin-bottom:30px; letter-spacing: 1px;}
+#sub_content p {color:#ddd;font-size:14px;line-height:1.5;}
+#sub_content p strong {font-weight:bold;font-size:18px;}
+
+  table { border-collapse: collapse; }
+
+  input.box100 {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:100px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  input.box200 {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:200px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  input.box300 {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:300px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  input.box700 {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:700px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  input.searchbox {
+        border: 1px solid #e7e7e7;
+		padding:10px;
+        height: 32px;
+		width:380px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+  select.in {
+        border: 1px solid #e7e7e7;
+		padding:6px;
+        height: 34px;
+		width:320px;
+    	font-size: 16px;
+
+        border-radius: 0px;
+        -webkit-appearance: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+
+
+}

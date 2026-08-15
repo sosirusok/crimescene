@@ -1,0 +1,362 @@
+
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<head>
+<title>:: 크라임씬 추리카페 크라임씬 ::</title>
+<meta http-equiv="content-type" content="text/html; charset=euc-kr" />
+<meta charset="euc-kr" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+<link rel="stylesheet" type="text/css" href="/css/import.css" />
+<link rel="stylesheet" type="text/css" href="/css/main.css" />
+<link rel="stylesheet" type="text/css" href="/slick/slick.css"/> <!-- slick css 1 -->
+<link rel="stylesheet" type="text/css" href="/slick/slick-theme.css"/> <!-- slick css 2 -->
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script><!-- tap제이쿼리 -->
+<script type="text/javascript" src="/slick/slick.min.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		// 메인 비주얼 슬라이드 영역
+		$('#visual').slick({ // 슬라이드시킬 내용들을 담고있는 '틀'에 플러그인 명령을 건다
+			autoplaySpeed: 2000, // 슬라이드시킬 속도
+			autoplay: true, // 자동으로 슬라이드
+			arrows: true, // 좌우 화살표 여부
+			dots: true, // 동그라미 여부
+		});
+	});
+</script>
+
+<script type="text/javascript">
+		$(document).ready(function() {
+			// 로그인
+			$('#left1 ul li:nth-of-type(1) a').addClass("active");
+			$('#left1_2').hide();
+			$('#left1 ul li a').click(function() {
+				$('#left1 ul li a').removeClass("active");
+				$(this).addClass("active");
+			});
+			$('#left1 ul li:nth-of-type(1) a').click(function() {
+				$('#left1_1').show();
+				$('#left1_2').hide();
+			});
+			$('#left1 ul li:nth-of-type(2) a').click(function() {
+				$('#left1_1').hide();
+				$('#left1_2').show();
+			});
+
+		});
+</script>
+
+</head>
+<body>
+</head>
+<!--바로가기 메뉴-->
+
+<noscript><p>JavaScript를 지원하지않는 브라우저입니다. 일부 콘텐츠가 정상적으로 작동하지 않을 가능성이 있습니다. </p></noscript> 
+<hr />
+
+
+</SCRIPT>
+
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" />
+<div id="wrap_out">
+	<div id="wrap">
+<!-- 반응형 상단메뉴 -->
+     <meta name="viewport" content="width=device-width, initial-scale=0">
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('ul.nav div.wrap > li > a').mouseenter(function() {
+			$('ul.nav div.wrap > li > a').removeClass("focus");
+			$(this).addClass("focus");
+			$('ul.nav li ul').hide()
+			$(this).parent().children('ul').fadeIn();
+		});
+		$('ul.nav li ul').mouseleave(function() {
+			$(this).parent().children('a').removeClass("focus");
+			$(this).parent().children('ul').hide();
+		});
+	});
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#m_header ul.menu").hide();
+		$("#m_header .m_menu").click(function(){
+			$("ul.menu").show();
+		});
+	
+		$("ul.menu li a.close").click(function(){
+			$("ul.menu").hide();
+		});
+	});
+</script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#h_cont ul.sub").hide();
+		$("#h_cont ul.menu li").click(function(){
+			$("ul",this).slideToggle("fast");
+		});
+	});
+</script>
+<script>
+  $( document ).ready( function() {
+       var jbOffset = $( '.jbMenu' ).offset();
+	 $( window ).scroll( function() {
+       if ( $( document ).scrollTop() > jbOffset.top ) {
+            $( '.jbMenu' ).addClass( 'jbFixed' );
+          }
+       else {
+            $( '.jbMenu' ).removeClass( 'jbFixed' );
+          }
+     });
+ });
+ 
+</script>
+<div class="jbMenu">
+   <div id="header">
+	 <div class="wrap">
+		<h1><a href="/main.html"><img src="/images/common/logo2.jpg" alt="logo" /></a><span>서면1호점&nbsp; 070-4304-4340
+		<!-- <br>서면2호점&nbsp; 070-8220-7300</span> --></h1>
+		<ul class="nav">
+			<li><a href="/sub/so.html">게임소개</a></li>
+			<li><a href="/sub/RESER_L.html">게임예약</a></li>
+			<li><a href="/sub/location.html">오시는길</a></li>
+ 			<!--<li><a href="/sub/intro.html">회사소개</a></li>-->
+			<li><a href="/sub/sub03.html?B_BOARDNAME=문의상담">Q&A</a></li>
+		</ul> <!--// nav -->
+	 </div> <!--// wrap -->
+   </div> <!--// header -->
+</div> <!--// header -->
+
+
+<div id="m_header">
+	<div class="wrap" id="h_cont">
+		<a class="m_menu" id="m_menu1"><img src="/images/common/menu.png"></a>
+		<h1>
+			<a href="/main.html"><img src="/images/common/logo2.jpg" alt="logo"/></a>
+		<span>070-4304-4340</span></h1>
+		<ul class="menu">
+		    <li class="menu_top">
+				<a href="#" class="close"><img src="/images/common/close1.png"></a>
+			</li>
+			<li><a href="/sub/so.html">게임소개</a></li>
+			<li><a href="/sub/RESER_L.html">게임예약</a></li>
+			<li><a href="/sub/location.html">오시는길</a></li>
+ 			<!--<li><a href="/sub/intro.html">회사소개</a></li>-->
+			<li><a href="/sub/sub03.html?B_BOARDNAME=문의상담">Q&A</a></li>
+		</ul>
+	</div><!--// wrap -->
+</div> <!--// m_header -->
+<!-- 반응형 상단메뉴 끝-->
+		<div id="contents">
+				<div id="profile">
+				<div class="whiteBg"></div>
+              	<div id="cont1">
+            		<table cellpadding=0 cellspacing=0 border=0 id="jijem">
+		        		<tbody>
+		    				<tr>
+			    				<td class="jijem1"><p>서면1호점</p>
+          							<a href="/sub/RESER_L.html?JIJEM=S1"><img src="/images/main/jijem01.png"></a>
+									<span><a href="/sub/RESER_L.html?JIJEM=S1">예약하기</a></span>
+    							</td>
+	    					<!-- 	<td class="jijem2"><p>서면2호점</p>
+		         					<a href="/sub/RESER_L.html?JIJEM=S2"><img src="/images/main/jijem02.png"></a>
+			       					<span><a href="/sub/RESER_L.html?JIJEM=S2">예약하기</a></span>
+    							</td> -->
+	    					</tr>
+		        		</tbody>
+             		</table> <!--// price -->
+        	     </div><!--//cont2-->
+
+				<h1>'크라임씬 게임이란?'</h1>
+				<div class="price">
+					<h2>-이용 및 요금 안내-</h2>
+					<p>총 90분 플레이 (사전준비 시간 포함)<br /><br />1인 23,000원<br />
+</p>
+				</div>
+				<p>
+					'기존 단순한 방탈출 게임과는 차별화된 게임으로,<br />
+					살인사건 현장에서 5명의 플레이어가 각각 용의자가 되어,<br />
+					직접 현장조사, 증거수집, 취조심문을 통해 5명의 플레이어 중<br />
+					진짜 범인을 찾아내어 검거하는 게임입니다.<br />
+					<br />
+					역할 게임이기 때문에 최소 4명 이상이어야 게임이 진행 가능하며,<br />
+					예약자가 1~3명일 경우, 다름 팀과 조인하여 플레이가 가능합니다.'<br />
+					(오픈룸 예약을 이용하시면, 다른 팀과 조인하실 수 있습니다)
+				</p>
+			</div>
+
+<!-- 
+				<div class="maintin">
+<p>당신에게 부여된 시간은 단 60분!<br />모든 추리력을 동원하여 여기서 빠져나가야만 한다!<br/><br/></p>
+				</div> -->
+		    <div id="visual" style="height:800px;">
+<!-- 상담신청 -->   
+                       				<img src="/upload_file/main/신입생오티.jpg"  style="width:100%;height:780px;" alt="visual" />
+					
+                       				<img src="/upload_file/main/유튜버 살인사건.jpg"  style="width:100%;height:780px;" alt="visual" />
+					
+                       				<img src="/upload_file/main/main_03.png"  style="width:100%;height:780px;" alt="visual" />
+					
+                       				<img src="/upload_file/main/main_04.png"  style="width:100%;height:780px;" alt="visual" />
+					
+			   </div><!-- visual -->
+			   <div id="visual_m">
+<!-- 상담신청 -->   
+              				<img src="/upload_file/main/신입생오티.jpg" width="100%" alt="visual" />
+					
+			</div><!-- visual_m -->
+			
+		<div id="cont2">
+				<h1>주의사항</h1>
+				<ul id="caution">
+					<li>
+						<img src="/images/sub/notice.png"  alt="caution" /><br/><br/>
+						게임 시작 전, 사전설명을 위해 반드시 ! 꼭 ! 10분전에 매장에 도착하여 주시기 바랍니다.
+					</li>
+					<li>
+						<img src="/images/sub/danger.png" alt="caution" /><br/><br/>
+						폐쇄된 공간에서 진행되는 게임입니다. 폐쇄공포증이 있거나 노약자, 음주자, 임산부 그리고 15세 이하의 어린이는 이용이 불가합니다.
+					</li>
+					<li>
+						<img src="/images/sub/phone.png" alt="caution" /><br/><br/>
+						게임내의 모든 컨텐츠와 소품들은 크라임씬의 소중한 자산입니다. 무단으로 외부 유출을 일절 금지하고 있으며, 게임 입장 전 휴대폰은 반드시 제출하셔야 합니다.
+					</li>
+					<li>
+						<img src="/images/sub/cctv.png" alt="caution" /><br/><br/>
+						손님들의 안전과 보안 상의 이유로 CCTV가 설치 되어 있습니다.
+					</li>
+				</ul>
+			</div> <!--// cont2 -->
+				<div id="left1">
+					<div id="sub03">
+						<ul class="sub03_tab">
+							<li><a style="cursor:pointer;">서면1호점</a></li>
+     					<!-- 	<li><a style="cursor:pointer;">서면2호점</a></li> -->
+						</ul>
+         				<div style="clear: both"></div>
+						<div id="left1_1" style="">
+							<div class="txt_box">
+
+			     	<div class="img_box" id="left1_1">
+                            <span class="tit">크라임씬 EP.7 신입생 오티 살인사건</span><br/>
+    						<img src="/upload_file/room/신입생오티(1).jpg" alt="room1">
+							<div class="img_box_t">
+    							<div class="link_box">
+								<a class="reserv" href='/sub/RESER_L.html?D_ROOM=A&JIJEM=S1'>예약현황</a>
+								</div>
+							</div><!--//img_box_t -->
+     				</div><!--// img_box -->
+
+			     	<div class="img_box" id="left1_1">
+                            <span class="tit">크라임씬 EP.8 유튜버 살인사건</span><br/>
+    						<img src="/upload_file/room/유튜버 살인사건.jpg" alt="room1">
+							<div class="img_box_t">
+    							<div class="link_box">
+								<a class="reserv" href='/sub/RESER_L.html?D_ROOM=B&JIJEM=S1'>예약현황</a>
+								</div>
+							</div><!--//img_box_t -->
+     				</div><!--// img_box -->
+
+			     	<div class="img_box" id="left1_1">
+                            <span class="tit">크라임씬 EP.3 호텔 살인사건</span><br/>
+    						<img src="/upload_file/room/ep3.png" alt="room1">
+							<div class="img_box_t">
+    							<div class="link_box">
+								<a class="reserv" href='/sub/RESER_L.html?D_ROOM=C&JIJEM=S1'>예약현황</a>
+								</div>
+							</div><!--//img_box_t -->
+     				</div><!--// img_box -->
+
+			     	<div class="img_box" id="left1_1">
+                            <span class="tit">크라임씬 EP.4 산장 살인사건</span><br/>
+    						<img src="/upload_file/room/ep4.png" alt="room1">
+							<div class="img_box_t">
+    							<div class="link_box">
+								<a class="reserv" href='/sub/RESER_L.html?D_ROOM=D&JIJEM=S1'>예약현황</a>
+								</div>
+							</div><!--//img_box_t -->
+     				</div><!--// img_box -->
+
+							</div>
+<!--
+                  			<div id="cont5">
+								<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d790.7953831115784!2d126.92289404520633!3d37.55078663728528!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357c98c5381d80dd%3A0xf59726cab188acca!2z7Y287KaQ7Yyp7Yag66as!5e0!3m2!1sko!2skr!4v1505187263989" width="100%" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
+
+							</div>
+-->
+
+						</div><!-- left1_1 -->
+
+						<div id="left1_2" style="">
+							<div class="txt_box">
+
+							</div>
+				</div><!-- left1_2 -->
+			</div><!--// sub05_box_1 -->
+		</div><!--// left1 -->
+
+    	<div style="clear: both"></div>
+
+		</div> <!--// contents -->
+
+<!-- 반응형 하단메뉴 -->
+     <div id="footer">
+	<div class="wrap">
+		<!--b>STORE INFO.</b-->
+		<table cellpadding=0 cellspacing=0 border=0>
+			<tr>
+				<td class="info1">
+                    <img src="/images/common/logo2.jpg" alt="logo" />				
+				</td>
+				<td class="info2">
+					회사명 : 크라임씬플레이 /&nbsp;대표 : 윤호권<br />
+					상호명 : 크라임씬플레이&nbsp;사업자등록번호 :839-87-00850<br />
+					주소 : 부산광역시 부산진구 신천대로 50번길 64, 4층 (부전동, 우성빌딩)<br />
+					EMAIL : <a href="mailto:dbsehrud93@naver.com">dbsehrud93@naver.com</a><br />
+					Copyrightⓒ 2017. All Rights Reserved.<br/>
+					<a href="/sub/sub_ya.html">이용약관</a>
+					&nbsp;&nbsp;<a href="/sub/sub_info.html">개인정보취급방침</a><br/><br/>
+    				<select name="select" class="box300" onchange="window.open(this.value);" style="background:#0a0a0a;font-size:12px;color:#fff;border:1px solid #222e;">
+	        			<option value="#">:: 관련업체 / 홈페이지 ::</option>
+        				<option value="http://www.design-soom.com/">제작관리 Design-Soom</option>
+         			</select>
+				</td>
+			</tr>
+		</table>
+<!-- 
+		<P><b>TEL : 070-8286-7355<span class="time"> /&nbsp; 영업시간 : 평일 am12:00 ~ pm23:00, 주말 & 공휴일 am12:00 ~ pm24:00</span>&nbsp;/&nbsp; 
+		    계좌번호 : 000000-00-000000 국민은행 박영섭</b>
+			<span class="text">상호명 : 퍼즐팩토리  / &nbsp; 대표자 : 박영섭 / &nbsp;사업자등록번호 : 834-87-00267    
+			/&nbsp; 주소 : 서울특별시 마포구 양화로 133 서교타워 1301호 / &nbsp;E-mail : <a href="mailto:sonkihong91@naver.com "> sherlockys@naver.com </a></span>
+			<span class="text2"><a href="/sub/sub_ya.html">이용약관</a>&nbsp;<a href="/sub/sub_info.html">개인정보취급방침</a></span>
+		</P>
+ -->
+	</div> <!--// wrap -->
+</div> <!--// footer -->
+
+<div id="m_footer">
+	<p>
+					회사명 : 크라임씬플레이 /&nbsp;대표 : 윤호권<br />
+					상호명 : 크라임씬플레이&nbsp;사업자등록번호 :839-87-00850<br />
+					주소 : 부산광역시 부산진구 신천대로 50번길 64, 4층 (부전동, 우성빌딩)<br />
+					EMAIL : <a href="mailto:dbsehrud93@naver.com">dbsehrud93@naver.com</a><br />
+					Copyrightⓒ 2017. All Rights Reserved.<br/>
+<!-- <span style="font-size:16px; font-weight:bold">대표전화 : <a href="tel:07082867355">070-8286-7355</a><br />
+	번호 클릭 시 전화 연결됩니다.<br /><br /></span> -->
+	<span><a href="/sub/sub_ya.html">이용약관</a></span>&nbsp;&nbsp;<span><a href="/sub/sub_info.html">개인정보취급방침</a></span><br /><br/>
+    				<select name="select" class="box300" onchange="window.open(this.value);" style="background:#0a0a0a;font-size:12px;color:#fff;border:1px solid #222e;">
+	        			<option value="#">:: 관련업체 / 홈페이지 ::</option>
+        				<option value="http://www.design-soom.com/">제작관리 Design-Soom</option>
+         			</select>
+	</p>
+
+</div> <!--// m_footer -->
+<!-- 반응형 상하단메뉴단메뉴 끝-->
+	</div> <!--// wrap -->
+</div> <!--// wrap_out -->
+</script>
+</body>
+</html>
+
