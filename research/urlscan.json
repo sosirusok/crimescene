@@ -1,0 +1,54 @@
+{
+  "results": [
+    {
+      "canonical": {
+        "task": {
+          "url": "crimesceneplay.com"
+        },
+        "page": {
+          "url": "crimesceneplay.com"
+        }
+      },
+      "task": {
+        "visibility": "public",
+        "method": "manual",
+        "domain": "crimesceneplay.com",
+        "apexDomain": "crimesceneplay.com",
+        "time": "2022-01-27T11:47:41.627Z",
+        "uuid": "f821d72f-f8f4-463d-bcd6-09ba4db86bf4",
+        "url": "http://crimesceneplay.com/"
+      },
+      "stats": {
+        "uniqIPs": 5,
+        "uniqCountries": 4,
+        "dataLength": 7168777,
+        "encodedDataLength": 3492142,
+        "requests": 33
+      },
+      "page": {
+        "country": "KR",
+        "server": "Microsoft-IIS/7.5",
+        "ip": "222.122.213.230",
+        "domain": "crimesceneplay.com",
+        "apexDomain": "crimesceneplay.com",
+        "mimeType": "text/html",
+        "asnname": "KIXS-AS-KR Korea Telecom, KR",
+        "title": ":: 크라임씬 추리카페 크라임씬 ::",
+        "asn": "AS4766",
+        "url": "http://crimesceneplay.com/",
+        "status": "200"
+      },
+      "_id": "f821d72f-f8f4-463d-bcd6-09ba4db86bf4",
+      "_score": null,
+      "sort": [
+        1643284061627,
+        "f821d72f-f8f4-463d-bcd6-09ba4db86bf4"
+      ],
+      "result": "https://urlscan.io/api/v1/result/f821d72f-f8f4-463d-bcd6-09ba4db86bf4/",
+      "screenshot": "https://urlscan.io/screenshots/f821d72f-f8f4-463d-bcd6-09ba4db86bf4.png"
+    }
+  ],
+  "total": 1,
+  "took": 543,
+  "has_more": false
+}
