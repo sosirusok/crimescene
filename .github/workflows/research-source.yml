@@ -1,0 +1,55 @@
+name: Research source site
+
+on:
+  push:
+    paths:
+      - 'research-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch public source evidence
+        shell: bash
+        run: |
+          set -u
+          mkdir -p research
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36'
+          curl -A "$UA" -L --compressed --connect-timeout 15 --max-time 45 -D research/live-headers.txt -o research/live.html 'http://www.crimesceneplay.com/' || true
+          curl -A "$UA" -L --compressed --connect-timeout 15 --max-time 45 -D research/live-https-headers.txt -o research/live-https.html 'https://www.crimesceneplay.com/' || true
+          curl -L --connect-timeout 15 --max-time 60 -o research/wayback-available.json 'https://archive.org/wayback/available?url=http%3A%2F%2Fwww.crimesceneplay.com%2F' || true
+          curl -L --connect-timeout 15 --max-time 120 -o research/wayback-cdx.json 'https://web.archive.org/cdx/search/cdx?url=www.crimesceneplay.com%2F%2A&output=json&filter=statuscode%3A200&collapse=urlkey&fl=timestamp%2Coriginal%2Cmimetype%2Cstatuscode%2Clength&limit=5000' || true
+          curl -L --connect-timeout 15 --max-time 60 -o research/urlscan.json 'https://urlscan.io/api/v1/search/?q=domain%3Acrimesceneplay.com&size=100' || true
+          curl -L --connect-timeout 15 --max-time 60 -o research/commoncrawl-indexes.json 'https://index.commoncrawl.org/collinfo.json' || true
+          python3 - <<'PY'
+          import json, pathlib, urllib.parse, urllib.request
+          root = pathlib.Path('research')
+          try:
+              indexes = json.loads((root/'commoncrawl-indexes.json').read_text())
+              api = indexes[0]['cdx-api']
+              q = api + '?url=' + urllib.parse.quote('crimesceneplay.com/*') + '&output=json&filter=status:200&collapse=urlkey'
+              req = urllib.request.Request(q, headers={'User-Agent':'Mozilla/5.0'})
+              with urllib.request.urlopen(req, timeout=120) as r:
+                  (root/'commoncrawl-cdx.jsonl').write_bytes(r.read())
+          except Exception as exc:
+              (root/'commoncrawl-error.txt').write_text(repr(exc))
+          PY
+          printf '%s\n' "Fetched at $(date -u +%FT%TZ)" > research/README.txt
+      - name: Commit research results
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m 'chore: capture public source-site evidence'
+          git push
