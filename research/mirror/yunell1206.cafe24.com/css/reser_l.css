@@ -1,0 +1,200 @@
+@charset "euc-kr";
+/* 공통 영역 */
+* { color:#333; }
+div#header ul.nav li:nth-of-type(2) a{color:#fff !important;  border: 3px double #fff;}
+div#m_header table.nav tr td:nth-of-type(2) a { color:#fff !important; border: 3px double #fff; }
+
+@media only screen and (max-width:1023px){
+
+div.sub_visual{width:100%; margin:0 auto; }
+div.sub_visual img{display:block; width:100%; }
+
+div#sub_content { position: relative; width: 100%; margin:0 auto; padding:30px 0 50px 0; text-align: center; font-size: 16px;}
+div#sub_content h2 { width:100%;  margin:0 auto; text-align: center; font-size: 30px;  }
+div#sub_content h2 span {     display: block;
+    font-size: 16pt;
+    margin-top: 3px;
+    font-weight: normal;
+    color: #aaa; }
+
+div#sub_content div.wrap { width: 100%; margin: 0 auto; padding-bottom: 30px; }
+div#sub_content div#sub_title { width:100%; text-align:center;}
+div#sub_content div#sub_title h2 {width:100%;  margin:0 auto; text-align: center; color:#fff; font-weight:bold;}
+div#sub_content div#sub_title h2 img{width:400px}
+
+div#sub_content div#sub_cont { position: relative; width:100%; padding-bottom:40px; margin: 0 auto; margin-bottom:26px;}
+div#sub_content div#sub_cont ul.sub_tab {float:left; width:100%; margin:0 auto;}
+div#sub_content div#sub_cont ul.sub_tab li {width:32.5%; float:left; margin-right:1%;}
+div#sub_content div#sub_cont ul.sub_tab li a { display:block; padding:10px; text-align:center; font-size:14px; }
+div#sub_content div#sub_cont ul.sub_tab li:last-child{margin:0;}
+div#sub_content div#sub_cont ul.sub_tab li.tabon a { color:#fff; background-color: #c90; font-weight: bold;}
+div#sub_content div#sub_cont ul.sub_tab li.taboff a {color:#fff;background:#494c50;}
+div#sub_content div#sub_cont p{color:#fff; font-size:12px; line-height:20px; text-align:left; padding:20px 10px 0; clear: both; } 
+div#sub_content div#sub_cont p span{color:#ff2727; font-size:12px; line-height:20px; text-align:left;} 
+
+div#sub_content div#sub_cont ul.sub_tabb {float:left; width:100%; margin:0 auto;}
+div#sub_content div#sub_cont ul.sub_tabb li {float:left; width: 48%; margin-right:1%;}
+div#sub_content div#sub_cont ul.sub_tabb li a { display:block; padding:10px; text-align:center; font-size:12pt; }
+div#sub_content div#sub_cont ul.sub_tabb li.tabon a {color:#fff; font-weight: bold; background-color: #c90; }
+div#sub_content div#sub_cont ul.sub_tabb li.taboff a {color:#fff;background:transparent; background-color: #494c50; }
+ 
+#sub_content #sub_content0 {width:100%;text-align:center;padding:50px 0;color:#fff; background: black;}
+#sub_content #sub_content0 p {font-size:24px;line-height:1.2;}
+#sub_content #sub_content0 p b { font-size: 32px; color: #F2EB00; }
+
+#sub_content2{width:100%; margin:0px auto; background: #2f333b; color: white; padding-bottom: 25px }
+#sub_content2 ul {width:96%; height:40px; padding: 2%; text-align: center; }
+#sub_content2 ul:not(:last-of-type) { margin-bottom: 50px; }
+#sub_content2 ul li{float: left; width: 50%; text-align: center; font-size:16px !important; color:#fff}
+#sub_content2 ul li select { display: block; width: 98%; margin: 7% 0; height: 30px; border: none; background:#fff !important; }
+input#datepicker { display: inline-block; text-align: center; width: 100%; height: 28px; border: none; margin-top: -9px; font-size: 15px; } 
+
+div#tt{width:100%; margin:5px auto; display:block;}
+div#tt ul.on{width:96%; height:46px;  margin:0 2%; overflow:inherit !important; /* padding:1%; */}
+div#tt ul.on li{float:left; width:48%; font-size:14px; color: #fff; text-align:center; font-weight: bold;  padding:1%; color:#ffe200; margin:0 !important;}
+
+ #sub_content3{width:100%; padding:10px 0; }
+ #sub_content3 .reservTime {width:99%; margin-bottom: 50px; border:solid 1px #fff; text-align:right;  font-size:14px;font-weight:bold;letter-spacing:3px;}
+ #sub_content3 .reservTime h3.roomtit{ float: left; font-family:"TmonMonsori"; width:90%; margin: 5%; color: #fff; letter-spacing: -1px;  text-align: center; font-size:26px;  font-weight:bold}
+ #sub_content3 .reservTime p.roomp {color: #fff; width:100%; font-size: 18px; text-align: center; font-weight:bold; display:none;}
+ #sub_content3 .reservTime p.m_roomp {color: #fff; width:100%; font-size: 16px; text-align: center; font-weight:bold; display:block;}
+
+ #sub_content3 .reservTime ul {width:100%; overflow:auto;}
+ #sub_content3 .reservTime ul li:not(:last-child) { margin-right: 20px; }
+ #sub_content3 .reservTime ul li span { color: #aaa; font-size: 20px; font-weight: bold; }
+ #sub_content3 .reservTime ul li span.time { font-size: 14px;}
+ #sub_content3 .reservTime ul li span.possibility { color: #555; font-weight:bold; font-size: 14px;}
+ #sub_content3 .reservTime ul a li {display:block; width:30.3333%; padding: 1% 0; text-align:center;letter-spacing:3px; background:#1b1b1b; line-height: 18px; color:#555;display: inline-block; float:left; font-size: 22px;  height:38px;  margin:1%; border:1px solid #4c4c4c;}
+ #sub_content3 .reservTime ul a:hover {background:#4c4c4c;}
+ #sub_content3 .reservTime ul a.possibility {font-size:11px;}
+
+ #sub_content3 .reservTime div.img_div{ margin:10px 0; }
+ #sub_content3 .reservTime img{display:block; width:100%; height:100%; margin:0 auto}
+
+ div.demo {margin: 6% 0 0 !important; width: 85% !important; text-align: left; font-family: "Trebuchet MS", "Arial", "Helvetica", "Verdana", "sans-serif"; }
+
+ #sub_content2 div.sub_con_area{}
+ #sub_content2 div.sub_con_area table{margin: 0 auto;}
+ form[name=SMSFORM] {width:100%; margin:50px auto;text-align:left;border-top:2px solid #aaa;}
+ form[name=SMSFORM] ul li {position: relative; height:60px;line-height:60px;border-bottom:1px solid #aaa;}
+ form[name=SMSFORM] ul li label {display:inline-block;width:200px;margin-left:20px;font-weight:bold;font-size:18px;letter-spacing:3px;color:#fff;}
+ form[name=SMSFORM] ul li span {color:#fff; font-size: 16px;}
+
+ form[name=SMSFORM] ul li input[type=text] {width:390px;margin-top: 14px; height:30px;border: 1px solid #fff;opacity:0.7;color:#333;
+ padding-left:10px;font-size:16px;line-height:30px;}
+
+ form[name=SMSFORM] .arrange {position:absolute;width:800px;display:inline-block;height:30px;font-size:14px;top:50%;margin-top:-15px;
+ padding-left:83px;left:222px;line-height:30px;color:#fff}
+
+ form[name=SMSFORM] ul li select {position:absolute; left:0;top:0; border: 1px solid #fff; opacity:0.7;color:#333;width:73px;height:100%;padding:5px;}
+ form[name=SMSFORM] ul li input[name=HP1] {width:40px;height:28px;border:1px solid #fff;padding-left:10px;}
+ form[name=SMSFORM] ul li input[name=HP2],
+ form[name=SMSFORM] ul li input[name=HP3] { width:50px;height:28px;border:1px solid #fff;padding-left:10px;}
+ form[name=SMSFORM] ul li input[name=S_date] {width:40px;height:28px;border:1px solid #fff;padding-left:10px;}
+ #btns {width:100%;margin:0 auto;text-align:center;margin:50px auto;}
+
+ #btns a {display:inline-block;width:250px;height:50px; text-align:center;
+ text-decoration: none;line-height:50px;letter-spacing:3px;font-size:16px;color:#eee;border: 1px solid #eee;font-weight:bold;}
+
+ #btns a:hover {border: 1px solid #aaa; color:#aaa; font-weight: bold; }
+ #btns .reserve { margin-top:20px; color: #fff;}
+ }
+
+/* pc */
+@media only screen and (min-width:1024px){
+
+div.sub_visual{width:100%; margin:0 auto; }
+div.sub_visual img{display:block; width:100%; }
+
+div#sub_content { position: relative; width: 1024px; margin:0 auto; padding:50px 0; text-align: center; font-size: 16px;}
+div#sub_content h2 { width:1024px;  margin:0 auto; text-align: center; font-size: 40px; font-weight:bold; }
+div#sub_content h2 span {     display: block;
+    font-size: 16pt;
+    margin-top: 3px;
+    font-weight: normal;
+    color: #aaa; }
+
+div#sub_content div.wrap { width: 1024px; margin: 0 auto; padding-bottom: 30px; }
+div#sub_content div#sub_title { width:100%; text-align:center;}
+div#sub_content div#sub_title h2 {width:1024px;  margin:0 auto; text-align: center; color:#fff; }
+div#sub_content div#sub_title h2 img{width:400px}
+
+div#sub_content div#sub_cont { position: relative; width:1024px; margin: 0 auto;}
+div#sub_content div#sub_cont ul.sub_tab {float:left; width:1024px; margin:0 auto;}
+div#sub_content div#sub_cont ul.sub_tab li {float:left; width: 335px; height: 40px; margin-right:5px;}
+div#sub_content div#sub_cont ul.sub_tab li a { display:block; padding:10px; text-align:center; font-size:12pt; }
+div#sub_content div#sub_cont ul.sub_tab li.tabon a {color:#fff; font-weight: bold; background-color: #c90; }
+div#sub_content div#sub_cont ul.sub_tab li.taboff a {color:#fff;background:transparent; background-color: #494c50; }
+div#sub_content div#sub_cont p{color:#fff; font-size:14px; line-height:20px; text-align:left; padding:20px 10px 0; clear: both; } 
+div#sub_content div#sub_cont p span{color:#ff2727; font-size:14px; line-height:20px; text-align:left;} 
+
+div#sub_content div#sub_cont ul.sub_tabb {float:left; width:1024px; margin:0 auto;}
+div#sub_content div#sub_cont ul.sub_tabb li {float:left; width: 500px; height: 40px; margin-right:5px;}
+div#sub_content div#sub_cont ul.sub_tabb li a { display:block; padding:10px; text-align:center; font-size:12pt; }
+div#sub_content div#sub_cont ul.sub_tabb li.tabon a {color:#fff; font-weight: bold; background-color: #c90; }
+div#sub_content div#sub_cont ul.sub_tabb li.taboff a {color:#fff;background:transparent; background-color: #494c50; }
+
+#sub_content #sub_content0 {width:100%;text-align:center;padding:50px 0;color:#fff; background: black;}
+#sub_content #sub_content0 p {font-size:24px;line-height:1.2;}
+#sub_content #sub_content0 p b { font-size: 32px; color: #F2EB00; }
+
+#sub_content2{width:1024px; height:40px; margin:40px auto; background:#494c50; color: white; padding:20px 0; }
+#sub_content2 ul {width:1024px; height:40px;}
+#sub_content2 ul li{width:980px; float:left;  font-size:16px !important; color:#fff}
+#sub_content2 ul li.loca_li{width:280px; float:left;  font-size:15px; color:#fff;padding:0 0 0 15px;}
+#sub_content2 ul li.room_li{width:540px; float:left;  font-size:15px; color:#fff;padding:0 15px 0 0;}
+#sub_content2 ul li.date_li{width:80px; float:left;  font-size:15px; color:#fff; padding:10px 0 0 0px;}
+#sub_content2 ul li.date_li .demo{float:left;margin:0 0 0 0px; }
+#sub_content2 ul li select.box150{width: 150px; height: 40px; margin:0px 0; font-size: 16px;}
+#sub_content2 ul li select.box300{width: 300px; height: 40px; margin:0px 0; font-size: 16px; display:inline-block;}
+input#datepicker { width: 300px; height: 38px; border: none; padding: 0 5px; margin: -27px 0 0 70px; font-size: 16px; } 
+div.demo { text-align: left; width:100%!important; padding:0 !important; margin:0 auto }
+
+div#tt{display:none;}
+span.notice_b{display:block;}
+
+#sub_content3{width:1024px; padding:10px 0; }
+#sub_content3 .reservTime { overflow: hidden; width:100%; margin-bottom: 60px; font-size:14px;font-weight:bold;letter-spacing:3px; }
+#sub_content3 .reservTime div.r_box{width:100%;}
+#sub_content3 .reservTime h3.roomtit{ padding: 1% 0; margin-bottom: 2%; border-bottom: 1px solid #666; font-family:"TmonMonsori"; color: #fff; letter-spacing: -1px; padding-top:20px; font-size:17px;  font-weight:bold; text-align: left}
+#sub_content3 .reservTime p.roomp { text-align: left; color: #fff; font-size: 18px; line-height: 32px; padding: 20px 0 10px 0; font-weight:bold;display:block;}
+#sub_content3 .reservTime p.m_roomp {color: #fff; width:100%; font-size: 18px; text-align: center; font-weight:bold; display:none;}
+
+#sub_content3 .reservTime ul { overflow: hidden; width:60%; float:right;}
+#sub_content3 .reservTime ul li span { width: 100%; float: left; color: #aaa; font-size: 16px; font-weight: bold; }
+#sub_content3 .reservTime ul li span.time { margin-bottom: 3%; font-size: 20px;}
+#sub_content3 .reservTime ul li span.possibility { color: #555; font-weight:bold; font-size: 18px;}
+#sub_content3 .reservTime ul a li {display:block; width:21.5%; padding: 6.2% 0; margin: 1%; text-align:center;letter-spacing:3px; background:#1b1b1b;
+line-height:1; color:#555;display: inline-block; font-size: 22px; border:1px solid #4c4c4c;}
+#sub_content3 .reservTime ul a.possibility {font-size:11px;}
+
+#sub_content3 .reservTime div.img_div{float:left; width: 40% }
+#sub_content3 .reservTime img{display:block; width:100%; }
+
+#sub_content2 div.sub_con_area{}
+#sub_content2 div.sub_con_area table{margin: 0 auto;}
+form[name=SMSFORM] {width:980px; margin:50px auto;text-align:left;border-top:2px solid #aaa;}
+form[name=SMSFORM] ul li {position: relative; height:60px;line-height:60px;border-bottom:1px solid #aaa;}
+form[name=SMSFORM] ul li label {display:inline-block;width:200px;margin-left:20px;font-weight:bold;font-size:18px;letter-spacing:3px;color:#fff;}
+form[name=SMSFORM] ul li span {color:#fff; font-size: 16px;}
+
+form[name=SMSFORM] ul li input[type=text] {width:390px;margin-top: 14px; height:30px;border: 1px solid #fff;opacity:0.7;color:#333;
+ padding-left:10px;font-size:16px;line-height:30px;}
+
+form[name=SMSFORM] .arrange {position:absolute;width:800px;display:inline-block;height:30px;font-size:14px;top:50%;margin-top:-15px;
+ padding-left:83px;left:222px;line-height:30px;color:#fff}
+
+form[name=SMSFORM] ul li select {position:absolute; left:0;top:0; border: 1px solid #fff; opacity:0.7;color:#333;width:73px;height:100%;padding:5px;}
+form[name=SMSFORM] ul li input[name=HP1] {width:40px;height:28px;border:1px solid #fff;padding-left:10px;}
+form[name=SMSFORM] ul li input[name=HP2],
+form[name=SMSFORM] ul li input[name=HP3] { width:50px;height:28px;border:1px solid #fff;padding-left:10px;}
+form[name=SMSFORM] ul li input[name=S_date] {width:40px;height:28px;border:1px solid #fff;padding-left:10px;}
+#btns {width:980px;margin:0 auto;text-align:center;margin:50px auto;}
+
+#btns a {display:inline-block;width:250px;height:50px; text-align:center;
+text-decoration: none;line-height:50px;letter-spacing:3px;font-size:16px;color:#eee;border: 1px solid #eee;font-weight:bold;}
+
+#btns a:hover {border: 1px solid #aaa; color:#aaa; font-weight: bold; }
+#btns .reserve { margin-top:20px; color: #fff;}
+
+}

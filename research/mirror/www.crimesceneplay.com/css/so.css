@@ -1,0 +1,25 @@
+@charset "euc-kr";
+
+div#header ul.nav li:nth-of-type(1) a{color:#fff !important; border: 3px double #fff;}
+div#m_header table.nav tr td:nth-of-type(1) a { color:#fff !important; border: 3px double #fff; }
+/**********************************************************
+	Main (메인)
+	스타일 : "/main.html";
+**********************************************************/
+@media only screen and (max-width:1023px){
+div#contents { position: relative; width: 100%; margin: 0 auto; text-align: center; }
+div#contents div#visual { display:none;}
+div#contents div#visual_m{display:block;position:relative;width:100%; margin:0 auto; }
+}
+
+/* pc */
+@media only screen and (min-width:1024px){
+
+div#visual_m{display:none;}
+
+div#contents { position: relative; width: 100%; margin: 0 auto; text-align: center; }
+
+div#contents div#visual { position:relative; width:70%; margin:0 auto; /*height:1234px;*/ display:block; }
+div#contents div#visual_m { display:none;}
+
+}

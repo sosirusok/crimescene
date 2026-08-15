@@ -1,0 +1,200 @@
+@charset "euc-kr";
+/**********************************************************
+	Main (메인)
+	스타일 : "/main.html";
+**********************************************************/
+@media only screen and (max-width:1023px){
+
+div#contents { position: relative; width: 100%; margin: 0 auto; text-align: center; }
+div#contents div#visual { display:none;}
+div#contents div#visual_m{display:block;position:relative;width:100%; margin-top:0px; }
+
+div#contents div.maintin p {font-size: 16px !important; }
+div#contents div.maintin img {position:absolute;width:100%; left:50%;top:50%;margin:-307px 0 0 -950px;}
+div#contents div.maintin {width:100%; margin:0 auto;padding:6px 0; position:absolute; z-index:99;}
+div#contents div.maintin a { margin: 50px auto !important; }
+div#contents div.maintin ul.sub_m {float:left;width:100%;}
+div#contents div.maintin ul.sub_m li {float:left;width:260px;margin-left:70px;border:3px solid #ffffff;}
+div#contents div.maintin ul.sub_m li a:hover {float:left;}
+
+div#contents div.maintin p span{font-size:35px; font-weight:bold; color: rgba(204, 204, 204, 0.8);}
+
+div#contents div#profile {width: 100%}
+div#contents div#profile div.whiteBg { width: 100%; height: 300px; background: #fff url(../images/common/logo2.jpg) 50% 50% no-repeat; background-size: 280px 280px}
+div#contents div#profile h1 { width: 100%; font-size: 30px; padding: 15px}
+div#contents div#profile>p { font-size: 13px; line-height: 1.5; margin-bottom: 20px}
+div#contents div#profile div.price { margin-bottom: 20px; padding: 20px; border: 1px solid #fff}
+div#contents div#profile div.price h2 { font-size: 22px; margin-bottom: 20px}
+div#contents div#profile div.price p { font-size: 14px; line-height: 1.5 }
+
+div#contents div#cont1{display:table; width: 100%; margin: 0 auto; padding:15px 0;  }
+div#contents div#cont1 table#jijem { width: 98%; margin: 0 auto; border-collapse: collapse; }
+div#contents div#cont1 table#jijem th {padding-bottom:10px; font-size: 15pt; font-weight: bold; color: #FFF; line-height: 1.3; }
+div#contents div#cont1 table#jijem td {width:48%; padding:10px 5px;  text-align: center; font-size: 12pt; color:#fff;  font-weight:bold}
+div#contents div#cont1 table#jijem td p{ text-align: center;  width:80%; margin:0 auto; font-size: 12pt; color:#fff; opacity:1; font-weight:bold; padding:10px 0;}
+
+div#contents div#cont1 table#jijem td a img {display:block; width:80%; margin:-10px auto 0 auto; }
+div#contents div#cont1 table#jijem td a img:hover { display:block; width:80%; margin:-10px auto 0 auto; opacity:.8;}
+div#contents div#cont1 table#jijem span{display:block; width:80%;  margin:10px auto;  font-size:20pt; font-weight:normal; background:#222;}
+div#contents div#cont1 table#jijem span b{display:block; width:180px; margin:10px auto 0 auto; padding:5px; background:#333; color:#fff; }
+div#contents div#cont1 table#jijem span a{text-decoration:none; font-size:18pt; color:#fff; }
+
+div#contents div#cont2{display:table; width: 100%; margin: 0 auto; padding:30px 0;  background-color: #333; }
+div#contents div#cont2 h1{font-weight: bold; font-size:30px; color:#fff; }
+div#contents div#cont2 ul#caution{width:100%; margin: 0 auto; }
+div#contents div#cont2 ul#caution li{width: 47%; float:left; padding:10% 1% 5% 1%; font-size:16px; line-height: 24px; text-align:center; color:#fff; }
+div#contents div#cont2 ul#caution li img{width:65px; }
+
+div#contents div#cont2 table#caution {width: 70%;  margin: 0 auto; padding:20px 20px;  text-align: center; }
+div#contents div#cont2 table#caution th { padding-bottom: 30px; font-weight: normal; font-size: 12pt; line-height: 1.3; }
+div#contents div#cont2 table#caution th b { font-size: 30pt; font-weight: bold; color: #FFF;  }
+div#contents div#cont2 table#caution td { padding:10px; font-size: 12pt; line-height:1.3; color: #fff; }
+div#contents div#cont2 table#caution td img{ width:128px; }
+div#contents div#sub03{width:100%; margin:30px auto}
+
+ul.sub03_tab {width:100%; margin:0 auto;}
+ul.sub03_tab li { float:left; width: 49%; height: 40px; margin-right:2%; text-align:center;  }
+ul.sub03_tab li:last-child{margin:0;}
+ul.sub03_tab li a { display: block;  color:#fff; background-color: #f19000; font-weight: bold; text-decoration: none; line-height: 40px; font-size: 16px; }
+ul.sub03_tab li a.active {color:#fff;background:#494c50; }
+
+div.txt_box{ width:100%; margin:20px auto;}
+div.txt_box h2{ font-size:18px; line-height:20px; font-weight:bold; color:#300607;}
+div.txt_box p{ font-size:14px; line-height:26px; padding:20px 0 30px 0; }
+
+
+div.img_box{  display:inline-block; text-align:center; width:98%; /*height:480px;*/  margin:0 1% 30px 1%; background:#2f333b;}
+div.img_box span.tit{display:inline-block;  font-size: 16px; height:45px; font-weight: bold; text-align:center; margin-top:10px; vertical-align:middle !important;}
+div.img_box img{ display:inline-block; width:80%; margin:10px auto; }	
+div.img_box_t{display:inline-block;width:100%;font-size: 13px; color: #fff; text-align:left; }
+div.img_box_t h3 {text-align:left; font-size: 14px; line-height:150%;}
+div.img_box_t h3 span{float:left; width:100%; font-size: 14px; }
+div.img_box_t h3 span.span1{text-align:center;}
+div.img_box_t h3 span.span3{text-align:center;}
+div.img_box_t h3 span.span2{text-align:center; font-size: 14px;}
+div.img_box_t h3 span.span4{text-align:center; font-size: 14px;}
+div.img_box_t div#tt{width:92%;margin: 0 auto;}
+div.img_box_t div#tt ul{width:100%; height:25px;margin:0 auto; }
+div.img_box_t div#tt ul li{float:left; width:50%; font-size:14px; color: #ffe200; text-align:center; font-weight: bold;  padding:3px 0 10px}
+div.img_box_t p{font-size: 15px; color: #000; }
+div.img_box a.reserv {clear:both; display: block; width:90%; margin:18px auto 18px auto;  background:#222; color: #ffe200; text-align:center; font-size:18px;text-decoration: none; font-weight: bold;padding:10px 0;  }
+
+
+div#contents div#cont4{width: 100%; margin: 0 auto; padding:30px 0;  background-color: #333;  }
+div#contents div#cont4 h4 {font-size: 38px; margin-bottom:30px; font-weight: bold; text-align:center; color:#fff;     }
+div#contents div#cont4 table#price { width:800px; margin: 30px auto 10px auto; border-collapse: collapse; }
+div#contents div#cont4 table#price th { text-align: center; padding: 10px 0; border: 1px solid white; font-size: 12pt; color: #333; background-color: white; }
+div#contents div#cont4 table#price td { padding: 10px 0;  text-align: center; font-size: 14pt; }
+div#contents div#cont4 table#price tr:first-child{ text-align: center; padding: 10px 0; border: 1px solid white; font-size: 12pt; color: #333; background-color: white; }
+div#contents div#cont4 table#price tr td { border: 1px solid white; }
+div#contents div#cont4 table#price tr td.member {color: #0093ff; }
+div#contents div#cont4 table#price td:first-child { width: 30%; }
+div#contents div#cont4 table#price td:nth-child(2) { width: 40%; }
+div#contents div#cont4 table#price td:last-child { width: 30%; }
+div#contents div#cont4 p{ text-align: center; font-size: 14pt;}
+
+div#contents div#cont5{width: 100%;  margin: 0 auto; }
+div#contents div#cont5.root_daum_roughmap{width:100%}
+
+}
+
+
+/* pc */
+
+@media only screen and (min-width:1024px){
+
+div#m_visual{display:none;}
+
+div#contents { position: relative; width: 100%; margin: 0 auto; text-align: center; }
+
+div#contents div.maintin p { margin-top: 130px; font-size: 42px !important; }
+div#contents div.maintin img {position:absolute;width:1900px;height:800px;left:50%;top:50%;margin:-307px 0 0 -950px;}
+div#contents div.maintin {width:100%;height:820px; margin:0 auto; padding-top:30px; position:absolute; z-index:99;}
+div#contents div.maintin a { margin: 50px auto !important; }
+div#contents div.maintin ul.sub_m {float:left;width:980px;height:556px;}
+div#contents div.maintin ul.sub_m li {float:left;width:260px;height:550px;margin-left:70px;border:3px solid #ffffff;}
+div#contents div.maintin ul.sub_m li a:hover {float:left;}
+
+div#contents div.maintin p span{font-size:130px; font-weight:bold; color: rgba(204, 204, 204, 0.8);}
+
+div#contents div#profile { position: relative; width: 100%;}
+div#contents div#profile div.whiteBg { width: 100%; height: 450px; background: #fff url(../images/common/logo2.jpg) 50% 50% no-repeat; background-size: 400px 400px}
+div#contents div#profile h1{font-weight: bold; font-size:50px; color:#fff; width: 100%; padding: 30px; }
+div#contents div#profile>p { font-size: 20px; line-height: 1.6; margin-bottom: 50px}
+div#contents div#profile div.price { width: 984px; margin: 0 auto 30px; padding: 20px; border: 1px solid #fff}
+div#contents div#profile div.price h2 { font-size: 26px; margin-bottom: 20px}
+div#contents div#profile div.price p { font-size: 18px; line-height: 1.5 }
+
+div#contents div#visual { width:100%; margin-top:0px; height:820px; display:block; }
+
+div#contents div#visual_m { display:none;}
+
+div#contents div#cont1{display:table; width: 1024px; margin: 0 auto; padding:30px 0;  }
+div#contents div#cont1 table#jijem { width: 900px; margin: 0 auto; border-collapse: collapse; }
+div#contents div#cont1 table#jijem th {padding-bottom:20px; font-size: 30pt; font-weight: bold; color: #FFF; line-height: 1.3; }
+div#contents div#cont1 table#jijem td {width:48%; padding:20px 10px;  text-align: center; font-size: 14pt; color:#fff;  font-weight:bold}
+div#contents div#cont1 table#jijem td p{ text-align: center;  width:80%; margin:0 auto; font-size: 20pt; color:#fff; opacity:1; font-weight:bold; padding:10px 0;}
+
+div#contents div#cont1 table#jijem td a img {display:block; width:80%; margin:-10px auto 0 auto; }
+div#contents div#cont1 table#jijem td a img:hover { display:block; width:80%; margin:-10px auto 0 auto; opacity:.8;}
+div#contents div#cont1 table#jijem span{display:block; width:80%;  margin:10px auto;  font-size:20pt; font-weight:normal; background:#222;}
+div#contents div#cont1 table#jijem span b{display:block; width:180px; margin:10px auto 0 auto; padding:5px; background:#333; color:#fff; }
+div#contents div#cont1 table#jijem span a{text-decoration:none; font-size:18pt; color:#fff; }
+
+div#contents div#cont2{display:table; width: 100%; margin: 0 auto; padding:30px 0;  }
+div#contents div#cont2 h1{font-weight: bold; font-size:40px; color:#fff; }
+div#contents div#cont2 ul#caution{width:70%; margin: 0 auto; padding:20px; }
+div#contents div#cont2 ul#caution li{width: 23%; float:left; padding:1%; font-size:16px; line-height: 24px; text-align:center; color:#fff; }
+div#contents div#cont2 ul#caution li img{width:128px; }
+
+
+div#contents div#cont2 table#caution {width: 70%;  margin: 0 auto; padding:20px 20px;  text-align: center; }
+div#contents div#cont2 table#caution th { padding-bottom: 30px; font-weight: normal; font-size: 12pt; line-height: 1.3; }
+div#contents div#cont2 table#caution th b { font-size: 30pt; font-weight: bold; color: #FFF;  }
+div#contents div#cont2 table#caution td { padding:10px; font-size: 12pt; line-height:1.3; color: #fff; }
+div#contents div#cont2 table#caution td img{ width:128px; }
+
+div#contents div#sub03{width:100%; margin:0 auto}
+
+ul.sub03_tab {width:710px; margin:0 auto;}
+ul.sub03_tab li { float:left; height: 40px; margin-right:5px; text-align:center;  }
+ul.sub03_tab li:last-child{margin:0;}
+ul.sub03_tab li a {display:block; width: 350px; color:#fff;background:transparent; background-color: #494c50; text-decoration: none; line-height: 40px; font-size: 16px; }
+ul.sub03_tab li a.active { color:#fff; font-weight: bold; background-color: #f19000; }
+
+div.txt_box{ width:100%; margin:50px auto;}
+div.txt_box h2{ font-size:18px; line-height:20px; font-weight:bold; color:#300607;}
+div.txt_box p{ font-size:14px; line-height:26px; padding:20px 0 30px 0; }
+
+div.img_box{  display:inline-block; text-align:center; width:15%; /*height:480px;*/  margin:0 1% 30px 1%; background:#2f333b;}
+div.img_box span.tit{display:inline-block;  font-size: 16px; height:45px; font-weight: bold; text-align:center; margin-top:10px; vertical-align:middle !important;}
+div.img_box img{ display:inline-block; width:80%; margin:10px auto; }	
+div.img_box_t{display:inline-block;width:100%;font-size: 13px; color: #fff; text-align:left; }
+div.img_box_t h3 {text-align:left; font-size: 14px; line-height:150%;}
+div.img_box_t h3 span{float:left; width:100%; font-size: 14px; }
+div.img_box_t h3 span.span1{text-align:center;}
+div.img_box_t h3 span.span3{text-align:center;}
+div.img_box_t h3 span.span2{text-align:center; font-size: 14px;}
+div.img_box_t h3 span.span4{text-align:center; font-size: 14px;}
+div.img_box_t div#tt{width:92%;margin: 0 auto;}
+div.img_box_t div#tt ul{width:100%; height:25px;margin:0 auto; }
+div.img_box_t div#tt ul li{float:left; width:50%; font-size:14px; color: #ffe200; text-align:center; font-weight: bold;  padding:3px 0 10px}
+div.img_box_t p{font-size: 15px; color: #000; }
+div.img_box a.reserv {clear:both; display: block; width:90%; margin:18px auto 18px auto; border:1px solid #fff; background:#0a0a0a; color: #ffe200; text-align:center; font-size:18px;text-decoration: none; font-weight: bold;padding:10px 0;  }
+
+div#contents div#cont4{width: 100%; margin: 0 auto; padding:30px 0;  background-color: #333;  }
+div#contents div#cont4 h4 {font-size: 38px; margin-bottom:30px; font-weight: bold; text-align:center; color:#fff;     }
+div#contents div#cont4 table#price { width:800px; margin: 30px auto 10px auto; border-collapse: collapse; }
+div#contents div#cont4 table#price th { text-align: center; padding: 10px 0; border: 1px solid white; font-size: 12pt; color: #333; background-color: white; }
+div#contents div#cont4 table#price td { padding: 10px 0;  text-align: center; font-size: 14pt; }
+div#contents div#cont4 table#price tr:first-child{ text-align: center; padding: 10px 0; border: 1px solid white; font-size: 12pt; color: #333; background-color: white; }
+div#contents div#cont4 table#price tr td { border: 1px solid white; }
+div#contents div#cont4 table#price tr td.member {color: #0093ff; }
+div#contents div#cont4 table#price td:first-child { width: 30%; }
+div#contents div#cont4 table#price td:nth-child(2) { width: 40%; }
+div#contents div#cont4 table#price td:last-child { width: 30%; }
+div#contents div#cont4 p{ text-align: center; font-size: 14pt;}
+
+div#contents div#cont5{width: 100%;  margin: 0 auto; }
+div#contents div#cont5.root_daum_roughmap{width:100%}
+}
