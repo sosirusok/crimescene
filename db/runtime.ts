@@ -74,6 +74,6 @@ export function isReservableDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const nowInKorea = new Date(Date.now() + 9 * 60 * 60 * 1000);
   const today = nowInKorea.toISOString().slice(0, 10);
-  const lastDate = new Date(`${today}T00:00:00Z`); lastDate.setUTCDate(lastDate.getUTCDate() + 13);
+  const lastDate = new Date(`${today}T00:00:00Z`); lastDate.setUTCDate(lastDate.getUTCDate() + 14);
   return value >= today && value <= lastDate.toISOString().slice(0, 10);
 }

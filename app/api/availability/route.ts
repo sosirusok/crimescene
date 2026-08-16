@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const date = url.searchParams.get("date") ?? "";
   const themeId = url.searchParams.get("theme")?.toUpperCase();
-  if (!isReservableDate(date)) return Response.json({ error: "오늘부터 14일 이내의 날짜를 선택해 주세요." }, { status: 400 });
+  if (!isReservableDate(date)) return Response.json({ error: "오늘부터 15일 이내의 날짜를 선택해 주세요." }, { status: 400 });
   const selectedThemes = themeId ? themes.filter((theme) => theme.id === themeId) : themes;
   if (!selectedThemes.length) return Response.json({ error: "존재하지 않는 테마입니다." }, { status: 404 });
   try {
