@@ -1,0 +1,11 @@
+import type { Metadata } from "next";
+import { ArrowUpRight } from "../components/icons";
+import { SiteFooter } from "../components/site-footer";
+import { SiteHeader } from "../components/site-header";
+
+export const metadata: Metadata = { title: "오시는 길" };
+export default function LocationPage() {
+  return <main><SiteHeader /><section className="page-hero"><div className="shell"><p className="eyebrow">Seomyeon location</p><h1>오시는 길</h1><p>서면 중심에서 사건 현장까지, 어렵지 않게 찾아오실 수 있습니다.</p></div></section>
+    <section className="section location-section"><div className="shell location-grid"><div className="location-map"><div className="map-grid"/><div className="map-road road-a"/><div className="map-road road-b"/><div className="map-block block-a"/><div className="map-block block-b"/><span className="map-pin"><i>CS</i><b>크라임씬플레이</b></span><span className="station">서면역</span><span className="street">신천대로50번길</span></div><div className="location-copy"><p className="eyebrow">Branch 01</p><h2>서면1호점</h2><dl><div><dt>위치 안내</dt><dd>부산광역시 부산진구 신천대로50번길 62<br/>부전동 우성빌딩 4층</dd></div><div><dt>예약 문의</dt><dd><a href="tel:07043044340">070-4304-4340</a></dd></div><div><dt>운영</dt><dd>회차별 예약 운영<br/>첫 회차 10:00 · 마지막 회차 23:30</dd></div><div><dt>도착 시간</dt><dd>배역 배정과 사전 설명을 위해<br/>예약 10분 전까지 도착</dd></div></dl><div className="location-actions"><a className="button button-primary" href="https://map.naver.com/p/search/%ED%81%AC%EB%9D%BC%EC%9E%84%EC%94%AC%ED%94%8C%EB%A0%88%EC%9D%B4" target="_blank" rel="noreferrer">네이버 지도에서 보기 <ArrowUpRight /></a><a className="button location-call" href="tel:07043044340">전화하기</a></div><p className="address-note">사업자 등록 주소는 홈페이지 하단의 사업자 정보 기준입니다.</p></div></div></section>
+    <section className="section arrival-tips"><div className="shell"><p className="eyebrow">Arrival guide</p><h2>방문 전 확인</h2><div><article><span>01</span><h3>대중교통</h3><p>서면역에서 도보로 이동할 수 있습니다. 지도 앱에서 ‘크라임씬플레이’를 검색하면 가장 정확한 현재 경로를 확인할 수 있습니다.</p></article><article><span>02</span><h3>시간 엄수</h3><p>게임 시작 후에는 배역 설명과 진행 흐름 때문에 중도 입장이 어렵습니다. 10분 전 도착을 권장합니다.</p></article><article><span>03</span><h3>주차 확인</h3><p>도심 매장 특성상 주차 가능 여부가 달라질 수 있으므로 차량 방문 전 매장으로 문의해 주세요.</p></article></div></div></section><SiteFooter /></main>;
+}
