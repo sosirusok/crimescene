@@ -20,7 +20,7 @@ export function ReservationForm() {
     event.preventDefault(); setError(""); setSubmitting(true);
     const form = new FormData(event.currentTarget);
     const payload = { themeId: params.theme, playDate: params.date, startTime: params.time, customerName: form.get("customerName"), phone: form.get("phone"), partySize, openRoom: effectiveOpenRoom, specialRequest: form.get("specialRequest"), privacyConsent: form.get("privacyConsent") === "on", cancellationConsent: form.get("cancellationConsent") === "on" };
-    try { const response = await fetch("/api/reservations", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); const body = await response.json(); if (!response.ok) throw new Error(body.error); sessionStorage.setItem(`reservation:${body.reservation.lookupCode}`, JSON.stringify(body)); window.location.href = `/reservations/complete?code=${encodeURIComponent(body.reservation.lookupCode)}`; }
+    try { const response = await fetch("/api/reservations", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); const body = await response.json(); if (!response.ok) throw new Error(body.error); sessionStorage.setItem("crimescene-last-reservation", JSON.stringify(body)); window.location.href = "/reservations/complete"; }
     catch (reason) { setError(reason instanceof Error ? reason.message : "예약을 완료하지 못했습니다."); setSubmitting(false); }
   }
 

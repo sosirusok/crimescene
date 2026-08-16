@@ -24,8 +24,8 @@ export function SiteHeader() {
     <header className={`site-header ${solid ? "is-solid" : ""}`}>
       <div className="header-inner">
         <Link className="brand" href="/" aria-label="크라임씬플레이 홈">
-          <span className="brand-mark">C<span>S</span></span>
-          <span className="brand-copy"><b>CRIME SCENE</b><small>ROLEPLAY MYSTERY</small></span>
+          <span className="brand-mark"><img src="/favicon.svg" alt="" /></span>
+          <span className="brand-copy"><b>CRIME SCENE</b><small>SEOMYEON · ROLEPLAY MYSTERY</small></span>
         </Link>
         <nav className="desktop-nav" aria-label="주 메뉴">{links.map(([label, href]) => <Link key={href} href={href}>{label}</Link>)}</nav>
         <div className="header-actions">

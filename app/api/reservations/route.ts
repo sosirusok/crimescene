@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   const partySize = Number(payload.partySize);
   const date = payload.playDate ?? "";
   const time = payload.startTime ?? "";
-  if (!theme || !theme.times.includes(time) || !isReservableDate(date)) return Response.json({ error: "선택한 일정이 올바르지 않습니다. 예약은 오늘부터 14일 이내에 가능합니다." }, { status: 400 });
+  if (!theme || !theme.times.includes(time) || !isReservableDate(date)) return Response.json({ error: "선택한 일정이 올바르지 않습니다. 예약은 오늘부터 15일 이내에 가능합니다." }, { status: 400 });
   if (name.length < 2 || name.length > 20) return Response.json({ error: "예약자 이름을 확인해 주세요." }, { status: 400 });
   if (!/^01\d{8,9}$/.test(phone)) return Response.json({ error: "휴대폰 번호를 확인해 주세요." }, { status: 400 });
   if (!Number.isInteger(partySize) || partySize < 1 || partySize > 5) return Response.json({ error: "예약 인원은 1명부터 5명까지 선택할 수 있습니다." }, { status: 400 });

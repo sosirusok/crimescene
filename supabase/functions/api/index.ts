@@ -159,7 +159,7 @@ function isReservableDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const today = koreaToday();
   const last = new Date(`${today}T00:00:00Z`);
-  last.setUTCDate(last.getUTCDate() + 13);
+  last.setUTCDate(last.getUTCDate() + 14);
   return value >= today && value <= last.toISOString().slice(0, 10);
 }
 
@@ -186,7 +186,7 @@ function routePath(url: URL) {
 async function handleAvailability(request: Request, url: URL) {
   const date = url.searchParams.get("date") ?? "";
   const themeId = url.searchParams.get("theme")?.toUpperCase() ?? "";
-  if (!isReservableDate(date)) return json(request, { error: "오늘부터 14일 이내의 날짜를 선택해 주세요." }, 400);
+  if (!isReservableDate(date)) return json(request, { error: "오늘부터 15일 이내의 날짜를 선택해 주세요." }, 400);
 
   let query = db.from("themes").select("id,title,short_title,image_path,times").eq("status", "ACTIVE");
   if (themeId) query = query.eq("id", themeId);
