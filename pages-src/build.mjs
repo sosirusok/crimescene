@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
@@ -31,6 +32,13 @@ const routes = adminOnly ? [["", "admin", "운영 관리"]] : publicRoutes;
 await rm(output, { recursive: true, force: true });
 await mkdir(join(output, "assets"), { recursive: true });
 const sourceShell = await readFile(join(source, "shell.html"), "utf8");
+
+if (!adminOnly) {
+  if (!sourceShell.includes("/assets/site.js") || !sourceShell.includes("/assets/public-v3.js")) {
+    throw new Error("The public shell must load both the base renderer and the enhanced runtime.");
+  }
+}
+
 const shell = adminOnly
   ? sourceShell
       .replace(
@@ -44,7 +52,7 @@ const shell = adminOnly
       .replace(/^\s*<meta property="og:image".*\n/m, "")
       .replace(/^\s*<link rel="preload".*\n/m, "")
       .replace(/^\s*<script defer src="\{\{BASE\}\}\/assets\/site\.js.*\n/m, "")
-      .replace(/^\s*<script defer src="\{\{BASE\}\}\/assets\/public-v3\.js.*\n/m, '  <script defer src="{{BASE}}/assets/admin-v3.js?v=20260816-10"></script>\n')
+      .replace(/^\s*<script defer src="\{\{BASE\}\}\/assets\/public-v3\.js.*\n/m, '  <script defer src="{{BASE}}/assets/admin-v3.js?v=20260816-12"></script>\n')
   : sourceShell;
 
 for (const [path, route, title] of routes) {
@@ -64,14 +72,35 @@ css += `\n${await readFile(join(source, "v3.css"), "utf8")}`;
 await writeFile(join(output, "assets/site.css"), css);
 
 if (adminOnly) {
-  await cp(join(source, "admin-v3.js"), join(output, "assets/admin-v3.js"));
+  const adminSource = join(source, "admin-v3.js");
+  const adminTarget = join(output, "assets/admin-v3.js");
+  await cp(adminSource, adminTarget);
+  execFileSync(process.execPath, ["--check", adminTarget], { stdio: "inherit" });
 } else {
-  await cp(join(source, "site.js"), join(output, "assets/site.js"));
-  await cp(join(source, "public-v3.js"), join(output, "assets/public-v3.js"));
+  const rendererSource = join(source, "site.js");
+  const rendererTarget = join(output, "assets/site.js");
+  const runtimeSource = join(source, "public-v3.js");
+  const runtimeTarget = join(output, "assets/public-v3.js");
+
+  const renderer = await readFile(rendererSource, "utf8");
+  const runtime = await readFile(runtimeSource, "utf8");
+  if (!renderer.includes("app.innerHTML=html")) {
+    throw new Error("The base renderer no longer writes the selected page into #app.");
+  }
+  if (!runtime.includes("function patchReservationBoard") || !runtime.includes("boot().catch")) {
+    throw new Error("The enhanced public runtime is incomplete.");
+  }
+
+  await cp(rendererSource, rendererTarget);
+  await cp(runtimeSource, runtimeTarget);
+  execFileSync(process.execPath, ["--check", rendererTarget], { stdio: "inherit" });
+  execFileSync(process.execPath, ["--check", runtimeTarget], { stdio: "inherit" });
   await cp(join(root, "public/images"), join(output, "images"), { recursive: true });
 }
+
 await cp(join(root, "public/favicon.svg"), join(output, "favicon.svg"));
 await writeFile(join(output, ".nojekyll"), "");
+await writeFile(join(output, "robots.txt"), adminOnly ? "User-agent: *\nDisallow: /\n" : "User-agent: *\nAllow: /\n");
 
 if (!adminOnly) {
   const adminFolder = join(output, "admin");
@@ -79,6 +108,11 @@ if (!adminOnly) {
   await writeFile(join(adminFolder, "index.html"), `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=https://sosirusok.github.io/crimescene-admin/"><link rel="canonical" href="https://sosirusok.github.io/crimescene-admin/"><title>운영 관리로 이동</title></head><body><a href="https://sosirusok.github.io/crimescene-admin/">운영 관리 페이지로 이동</a></body></html>`);
   const fallback = shell.replaceAll("{{BASE}}", base).replaceAll("{{ROUTE}}", "not-found").replaceAll("{{TITLE}}", "페이지를 찾을 수 없습니다");
   await writeFile(join(output, "404.html"), fallback);
+
+  const builtHome = await readFile(join(output, "index.html"), "utf8");
+  if (!builtHome.includes("/assets/site.js?v=20260816-12") || !builtHome.includes("/assets/public-v3.js?v=20260816-12")) {
+    throw new Error("The generated home page is missing a required JavaScript runtime.");
+  }
 }
 
 console.log(`Built ${routes.length} ${adminOnly ? "admin" : "public"} pages in ${output}`);
