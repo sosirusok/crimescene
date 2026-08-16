@@ -28,22 +28,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          payload_endpoint='https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/deploy-assets'
           source_endpoint='https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/deploy-source'
+          common_endpoint='https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/deploy-common'
           apikey='sb_publishable_mA5DOfPA-ExloawT3aJpNw_2PeVgEEc'
-          fetch_payload() {
-            local name="$1"
-            local destination="$2"
-            curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${apikey}" "${payload_endpoint}/${name}" \
-              | tr -d '\r\n ' \
-              | base64 --decode \
-              | gzip -dc > "${destination}"
+          fetch_source() {
+            local endpoint="$1"
+            local name="$2"
+            local destination="$3"
+            curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${apikey}" "${endpoint}/${name}" > "${destination}"
           }
           mkdir -p pages-src
-          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${apikey}" "${source_endpoint}/public-v3.js" > pages-src/public-v3.js
-          fetch_payload v3.css pages-src/v3.css
-          fetch_payload build.mjs pages-src/build.mjs
-          fetch_payload shell.html pages-src/shell.html
+          fetch_source "${source_endpoint}" public-v3.js pages-src/public-v3.js
+          fetch_source "${common_endpoint}" v3.css pages-src/v3.css
+          fetch_source "${common_endpoint}" build.mjs pages-src/build.mjs
+          fetch_source "${common_endpoint}" shell.html pages-src/shell.html
       - name: Verify source integrity and build
         shell: bash
         run: |
