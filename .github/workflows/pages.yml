@@ -43,12 +43,14 @@ jobs:
           test -s _site/assets/customer-final.js
           node --check _site/assets/customer-final.js
           node scripts/smoke-customer.cjs
-          grep -q 'customer-final.js?v=20260816-30' _site/index.html
-          grep -q 'final.css?v=20260816-30' _site/index.html
+          grep -q 'customer-final.js?v=' _site/index.html
+          grep -q 'final.css?v=' _site/index.html
           grep -q 'data-route="home"' _site/index.html
           grep -q 'data-route="reservations"' _site/reservations/index.html
           grep -q 'data-route="reservation-new"' _site/reservations/new/index.html
           grep -q 'data-route="reservation-lookup"' _site/reservations/lookup/index.html
+          grep -q '동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다' _site/assets/customer-final.js
+          grep -q '이용 예정 금액' _site/assets/customer-final.js
           ! grep -Eq 'Supabase|OWNER|Reservation form|AES-GCM|서비스 역할' _site/assets/customer-final.js
       - name: Verify reservation API
         shell: bash
@@ -95,16 +97,22 @@ jobs:
           ready=0
           for attempt in $(seq 1 24); do
             if curl --retry 2 --retry-all-errors -fsSL "${base}?sha=${GITHUB_SHA}" -o /tmp/home.html; then
-              if grep -q 'customer-final.js?v=20260816-30' /tmp/home.html; then ready=1; break; fi
+              if grep -q 'customer-final.js?v=' /tmp/home.html; then ready=1; break; fi
             fi
             sleep 5
           done
           test "$ready" = "1"
-          curl --retry 4 --retry-all-errors -fsSL "${base}assets/customer-final.js?v=20260816-30" -o /tmp/customer-final.js
-          curl --retry 4 --retry-all-errors -fsSL "${base}assets/final.css?v=20260816-30" -o /tmp/final.css
+          script_path=$(grep -oE 'assets/customer-final\.js\?v=[^" ]+' /tmp/home.html | head -1)
+          style_path=$(grep -oE 'assets/final\.css\?v=[^" ]+' /tmp/home.html | head -1)
+          test -n "$script_path"
+          test -n "$style_path"
+          curl --retry 4 --retry-all-errors -fsSL "${base}${script_path}" -o /tmp/customer-final.js
+          curl --retry 4 --retry-all-errors -fsSL "${base}${style_path}" -o /tmp/final.css
           curl --retry 4 --retry-all-errors -fsSL "${base}reservations/?sha=${GITHUB_SHA}" -o /tmp/reservations.html
           node --check /tmp/customer-final.js
           test -s /tmp/final.css
+          grep -q '동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다' /tmp/customer-final.js
+          grep -q '이용 예정 금액' /tmp/customer-final.js
           grep -q 'data-route="home"' /tmp/home.html
           grep -q 'data-route="reservations"' /tmp/reservations.html
           echo "Live customer site verified: ${base}"
