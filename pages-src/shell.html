@@ -1,32 +1,31 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#17191d" />
-  <meta name="description" content="크라임씬플레이 서면1호점 역할형 추리게임 예약 사이트" />
-  <meta property="og:title" content="{{TITLE}} | 크라임씬플레이 서면1호점" />
-  <meta property="og:description" content="최소 4명, 1~3명은 오픈룸으로 다른 팀과 함께 플레이합니다." />
-  <meta property="og:image" content="{{BASE}}/images/hero-evidence-room.webp" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17191d">
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta name="robots" content="{{ROBOTS}}">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src https://jhjbiejqtbidloxcwryr.supabase.co; frame-src https://www.google.com; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{TITLE}} | 크라임씬플레이 서면1호점">
+  <meta property="og:description" content="{{DESCRIPTION}}">
+  {{OG_IMAGE}}
   <title>{{TITLE}} | 크라임씬플레이 서면1호점</title>
-  <link rel="icon" type="image/svg+xml" href="{{BASE}}/favicon.svg?v=20260816-12" />
-  <link rel="preload" as="image" href="{{BASE}}/images/hero-evidence-room.webp" />
-  <link rel="stylesheet" href="{{BASE}}/assets/site.css?v=20260816-12" />
-  <script defer src="{{BASE}}/assets/site.js?v=20260816-12"></script>
-  <script defer src="{{BASE}}/assets/public-v3.js?v=20260816-12"></script>
-  <style>
-    .boot-fallback{min-height:100vh;display:grid;place-items:center;padding:32px;background:#0b0d10;color:#f5f2ec;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;text-align:center}.boot-fallback>div{width:min(520px,100%);padding:40px 28px;border:1px solid #2b2f36;background:#12151a}.boot-fallback h1{margin:0 0 14px;font-size:clamp(25px,5vw,36px);letter-spacing:-.04em}.boot-fallback p{margin:0;color:#b8bec8;font-size:16px;line-height:1.75}.boot-fallback nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:26px}.boot-fallback a,.boot-fallback button{min-height:46px;padding:0 18px;border:1px solid #4a505b;background:#1b1f26;color:#fff;font:inherit;cursor:pointer;text-decoration:none}.boot-fallback a{display:inline-flex;align-items:center}.boot-fallback button:first-child{border-color:#bc4b43;background:#bc4b43}
-  </style>
+  <link rel="icon" type="image/svg+xml" href="{{BASE}}/favicon.svg?v=20260816-30">
+  <link rel="stylesheet" href="{{BASE}}/assets/final.css?v=20260816-30">
+  <script defer src="{{BASE}}/assets/{{SCRIPT}}?v=20260816-30"></script>
 </head>
-<body data-route="{{ROUTE}}">
-  <div id="app"><div class="boot-screen"><span>크라임씬플레이 서면1호점</span><i></i><small>사건 파일을 불러오는 중입니다.</small></div></div>
-  <noscript>이 사이트의 예약 기능을 사용하려면 JavaScript를 켜 주세요.</noscript>
+<body data-route="{{ROUTE}}" class="{{BODY_CLASS}}">
+  <div id="app"><div class="boot-screen"><span>{{LOADING_TITLE}}</span><i></i><small>{{LOADING_TEXT}}</small></div></div>
+  <noscript>이 사이트를 이용하려면 브라우저의 JavaScript를 켜 주세요.</noscript>
   <script>
     window.setTimeout(function () {
       var root = document.getElementById("app");
       if (!root || !root.querySelector(".boot-screen")) return;
-      root.innerHTML = '<main class="boot-fallback"><div><h1>페이지를 불러오지 못했습니다.</h1><p>잠시 후 새로고침해 주세요. 같은 문제가 계속되면 서면1호점 070-4304-4340으로 문의해 주세요.</p><nav><button type="button" onclick="location.reload()">새로고침</button><a href="{{BASE}}/reservations/">예약 페이지</a></nav></div></main>';
-    }, 8000);
+      root.innerHTML = '<main class="fatal-page"><section><h1>페이지를 불러오지 못했습니다.</h1><p>잠시 후 새로고침해 주세요. 같은 문제가 계속되면 070-4304-4340으로 문의해 주세요.</p><div><button type="button" onclick="location.reload()">새로고침</button><a href="{{FALLBACK_LINK}}">{{FALLBACK_LABEL}}</a></div></section></main>';
+    }, 10000);
   </script>
 </body>
 </html>
