@@ -31,7 +31,20 @@ const routes = adminOnly ? [["", "admin", "운영 콘솔"]] : publicRoutes;
 
 await rm(output, { recursive: true, force: true });
 await mkdir(join(output, "assets"), { recursive: true });
-const shell = await readFile(join(source, "shell.html"), "utf8");
+const sourceShell = await readFile(join(source, "shell.html"), "utf8");
+const shell = adminOnly
+  ? sourceShell
+      .replace(
+        '<meta name="description" content="크라임씬플레이 — 역할 몰입형 추리 게임. 사건을 선택하고 실시간으로 예약하세요." />',
+        '<meta name="description" content="크라임씬플레이 서면점 예약·운영 관리 콘솔" />\n  <meta name="robots" content="noindex,nofollow,noarchive" />',
+      )
+      .replace(
+        '<meta property="og:description" content="당신이 용의자가 되는 순간, 사건은 시작됩니다." />',
+        '<meta property="og:description" content="크라임씬플레이 서면점 예약·운영 관리 콘솔" />',
+      )
+      .replace(/^\s*<meta property="og:image".*\n/m, "")
+      .replace(/^\s*<link rel="preload".*\n/m, "")
+  : sourceShell;
 for (const [path, route, title] of routes) {
   const folder = join(output, path);
   await mkdir(folder, { recursive: true });

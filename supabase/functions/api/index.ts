@@ -379,14 +379,18 @@ async function handleInquiry(request: Request) {
 async function handleAdminLogin(request: Request) {
   if (!await rateLimit(request, "admin-login", 900, 5)) return json(request, { error: "로그인 시도가 너무 많습니다. 15분 후 다시 시도해 주세요." }, 429);
   const input = await body(request);
-  const email = String(input.email ?? "").trim().toLowerCase();
-  const password = String(input.password ?? "");
-  const { data } = await db.from("admins").select("email,display_name,role,active,password_hash").eq("email", email).maybeSingle();
-  if (!data?.active || !data.password_hash || await sha256(password) !== data.password_hash) {
-    return json(request, { error: "관리자 계정 또는 비밀번호가 올바르지 않습니다." }, 401);
+  const accessKey = String(input.accessKey ?? "");
+  const { data } = await db.from("admins")
+    .select("email,display_name,role,active,password_hash")
+    .eq("role", "OWNER")
+    .eq("active", true)
+    .limit(1)
+    .maybeSingle();
+  if (!data?.password_hash || await sha256(accessKey) !== data.password_hash) {
+    return json(request, { error: "관리자 암호키가 올바르지 않습니다." }, 401);
   }
   const session: AdminSession = { email: data.email, role: data.role, exp: Math.floor(Date.now() / 1000) + 8 * 60 * 60 };
-  return json(request, { token: await signAdminSession(session), user: { email: data.email, displayName: data.display_name, role: data.role }, expiresIn: 28800 });
+  return json(request, { token: await signAdminSession(session), user: { displayName: data.display_name, role: data.role }, expiresIn: 28800 });
 }
 
 async function handleAdminDashboard(request: Request) {
