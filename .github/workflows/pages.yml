@@ -56,13 +56,15 @@ jobs:
           set -euo pipefail
           api='https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/api'
           key='sb_publishable_mA5DOfPA-ExloawT3aJpNw_2PeVgEEc'
-          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" "${api}/health" | grep -q '"version":"4.0.0"'
+          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" "${api}/health" | grep -q '"version":"4.0.1"'
           curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" "${api}/bootstrap" > /tmp/bootstrap.json
           python3 - <<'PY'
           import json
           data=json.load(open('/tmp/bootstrap.json',encoding='utf-8'))
           assert data['settings']['bookingWindowDays'] == 15
-          assert data['settings']['paymentMode'] in ('ONSITE','ONLINE')
+          assert data['settings']['paymentMode'] == 'ONSITE'
+          assert data['payment']['onlineEnabled'] is False
+          assert data['payment']['integrationReady'] is False
           capacities={t['id']:t['totalCapacity'] for t in data['themes']}
           assert capacities == {'A':8,'B':9,'C':9,'D':8}, capacities
           assert all(t['minPlayers']==4 for t in data['themes'])
