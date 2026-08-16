@@ -240,32 +240,28 @@ function theform()
 			<div class="img_div"><img src="/upload_file/room/ep4(1).png" alt="img"></div>
             <ul >
 
-                              <a href="RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=11:00&ROOM_WEEK=주말" />
-
-                              <li style="border: 1px solid #fff; ">
-                                  <span class="time" style="color: #FFF">11:00</span><br/>
-                                  <span class="possibility" style="letter-spacing:30xp; color: #fff;font-weight: bold;font-size:14px; " >예약가능</span>
+                              <a href="#" />
+                              <li style="border: 1px solid #222">
+                                  <span class="time" style="color:#aaa">11:00</span><br/>
+                                  <span class="possibility" style=" color:#aaa !important; font-weight: bold;font-size:14px;">예약 불가</span>
                               </li></a>
 
-                              <a href="RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=12:30&ROOM_WEEK=주말" />
-
-                              <li style="border: 1px solid #fff; ">
-                                  <span class="time" style="color: #FFF">12:30</span><br/>
-                                  <span class="possibility" style="letter-spacing:30xp; color: #fff;font-weight: bold;font-size:14px; " >예약가능</span>
+                              <a href="#" />
+                              <li style="border: 1px solid #222">
+                                  <span class="time" style="color:#aaa">12:30</span><br/>
+                                  <span class="possibility" style=" color:#aaa !important; font-weight: bold;font-size:14px;">예약 불가</span>
                               </li></a>
 
-                              <a href="RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=14:20&ROOM_WEEK=주말" />
-
-                              <li style="border: 1px solid #fff; ">
-                                  <span class="time" style="color: #FFF">14:20</span><br/>
-                                  <span class="possibility" style="letter-spacing:30xp; color: #fff;font-weight: bold;font-size:14px; " >예약가능</span>
+                              <a href="#" />
+                              <li style="border: 1px solid #222">
+                                  <span class="time" style="color:#aaa">14:20</span><br/>
+                                  <span class="possibility" style=" color:#aaa !important; font-weight: bold;font-size:14px;">예약 불가</span>
                               </li></a>
 
-                              <a href="RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=16:10&ROOM_WEEK=주말" />
-
-                              <li style="border: 1px solid #fff; ">
-                                  <span class="time" style="color: #FFF">16:10</span><br/>
-                                  <span class="possibility" style="letter-spacing:30xp; color: #fff;font-weight: bold;font-size:14px; " >예약가능</span>
+                              <a href="#" />
+                              <li style="border: 1px solid #222">
+                                  <span class="time" style="color: #aaa">16:10</span><br/>
+                                  <span class="possibility" style="color: #aaa !important; font-weight: bold;font-size:14px;">예약불가</span>
                               </li></a>
 
                               <a href="RESER_I.HTML?JIJEM_CODE=S1&CHOIS_DATE=2026-08-16&ROOM_CODE=D&ROOM_TIME=18:00&ROOM_WEEK=주말" />
