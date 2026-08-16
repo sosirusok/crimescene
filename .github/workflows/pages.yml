@@ -17,13 +17,32 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Build static multi-page site
-        run: node pages-src/build.mjs
+        run: PAGES_BASE=/crimescene node pages-src/build.mjs
+      - name: Smoke-check generated customer site
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s _site/index.html
+          test -s _site/assets/site.css
+          test -s _site/assets/site.js
+          test -s _site/assets/public-v3.js
+          node --check _site/assets/site.js
+          node --check _site/assets/public-v3.js
+          grep -q 'assets/site.js?v=20260816-12' _site/index.html
+          grep -q 'assets/public-v3.js?v=20260816-12' _site/index.html
+          grep -q 'app.innerHTML=html' _site/assets/site.js
+          grep -q 'function patchReservationBoard' _site/assets/public-v3.js
+          grep -q '페이지를 불러오지 못했습니다' _site/index.html
+          test -s _site/reservations/index.html
+          test -s _site/reservations/new/index.html
+          test -s _site/reservations/lookup/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
