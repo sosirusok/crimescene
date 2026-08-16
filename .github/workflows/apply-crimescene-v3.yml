@@ -1,0 +1,103 @@
+name: Apply Crime Scene v3
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-crimescene-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-crimescene-v3
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download verified customer assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          endpoint='https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/deploy-assets'
+          apikey='sb_publishable_mA5DOfPA-ExloawT3aJpNw_2PeVgEEc'
+          fetch_asset() {
+            local name="$1"
+            local destination="$2"
+            curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${apikey}" "${endpoint}/${name}" \
+              | tr -d '\r\n ' \
+              | base64 --decode \
+              | gzip -dc > "${destination}"
+          }
+          mkdir -p pages-src
+          fetch_asset public-v3.js pages-src/public-v3.js
+          fetch_asset v3.css pages-src/v3.css
+          fetch_asset build.mjs pages-src/build.mjs
+          fetch_asset shell.html pages-src/shell.html
+      - name: Verify source integrity and build
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat <<'SUMS' | sha256sum -c -
+          bdac65a1eb507b9993025ae471b858430a3360ad3cbc62709868911063c35044  pages-src/public-v3.js
+          14fa92b914c9e2cde88831c085b63725c4f68d728430c5a1e24e8fddefa4fb4d  pages-src/v3.css
+          52b2295064b7df6501f79aaea359a55d652388eb5dfad17b10259da181dcf557  pages-src/build.mjs
+          69e07b25c014ffadf6c0b081f2731b6483f4c5bb90c9160e7c41fda9514b9718  pages-src/shell.html
+          SUMS
+          node --check pages-src/public-v3.js
+          node --check pages-src/build.mjs
+          PAGES_BASE=/crimescene node pages-src/build.mjs
+          test -s _site/assets/public-v3.js
+          test -s _site/assets/site.css
+          grep -q 'public-v3.js?v=20260816-10' _site/index.html
+          grep -q 'crimescene-admin' _site/admin/index.html
+      - name: Verify Supabase v3 API and theme capacities
+        shell: bash
+        run: |
+          set -euo pipefail
+          api='https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/api'
+          key='sb_publishable_mA5DOfPA-ExloawT3aJpNw_2PeVgEEc'
+          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" "${api}/health" | grep -q '"version":"3.0.0"'
+          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" "${api}/themes" > /tmp/themes.json
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/themes.json',encoding='utf-8'))['themes']
+          capacity={item['id']:item['totalCapacity'] for item in data}
+          assert capacity == {'A':8,'B':9,'C':9,'D':8}, capacity
+          assert all(item['minPlayers']==4 for item in data)
+          print('theme capacities verified', capacity)
+          PY
+          today=$(TZ=Asia/Seoul date +%F)
+          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" "${api}/availability?date=${today}&theme=A" > /tmp/availability.json
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/availability.json',encoding='utf-8'))
+          theme=data['themes'][0]
+          assert theme['totalCapacity']==8
+          assert theme['minPlayers']==4
+          assert theme['times']
+          assert all(slot['capacity']==8 for slot in theme['times'])
+          print('availability verified', len(theme['times']))
+          PY
+      - name: Commit customer platform
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pages-src/public-v3.js pages-src/v3.css pages-src/build.mjs pages-src/shell.html
+          if git diff --cached --quiet; then
+            echo 'No source changes to commit.'
+            exit 0
+          fi
+          git commit -m 'feat: rebuild open-room matching and customer experience'
+          git push origin HEAD:main
