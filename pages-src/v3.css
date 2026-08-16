@@ -1,0 +1,365 @@
+/* CrimeScene Play v3: readable customer UI and full operations console */
+:root{
+  --cs-ink:#17191d;
+  --cs-paper:#f5f2ec;
+  --cs-paper-2:#ece7df;
+  --cs-line:rgba(26,29,34,.14);
+  --cs-muted:#696c72;
+  --cs-red:#b9453c;
+  --cs-red-dark:#7f2b26;
+  --cs-amber:#bc7a21;
+  --cs-green:#2f735f;
+  --cs-blue:#386d8a;
+  --cs-black:#0d0f12;
+  --cs-white:#fff;
+  --cs-shadow:0 18px 60px rgba(17,19,23,.13);
+}
+
+html.cs-v3{font-size:16px;scroll-behavior:smooth}
+html.cs-v3 body,
+html.cs-v3 button,
+html.cs-v3 input,
+html.cs-v3 select,
+html.cs-v3 textarea{
+  font-family:"Pretendard Variable","Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif!important;
+  letter-spacing:-.025em;
+}
+html.cs-v3 body{font-size:16px;line-height:1.72;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+html.cs-v3 h1,html.cs-v3 h2,html.cs-v3 h3,html.cs-v3 strong,html.cs-v3 b{font-family:inherit!important;letter-spacing:-.045em}
+html.cs-v3 p,html.cs-v3 li,html.cs-v3 dd,html.cs-v3 label,html.cs-v3 input,html.cs-v3 textarea,html.cs-v3 select{font-size:1rem}
+html.cs-v3 .eyebrow{font-size:.82rem;letter-spacing:.06em;font-weight:800}
+html.cs-v3 .desktop-nav a{font-size:.95rem;font-weight:700}
+html.cs-v3 .brand-copy b{font-size:1.02rem;letter-spacing:.02em}
+html.cs-v3 .brand-copy small{font-size:.76rem;letter-spacing:0}
+html.cs-v3 .hero h1{font-size:clamp(3.2rem,7.7vw,7rem);line-height:.96;font-weight:850}
+html.cs-v3 .hero-lead{font-size:clamp(1rem,1.55vw,1.2rem);line-height:1.85;max-width:710px}
+html.cs-v3 .hero-dossier dt{font-size:.82rem}
+html.cs-v3 .hero-dossier dd{font-size:1.05rem;font-weight:800}
+html.cs-v3 .section-heading h2,html.cs-v3 .split-heading h2,html.cs-v3 .experience-title h2{font-size:clamp(2.25rem,4.5vw,4rem);line-height:1.14;font-weight:850}
+html.cs-v3 .case-content p{font-size:.8rem}
+html.cs-v3 .case-content h3{font-size:clamp(1.45rem,2.4vw,2.1rem);line-height:1.2}
+html.cs-v3 .case-content span{display:block;margin-top:12px;font-size:.86rem;line-height:1.5;color:rgba(255,255,255,.84)}
+html.cs-v3 .page-hero h1{font-size:clamp(2.7rem,6vw,5.4rem);font-weight:850}
+html.cs-v3 .page-hero>div>p:last-child{font-size:1.08rem;line-height:1.75;max-width:760px}
+html.cs-v3 .button,html.cs-v3 button{font-weight:800}
+html.cs-v3 input,html.cs-v3 select,html.cs-v3 textarea{min-height:50px;padding:13px 15px;border-radius:8px}
+html.cs-v3 textarea{min-height:130px;line-height:1.65}
+
+.cs-operation-guide{background:linear-gradient(135deg,#f1eee7,#e6ded2);color:var(--cs-ink);padding:clamp(72px,9vw,125px) 0;border-bottom:1px solid rgba(0,0,0,.08)}
+.cs-operation-guide header{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(320px,1.6fr);gap:18px 70px;align-items:end;margin-bottom:42px}
+.cs-operation-guide header p{grid-column:1/-1;margin:0;color:var(--cs-red);font-weight:900;font-size:.9rem;letter-spacing:.04em}
+.cs-operation-guide header h2{margin:0;font-size:clamp(2.2rem,4.5vw,4.3rem);line-height:1.1;font-weight:900}
+.cs-operation-guide header>span{font-size:1.08rem;line-height:1.85;color:#50535a}
+.cs-operation-rules{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--cs-line);background:rgba(255,255,255,.58);box-shadow:var(--cs-shadow)}
+.cs-operation-rules article{padding:32px 30px;border-right:1px solid var(--cs-line)}
+.cs-operation-rules article:last-child{border-right:0}
+.cs-operation-rules b{display:block;color:var(--cs-red);font-size:.78rem;letter-spacing:.08em;margin-bottom:24px}
+.cs-operation-rules strong{display:block;font-size:1.25rem;margin-bottom:11px}
+.cs-operation-rules p{margin:0;color:#61646a;line-height:1.72}
+.cs-capacity-list{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+.cs-capacity-list article{padding:24px 22px;background:#191b1f;color:#fff;border-radius:4px;min-height:180px;display:flex;flex-direction:column}
+.cs-capacity-list span{font-size:.75rem;color:#d9958f;font-weight:900;letter-spacing:.08em}
+.cs-capacity-list h3{font-size:1.13rem;margin:16px 0 8px}
+.cs-capacity-list p{font-size:.88rem;color:#c7c9cd;margin:0;line-height:1.6}
+.cs-capacity-list strong{margin-top:auto;padding-top:20px;font-size:.9rem;color:#fff}
+
+.cs-minimum-note{display:inline-flex;align-items:center;margin:2px 0 20px;padding:8px 12px;border-radius:99px;background:rgba(185,69,60,.1);color:var(--cs-red-dark);font-size:.86rem;font-weight:800}
+.cs-guide-openroom{width:min(1180px,calc(100% - 40px));margin:32px auto 70px;display:grid;grid-template-columns:1.2fr 1fr;background:#181a1f;color:#fff;box-shadow:var(--cs-shadow)}
+.cs-guide-openroom>div{padding:38px 40px}
+.cs-guide-openroom>div:first-child{border-right:1px solid rgba(255,255,255,.12)}
+.cs-guide-openroom b{color:#e58c83;font-size:.84rem;letter-spacing:.04em}
+.cs-guide-openroom h3{font-size:clamp(1.7rem,3vw,2.5rem);line-height:1.25;margin:15px 0}
+.cs-guide-openroom p{color:#c3c5ca;margin:0;line-height:1.8}
+.cs-guide-openroom>div:last-child{display:grid;gap:10px;align-content:center}
+.cs-guide-openroom>div:last-child span{display:flex;justify-content:space-between;gap:18px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.12);font-size:.9rem;color:#c7c9cd}
+.cs-guide-openroom>div:last-child strong{color:#fff}
+
+html.cs-v3 .schedule-theme{border-radius:4px;overflow:hidden}
+html.cs-v3 .schedule-theme-info>div>strong{display:block;margin-top:8px;font-size:.84rem;color:#d0d2d6;font-weight:700}
+html.cs-v3 .time-grid{gap:10px}
+html.cs-v3 .time-slot{min-height:108px;padding:17px 16px;border-radius:7px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;position:relative;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+html.cs-v3 a.time-slot:hover{transform:translateY(-3px)}
+html.cs-v3 .time-slot>strong{font-size:1.18rem;line-height:1.1}
+html.cs-v3 .time-slot>span{font-size:.88rem;font-weight:850;margin-top:8px;line-height:1.35}
+html.cs-v3 .time-slot>small{font-size:.76rem;margin-top:5px;color:inherit;opacity:.72}
+html.cs-v3 .time-slot svg{position:absolute;right:12px;top:12px;width:18px;height:18px}
+.cs-room-available{border-color:rgba(255,255,255,.5)!important;background:rgba(255,255,255,.04)!important}
+.cs-room-recruiting{border-color:#c88731!important;background:rgba(188,122,33,.13)!important;color:#f0b968!important}
+.cs-room-playable{border-color:#4e9b7e!important;background:rgba(47,115,95,.16)!important;color:#7fd1b1!important}
+.cs-room-full,.cs-room-private,.cs-room-blocked{opacity:.58;background:rgba(255,255,255,.025)!important}
+.cs-legend-playable{background:#4e9b7e!important}
+html.cs-v3 .reservation-notice{border-left:4px solid #c88731;padding:20px 22px}
+html.cs-v3 .reservation-notice p{font-size:1rem;line-height:1.72}
+
+.cs-form-room{margin:20px 0 28px;padding:22px 24px;border:1px solid var(--cs-line);border-radius:8px;background:#f2efe8;color:var(--cs-ink)}
+.cs-form-room>span{display:block;font-size:.78rem;font-weight:900;color:var(--cs-red);margin-bottom:7px}
+.cs-form-room>strong{display:block;font-size:1.08rem;line-height:1.6}
+.cs-form-room>p{margin:8px 0 0;color:#666970}
+.cs-form-room.cs-room-recruiting{background:#fff4e4!important;color:#6f4513!important;border-color:#d99b4d!important}
+.cs-form-room.cs-room-playable{background:#e9f5f0!important;color:#245b49!important;border-color:#66a58e!important}
+.cs-form-room.cs-room-blocked{background:#f0f0f0!important;color:#5e6065!important}
+.cs-form-room button{margin-top:14px;padding:10px 15px;border:0;background:#222;color:#fff;border-radius:6px}
+html.cs-v3 .party-picker{grid-template-columns:repeat(9,minmax(0,1fr));gap:8px}
+html.cs-v3 .party-picker button{min-width:0;min-height:68px;border-radius:7px}
+html.cs-v3 .party-picker button strong{font-size:1.35rem}
+.cs-forced-open{border-color:#c88731!important;background:#fff6e8!important}
+.cs-open-message>span{color:#9a5a11!important;font-weight:900}
+.cs-complete-room,.cs-lookup-room{margin:18px 0;padding:20px 22px;border-radius:8px;border:1px solid var(--cs-line);background:#f4f1eb;color:var(--cs-ink)}
+.cs-complete-room>span,.cs-lookup-room>span{display:block;font-size:.77rem;font-weight:900;color:var(--cs-red);margin-bottom:6px}
+.cs-complete-room>strong,.cs-lookup-room>strong{display:block;font-size:1.12rem}
+.cs-complete-room>p,.cs-lookup-room>p{margin:7px 0 0;color:#62656b;line-height:1.7}
+.cs-complete-room>small,.cs-lookup-room>small{display:block;margin-top:12px;padding-top:12px;border-top:1px solid var(--cs-line);font-size:.86rem;color:#575a60}
+.cs-lookup-result{align-items:stretch}
+
+@media(max-width:900px){
+  .cs-operation-guide header{grid-template-columns:1fr;gap:16px}
+  .cs-operation-rules{grid-template-columns:1fr}
+  .cs-operation-rules article{border-right:0;border-bottom:1px solid var(--cs-line)}
+  .cs-operation-rules article:last-child{border-bottom:0}
+  .cs-capacity-list{grid-template-columns:repeat(2,1fr)}
+  .cs-guide-openroom{grid-template-columns:1fr}
+  .cs-guide-openroom>div:first-child{border-right:0;border-bottom:1px solid rgba(255,255,255,.12)}
+  html.cs-v3 .party-picker{grid-template-columns:repeat(5,1fr)}
+}
+@media(max-width:600px){
+  html.cs-v3{font-size:15px}
+  html.cs-v3 .hero h1{font-size:3.2rem}
+  html.cs-v3 .hero-lead br{display:none}
+  .cs-operation-guide{padding:64px 0}
+  .cs-operation-guide header h2{font-size:2.25rem}
+  .cs-operation-rules article{padding:25px 22px}
+  .cs-capacity-list{grid-template-columns:1fr}
+  .cs-capacity-list article{min-height:150px}
+  .cs-guide-openroom{width:calc(100% - 28px);margin-bottom:48px}
+  .cs-guide-openroom>div{padding:28px 24px}
+  .cs-guide-openroom>div:last-child span{flex-direction:column;gap:2px}
+  html.cs-v3 .party-picker{grid-template-columns:repeat(3,1fr)}
+  html.cs-v3 .time-slot{min-height:96px}
+}
+
+/* Standalone admin console */
+html.cs-admin-v3{font-size:16px;background:#eae7e1}
+html.cs-admin-v3 body,
+html.cs-admin-v3 button,
+html.cs-admin-v3 input,
+html.cs-admin-v3 select,
+html.cs-admin-v3 textarea{
+  margin:0;
+  font-family:"Pretendard Variable","Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  letter-spacing:-.025em;
+  color:#1a1c20;
+  box-sizing:border-box;
+}
+html.cs-admin-v3 *,html.cs-admin-v3 *::before,html.cs-admin-v3 *::after{box-sizing:border-box}
+html.cs-admin-v3 body{background:#eae7e1;min-width:320px;font-size:15px;line-height:1.6}
+html.cs-admin-v3 button,html.cs-admin-v3 input,html.cs-admin-v3 select,html.cs-admin-v3 textarea{font-size:15px}
+html.cs-admin-v3 button{cursor:pointer}
+html.cs-admin-v3 button:disabled{cursor:not-allowed;opacity:.5}
+html.cs-admin-v3 a{color:inherit;text-decoration:none}
+
+.cs-admin-login{min-height:100vh;display:grid;place-items:center;padding:28px;background:radial-gradient(circle at 12% 14%,rgba(185,69,60,.17),transparent 30%),radial-gradient(circle at 90% 90%,rgba(56,109,138,.15),transparent 34%),#15171b}
+.cs-admin-login>section{width:min(520px,100%);background:#f4f1eb;border:1px solid rgba(255,255,255,.14);box-shadow:0 34px 100px rgba(0,0,0,.35);padding:48px;border-radius:12px}
+.cs-admin-login header>span{display:block;color:var(--cs-red);font-size:.82rem;font-weight:900}
+.cs-admin-login h1{font-size:3rem;line-height:1;margin:18px 0 14px;letter-spacing:-.06em}
+.cs-admin-login header p{margin:0 0 32px;color:#676a70;font-size:1.05rem}
+.cs-admin-login form label{display:block}
+.cs-admin-login form label span{display:block;margin-bottom:8px;font-weight:800}
+.cs-admin-login input{width:100%;height:56px;border:1px solid #c8c4bc;background:#fff;border-radius:8px;padding:0 16px}
+.cs-admin-login form button{width:100%;height:56px;border:0;border-radius:8px;background:#1b1d21;color:#fff;font-weight:850;margin-top:14px}
+.cs-admin-login footer{display:flex;justify-content:space-between;gap:16px;margin-top:26px;padding-top:22px;border-top:1px solid var(--cs-line);font-size:.86rem;color:#70737a}
+.cs-admin-login footer a{font-weight:850;color:var(--cs-red-dark)}
+.cs-admin-form-error{padding:12px 14px;background:#fde7e4;color:#8e2f28;border-radius:6px;font-weight:700}
+
+.cs-admin-boot,.cs-admin-fatal{min-height:100vh;display:grid;place-items:center;background:#17191d;color:#fff;text-align:center;padding:30px}
+.cs-admin-boot i{display:block;width:180px;height:2px;background:linear-gradient(90deg,transparent,#d36d63,transparent);animation:csAdminPulse 1.2s infinite}
+.cs-admin-fatal>button{padding:12px 18px;border:0;border-radius:7px;margin-top:12px}
+@keyframes csAdminPulse{0%,100%{transform:scaleX(.2);opacity:.3}50%{transform:scaleX(1);opacity:1}}
+
+.cs-admin-app{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}
+.cs-admin-sidebar{position:sticky;top:0;height:100vh;background:#17191d;color:#fff;padding:24px 18px;display:flex;flex-direction:column;z-index:30}
+.cs-admin-brand{display:flex;align-items:center;gap:12px;padding:0 8px 24px;border-bottom:1px solid rgba(255,255,255,.11)}
+.cs-admin-brand>b{display:grid;place-items:center;width:48px;height:48px;background:var(--cs-red);border-radius:8px;font-size:1.15rem;letter-spacing:.02em}
+.cs-admin-brand>span{font-size:.9rem;line-height:1.45;font-weight:800}
+.cs-admin-sidebar nav{display:grid;gap:5px;margin-top:22px}
+.cs-admin-sidebar nav button{position:relative;width:100%;border:0;background:transparent;color:#b9bbc0;text-align:left;border-radius:7px;padding:11px 12px;display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:3px}
+.cs-admin-sidebar nav button>span{font-size:.72rem;color:#7e8188}
+.cs-admin-sidebar nav button>strong{font-size:.92rem;letter-spacing:-.02em}
+.cs-admin-sidebar nav button>i{min-width:21px;height:21px;display:grid;place-items:center;border-radius:99px;background:#c7554c;color:#fff;font-size:.72rem;font-style:normal}
+.cs-admin-sidebar nav button:hover,.cs-admin-sidebar nav button.is-active{background:rgba(255,255,255,.09);color:#fff}
+.cs-admin-sidebar nav button.is-active>span{color:#e38279}
+.cs-admin-connection{margin-top:auto;padding:14px 10px;display:flex;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,.1)}
+.cs-admin-connection>i{width:9px;height:9px;border-radius:50%;background:#56b58e;box-shadow:0 0 0 5px rgba(86,181,142,.11)}
+.cs-admin-connection strong{display:block;font-size:.78rem}
+.cs-admin-connection small{font-size:.68rem;color:#888b92}
+.cs-admin-main{min-width:0}
+.cs-admin-top{height:74px;padding:0 30px;background:rgba(248,246,241,.94);border-bottom:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:flex-end;gap:18px;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}
+.cs-admin-top>div{margin-left:auto;text-align:right}
+.cs-admin-top>div span{display:block;font-weight:850}
+.cs-admin-top>div small{display:block;color:#75787e;font-size:.72rem}
+.cs-admin-top>a,.cs-admin-top>button{border:1px solid #c8c4bc;background:#fff;padding:8px 12px;border-radius:6px;font-size:.8rem;font-weight:800}
+.cs-admin-top>#admin-logout{border-color:transparent;background:#26282d;color:#fff}
+.cs-admin-menu{display:none!important;margin-right:auto!important}
+.cs-admin-content{padding:34px clamp(22px,4vw,58px) 70px;max-width:1800px;margin:0 auto}
+.cs-admin-heading{display:flex;justify-content:space-between;gap:30px;align-items:flex-end;margin-bottom:28px}
+.cs-admin-heading p{margin:0;color:var(--cs-red);font-size:.76rem;font-weight:900}
+.cs-admin-heading h1{margin:7px 0 4px;font-size:clamp(2.2rem,3.4vw,3.45rem);line-height:1.05;letter-spacing:-.06em}
+.cs-admin-heading>div>span{color:#696c72;font-size:.95rem}
+.cs-admin-heading>div:last-child{display:flex;gap:8px;align-items:center}
+.cs-admin-heading>div:last-child button{border:1px solid #c9c5bd;background:#f9f7f2;padding:10px 14px;border-radius:7px;font-weight:800}
+
+.cs-admin-metrics{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.cs-admin-metric{background:#f7f5f0;border:1px solid rgba(0,0,0,.09);padding:22px;border-radius:9px;min-height:150px;box-shadow:0 8px 25px rgba(20,22,26,.04)}
+.cs-admin-metric>span{display:block;font-weight:800;color:#62656b}
+.cs-admin-metric>strong{display:block;font-size:2.25rem;line-height:1;margin:22px 0 13px;letter-spacing:-.05em}
+.cs-admin-metric>strong small{font-size:.8rem;margin-left:5px;color:#686b71}
+.cs-admin-metric>p{margin:0;font-size:.76rem;color:#85878c}
+.cs-admin-metric.primary{background:#1d2025;color:#fff}.cs-admin-metric.primary>span,.cs-admin-metric.primary p,.cs-admin-metric.primary small{color:#c6c8cc}
+.cs-admin-metric.warning{background:#fff2df;border-color:#e0b271}.cs-admin-metric.success{background:#e8f3ee;border-color:#82b19f}
+.cs-admin-two-column{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(330px,.75fr);gap:16px;margin-bottom:16px}
+.cs-admin-two-column.notices{grid-template-columns:minmax(330px,.7fr) minmax(450px,1.3fr)}
+.cs-admin-panel{background:#f8f6f1;border:1px solid rgba(0,0,0,.09);border-radius:9px;padding:25px;box-shadow:0 8px 25px rgba(20,22,26,.04)}
+.cs-admin-panel>header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}
+.cs-admin-panel>header span{display:block;color:var(--cs-red);font-size:.75rem;font-weight:900}
+.cs-admin-panel>header h2{font-size:1.45rem;margin:5px 0 0;letter-spacing:-.04em}
+.cs-admin-panel>header button{border:1px solid #cac6be;background:#fff;border-radius:6px;padding:8px 10px;font-weight:750}
+.cs-admin-empty{margin:0;padding:30px;text-align:center;color:#7b7e84;border:1px dashed #c9c5bd;border-radius:8px;background:rgba(255,255,255,.45)}
+.cs-admin-empty.large{padding:80px 30px}
+.cs-admin-today-list{display:grid;gap:8px}
+.cs-admin-today-list article{display:grid;grid-template-columns:70px 1fr auto;gap:15px;align-items:center;padding:13px 14px;border:1px solid #ddd9d1;background:#fff;border-radius:7px}
+.cs-admin-today-list time{font-size:1.12rem;font-weight:900}
+.cs-admin-today-list strong,.cs-admin-today-list span{display:block}.cs-admin-today-list span{font-size:.8rem;color:#73767c}
+.cs-admin-today-list b{font-size:.75rem;color:var(--cs-red-dark)}
+.cs-admin-room-summary{display:grid;gap:8px}
+.cs-admin-room-summary-card{border:1px solid #d8d4cc;background:#fff;border-radius:7px;padding:13px;display:grid;grid-template-columns:1fr auto;gap:3px 12px}
+.cs-admin-room-summary-card>div strong,.cs-admin-room-summary-card>div span{display:block}.cs-admin-room-summary-card>div span{font-size:.73rem;color:#797c82}
+.cs-admin-room-summary-card>b{font-size:1.2rem}.cs-admin-room-summary-card>small{grid-column:1/-1;color:#777a80;font-weight:750}
+.cs-admin-quick>div{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cs-admin-quick>div button{border:1px solid #d5d1c9;background:#fff;text-align:left;padding:18px;border-radius:7px}
+.cs-admin-quick>div b,.cs-admin-quick>div span{display:block}.cs-admin-quick>div b{font-size:1rem}.cs-admin-quick>div span{font-size:.78rem;color:#777a80;margin-top:6px}
+
+.cs-admin-filterbar{display:flex;align-items:flex-end;gap:10px;margin-bottom:18px;padding:15px;background:#dcd8d0;border-radius:9px}
+.cs-admin-filterbar label{display:block;min-width:180px}.cs-admin-filterbar label.grow{flex:1}
+.cs-admin-filterbar label>span{display:block;font-size:.72rem;font-weight:850;margin:0 0 5px 2px;color:#5c5f65}
+.cs-admin-filterbar input,.cs-admin-filterbar select{height:45px;width:100%;border:1px solid #beb9b0;background:#fff;border-radius:6px;padding:0 12px}
+.cs-admin-filterbar>button{height:45px;border:1px solid #beb9b0;background:#f8f6f1;border-radius:6px;padding:0 14px;font-weight:800;white-space:nowrap}
+.cs-admin-filterbar>p{margin:0 0 10px auto;color:#60636a;font-size:.84rem}
+.cs-admin-filterbar>strong{height:45px;display:grid;place-items:center;padding:0 15px;background:#22252a;color:#fff;border-radius:6px;white-space:nowrap}
+
+.cs-admin-openroom-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.cs-admin-openroom{background:#f8f6f1;border:1px solid rgba(0,0,0,.1);border-top:4px solid #9a9da2;border-radius:9px;padding:23px;box-shadow:0 8px 25px rgba(20,22,26,.04)}
+.cs-admin-openroom.state-open-recruiting{border-top-color:var(--cs-amber)}
+.cs-admin-openroom.state-open-playable,.cs-admin-openroom.state-full{border-top-color:var(--cs-green)}
+.cs-admin-openroom>header{display:flex;justify-content:space-between;gap:18px}
+.cs-admin-openroom>header span{font-size:.76rem;color:#777a80}.cs-admin-openroom>header h2{font-size:1.35rem;margin:5px 0}.cs-admin-openroom>header>strong{font-size:1.8rem}
+.cs-admin-progress{height:7px;background:#ddd9d1;border-radius:99px;overflow:hidden;margin:17px 0}
+.cs-admin-progress i{display:block;height:100%;background:var(--cs-amber)}
+.cs-admin-openroom.state-open-playable .cs-admin-progress i,.cs-admin-openroom.state-full .cs-admin-progress i{background:var(--cs-green)}
+.cs-admin-openroom>p{display:grid;gap:3px;color:#666970}.cs-admin-openroom>p b{color:#202227}
+.cs-admin-team-list{display:grid;gap:8px;margin-top:18px}
+.cs-admin-team-list section{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:14px;background:#fff;border:1px solid #ddd9d1;border-radius:7px}
+.cs-admin-team-list section>span{display:grid;place-items:center;background:#272a2f;color:#fff;border-radius:5px;font-size:.72rem;font-weight:850}
+.cs-admin-team-list strong,.cs-admin-team-list small{display:block}.cs-admin-team-list small{font-size:.76rem;color:#75787e}
+.cs-admin-team-list blockquote{margin:9px 0 0;padding:10px 12px;background:#f2efe8;border-left:3px solid var(--cs-red);font-size:.83rem;color:#5c5f65}
+
+.cs-admin-reservation-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.cs-admin-reservation-list>article{background:#f8f6f1;border:1px solid rgba(0,0,0,.1);border-radius:9px;overflow:hidden;box-shadow:0 8px 25px rgba(20,22,26,.04)}
+.cs-admin-reservation-list>article>header{display:flex;justify-content:space-between;gap:15px;padding:18px 20px;background:#202328;color:#fff}
+.cs-admin-reservation-list>article>header span{font-size:.75rem;color:#b9bbc0}.cs-admin-reservation-list>article>header h2{font-size:1.15rem;margin:3px 0}.cs-admin-reservation-list>article>header b{font-size:.72rem;color:#dda29d}
+.cs-admin-reservation-body{padding:18px 20px}
+.cs-admin-reservation-body dl{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0}
+.cs-admin-reservation-body dt{font-size:.7rem;color:#85888d}.cs-admin-reservation-body dd{margin:2px 0 0;font-weight:800}
+.cs-admin-reservation-body blockquote{margin:17px 0 0;padding:12px 14px;background:#fff3df;border-left:3px solid var(--cs-amber);font-size:.85rem}.cs-admin-reservation-body blockquote b{display:block;margin-bottom:4px}
+.cs-admin-reservation-list>article>footer{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;padding:14px 20px;background:#ebe7df;border-top:1px solid #d8d4cc}
+.cs-admin-reservation-list>article>footer label span{display:block;font-size:.68rem;font-weight:850;margin-bottom:4px}
+.cs-admin-reservation-list select{width:100%;height:42px;border:1px solid #c5c0b7;background:#fff;border-radius:5px;padding:0 8px}
+.cs-admin-reservation-list>article>footer button{align-self:end;height:42px;border:0;background:#25282d;color:#fff;border-radius:5px;padding:0 13px;font-weight:850}
+
+.cs-admin-schedule-head{display:flex;justify-content:space-between;align-items:center;gap:20px;background:#1d2025;color:#fff;padding:23px 25px;border-radius:9px;margin-bottom:12px}
+.cs-admin-schedule-head span{font-size:.78rem;color:#b9bbc0}.cs-admin-schedule-head h2{font-size:1.6rem;margin:5px 0}.cs-admin-schedule-head p{margin:0;color:#cacccf}.cs-admin-schedule-head>strong{font-size:1.3rem}
+.cs-admin-slot-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.cs-admin-slot-grid>article{background:#f8f6f1;border:1px solid rgba(0,0,0,.1);border-top:4px solid #9a9da2;border-radius:8px;padding:17px;min-height:190px;display:flex;flex-direction:column}
+.cs-admin-slot-grid>article.state-open-recruiting{border-top-color:var(--cs-amber)}
+.cs-admin-slot-grid>article.state-open-playable{border-top-color:var(--cs-green)}
+.cs-admin-slot-grid>article.state-blocked{opacity:.65}
+.cs-admin-slot-grid header{display:flex;justify-content:space-between}.cs-admin-slot-grid header strong{font-size:1.35rem}.cs-admin-slot-grid header span{font-weight:850;color:#686b71}
+.cs-admin-slot-grid>article>b{margin:14px 0 6px}.cs-admin-slot-grid>article>p{margin:0;color:#71747a;font-size:.82rem}
+.cs-admin-slot-grid footer{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:auto;padding-top:15px}
+.cs-admin-slot-grid footer button{height:38px;border:1px solid #bdb8af;background:#fff;border-radius:5px;font-weight:800}.cs-admin-slot-grid footer button:last-child{background:#2d3035;color:#fff;border-color:#2d3035}
+.cs-admin-loading{padding:70px;text-align:center;color:#73767c;background:#f8f6f1;border-radius:9px}
+
+.cs-admin-theme-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+.cs-admin-theme-tabs button{border:1px solid #c9c5bd;background:#f7f5f0;border-radius:8px;text-align:left;padding:16px}
+.cs-admin-theme-tabs button.is-active{background:#1e2126;color:#fff;border-color:#1e2126}
+.cs-admin-theme-tabs span,.cs-admin-theme-tabs strong,.cs-admin-theme-tabs small{display:block}.cs-admin-theme-tabs span{font-size:.72rem;color:var(--cs-red)}.cs-admin-theme-tabs strong{font-size:1rem;margin:5px 0}.cs-admin-theme-tabs small{font-size:.72rem;color:#73767c}.cs-admin-theme-tabs button.is-active small{color:#b8bbc0}
+.cs-admin-theme-form{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;align-items:start}
+.cs-admin-form-section{background:#f8f6f1;border:1px solid rgba(0,0,0,.1);border-radius:9px;padding:24px}
+.cs-admin-form-section:first-child{grid-row:span 2}
+.cs-admin-form-section header{margin-bottom:20px}.cs-admin-form-section header span{color:var(--cs-red);font-size:.75rem;font-weight:900}.cs-admin-form-section header h2{font-size:1.4rem;margin:5px 0}
+.cs-admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.cs-admin-form-grid.compact{grid-template-columns:repeat(3,1fr)}
+.cs-admin-form-grid label.wide{grid-column:1/-1}
+.cs-admin-form-grid label>span,.cs-admin-notice-form label>span,.cs-admin-inquiry-list label>span,.cs-admin-security label>span{display:block;font-size:.74rem;font-weight:850;margin-bottom:5px}
+.cs-admin-form-grid input,.cs-admin-form-grid select,.cs-admin-form-grid textarea,.cs-admin-times,.cs-admin-notice-form input,.cs-admin-notice-form textarea,.cs-admin-inquiry-list textarea,.cs-admin-security input{width:100%;border:1px solid #c4bfb6;background:#fff;border-radius:6px;padding:11px 12px}
+.cs-admin-form-grid input,.cs-admin-form-grid select{height:45px}.cs-admin-form-grid textarea{min-height:140px;resize:vertical}
+.cs-admin-capacity-preview{margin-top:14px;padding:13px 15px;background:#e8f3ee;color:#285c4b;border-radius:6px;font-weight:850}
+.cs-admin-form-section>p{color:#70737a;font-size:.82rem}
+.cs-admin-times{min-height:268px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.8}
+.cs-admin-form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;align-items:center;gap:15px;padding:16px 18px;background:#d9d5cd;border-radius:9px;position:sticky;bottom:12px;z-index:5}
+.cs-admin-form-actions span{margin-right:auto;font-weight:750;color:#60636a}.cs-admin-form-actions span.error{color:#9c332c}
+.cs-admin-form-actions button{border:0;background:#1d2025;color:#fff;border-radius:6px;padding:13px 20px;font-weight:850}
+
+.cs-admin-inquiry-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.cs-admin-inquiry-list>article{background:#f8f6f1;border:1px solid rgba(0,0,0,.1);border-radius:9px;padding:22px}
+.cs-admin-inquiry-list>article>header{display:flex;justify-content:space-between;gap:15px}.cs-admin-inquiry-list>article>header span{color:var(--cs-red);font-size:.75rem;font-weight:900}.cs-admin-inquiry-list>article>header h2{font-size:1.25rem;margin:5px 0}.cs-admin-inquiry-list time{font-size:.72rem;color:#7a7d82}
+.cs-admin-inquiry-list dl{display:flex;gap:20px;margin:18px 0}.cs-admin-inquiry-list dt{font-size:.7rem;color:#85888d}.cs-admin-inquiry-list dd{margin:2px 0 0;font-weight:850}
+.cs-admin-inquiry-list>article>p{padding:15px;background:#eeebe4;border-radius:6px;white-space:pre-wrap}
+.cs-admin-inquiry-list textarea{min-height:120px;resize:vertical}
+.cs-admin-inquiry-list footer{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}.cs-admin-inquiry-list footer select{height:42px;border:1px solid #c4bfb6;border-radius:5px}.cs-admin-inquiry-list footer button{height:42px;border:0;background:#25282d;color:#fff;border-radius:5px;padding:0 14px;font-weight:850}
+
+.cs-admin-notice-form{display:grid;gap:12px}.cs-admin-notice-form input,.cs-admin-notice-form textarea{width:100%}.cs-admin-notice-form textarea{min-height:220px;resize:vertical}.cs-admin-notice-form label.check{display:flex;gap:8px;align-items:center}.cs-admin-notice-form label.check input{width:auto}.cs-admin-notice-form>button{height:48px;border:0;background:#25282d;color:#fff;border-radius:6px;font-weight:850}
+.cs-admin-notice-list{display:grid;gap:10px}.cs-admin-notice-list article{padding:15px;background:#fff;border:1px solid #d8d4cc;border-radius:7px}.cs-admin-notice-list header{display:flex;justify-content:space-between;margin-bottom:9px;font-size:.72rem}.cs-admin-notice-list header span{font-weight:850;color:var(--cs-red)}.cs-admin-notice-list input,.cs-admin-notice-list textarea{width:100%;border:1px solid #cac5bc;border-radius:5px;padding:10px}.cs-admin-notice-list textarea{min-height:100px;margin-top:7px;resize:vertical}.cs-admin-notice-list footer{display:flex;align-items:center;gap:10px;margin-top:8px}.cs-admin-notice-list footer label{font-size:.75rem}.cs-admin-notice-list footer button{margin-left:auto;border:0;background:#25282d;color:#fff;border-radius:5px;padding:8px 12px;font-weight:800}.cs-admin-notice-list footer button.danger{margin-left:0;background:#9f382f}
+
+.cs-admin-security{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px}.cs-admin-security>section,.cs-admin-security>aside{background:#f8f6f1;border:1px solid rgba(0,0,0,.1);border-radius:9px;padding:28px}.cs-admin-security>section>span{color:var(--cs-red);font-size:.75rem;font-weight:900}.cs-admin-security h2{font-size:1.7rem;margin:6px 0}.cs-admin-security>section>p{color:#686b71}.cs-admin-security form{display:grid;gap:11px;margin-top:25px;max-width:600px}.cs-admin-security input{height:48px}.cs-admin-security form button{height:48px;border:0;background:#24272c;color:#fff;border-radius:6px;font-weight:850}.cs-admin-security aside>b{font-size:1.2rem}.cs-admin-security dl{margin:20px 0 0}.cs-admin-security dl div{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid #dedad2}.cs-admin-security dt{color:#71747a}.cs-admin-security dd{margin:0;font-weight:850}
+
+.cs-admin-toasts{position:fixed;right:22px;bottom:22px;display:grid;gap:8px;z-index:1000}.cs-admin-toast{min-width:270px;max-width:420px;padding:14px 16px;background:#23262b;color:#fff;border-radius:7px;box-shadow:0 14px 35px rgba(0,0,0,.25);font-weight:750}.cs-admin-toast.success{background:#286450}.cs-admin-toast.error{background:#96372f}
+
+@media(max-width:1350px){
+  .cs-admin-metrics{grid-template-columns:repeat(3,1fr)}
+  .cs-admin-slot-grid{grid-template-columns:repeat(3,1fr)}
+  .cs-admin-theme-form{grid-template-columns:1fr}.cs-admin-form-section:first-child{grid-row:auto}.cs-admin-form-actions{grid-column:auto}
+}
+@media(max-width:1050px){
+  .cs-admin-app{grid-template-columns:210px minmax(0,1fr)}
+  .cs-admin-sidebar{padding-left:12px;padding-right:12px}
+  .cs-admin-two-column,.cs-admin-two-column.notices,.cs-admin-security{grid-template-columns:1fr}
+  .cs-admin-openroom-grid,.cs-admin-reservation-list,.cs-admin-inquiry-list{grid-template-columns:1fr}
+  .cs-admin-slot-grid{grid-template-columns:repeat(2,1fr)}
+  .cs-admin-theme-tabs{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  .cs-admin-app{display:block}
+  .cs-admin-sidebar{position:fixed;left:-270px;width:250px;transition:left .2s ease}
+  .cs-admin-app.menu-open .cs-admin-sidebar{left:0}
+  .cs-admin-sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:25}
+  .cs-admin-app.menu-open .cs-admin-sidebar-backdrop{display:block}
+  .cs-admin-top{height:62px;padding:0 14px;gap:8px}.cs-admin-menu{display:block!important}.cs-admin-top>div{display:none}.cs-admin-top>a,.cs-admin-top>button{font-size:.72rem;padding:7px 9px}
+  .cs-admin-content{padding:24px 14px 55px}
+  .cs-admin-heading{align-items:flex-start;flex-direction:column}.cs-admin-heading>div:last-child{width:100%;justify-content:flex-end}
+  .cs-admin-metrics{grid-template-columns:repeat(2,1fr)}
+  .cs-admin-metric{min-height:130px;padding:18px}.cs-admin-metric>strong{font-size:1.8rem}
+  .cs-admin-quick>div{grid-template-columns:1fr}
+  .cs-admin-filterbar{align-items:stretch;flex-direction:column}.cs-admin-filterbar label{min-width:0;width:100%}.cs-admin-filterbar>p{margin:0}.cs-admin-filterbar>strong{height:40px}
+  .cs-admin-slot-grid{grid-template-columns:1fr}
+  .cs-admin-theme-tabs{grid-template-columns:1fr 1fr}
+  .cs-admin-form-grid,.cs-admin-form-grid.compact{grid-template-columns:1fr}.cs-admin-form-grid label.wide{grid-column:auto}
+  .cs-admin-reservation-list>article>footer{grid-template-columns:1fr 1fr}.cs-admin-reservation-list>article>footer button{grid-column:1/-1}
+  .cs-admin-login>section{padding:32px 24px}.cs-admin-login h1{font-size:2.35rem}.cs-admin-login footer{flex-direction:column}
+}
+@media(max-width:480px){
+  .cs-admin-metrics{grid-template-columns:1fr}
+  .cs-admin-theme-tabs{grid-template-columns:1fr}
+  .cs-admin-today-list article{grid-template-columns:58px 1fr}.cs-admin-today-list article>b{grid-column:2}
+  .cs-admin-reservation-body dl{grid-template-columns:1fr}
+  .cs-admin-reservation-list>article>footer{grid-template-columns:1fr}
+  .cs-admin-reservation-list>article>footer button{grid-column:auto}
+  .cs-admin-form-actions{position:static;flex-direction:column;align-items:stretch}.cs-admin-form-actions button{width:100%}
+}

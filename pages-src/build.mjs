@@ -1,5 +1,5 @@
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 
 const root = new URL("../", import.meta.url).pathname;
 const source = join(root, "pages-src");
@@ -25,9 +25,8 @@ const publicRoutes = [
   ["policies/terms", "policy:terms", "이용약관"],
   ["policies/privacy", "policy:privacy", "개인정보처리방침"],
   ["policies/refunds", "policy:refunds", "취소 및 환불 규정"],
-  ["admin", "admin", "운영 콘솔"],
 ];
-const routes = adminOnly ? [["", "admin", "운영 콘솔"]] : publicRoutes;
+const routes = adminOnly ? [["", "admin", "운영 관리"]] : publicRoutes;
 
 await rm(output, { recursive: true, force: true });
 await mkdir(join(output, "assets"), { recursive: true });
@@ -35,16 +34,19 @@ const sourceShell = await readFile(join(source, "shell.html"), "utf8");
 const shell = adminOnly
   ? sourceShell
       .replace(
-        '<meta name="description" content="크라임씬플레이 — 역할 몰입형 추리 게임. 사건을 선택하고 실시간으로 예약하세요." />',
-        '<meta name="description" content="크라임씬플레이 서면점 예약·운영 관리 콘솔" />\n  <meta name="robots" content="noindex,nofollow,noarchive" />',
+        '<meta name="description" content="크라임씬플레이 서면1호점 역할형 추리게임 예약 사이트" />',
+        '<meta name="description" content="크라임씬플레이 서면1호점 예약 및 운영 관리" />\n  <meta name="robots" content="noindex,nofollow,noarchive" />',
       )
       .replace(
-        '<meta property="og:description" content="당신이 용의자가 되는 순간, 사건은 시작됩니다." />',
-        '<meta property="og:description" content="크라임씬플레이 서면점 예약·운영 관리 콘솔" />',
+        '<meta property="og:description" content="최소 4명, 1~3명은 오픈룸으로 다른 팀과 함께 플레이합니다." />',
+        '<meta property="og:description" content="크라임씬플레이 서면1호점 예약 및 운영 관리" />',
       )
       .replace(/^\s*<meta property="og:image".*\n/m, "")
       .replace(/^\s*<link rel="preload".*\n/m, "")
+      .replace(/^\s*<script defer src="\{\{BASE\}\}\/assets\/site\.js.*\n/m, "")
+      .replace(/^\s*<script defer src="\{\{BASE\}\}\/assets\/public-v3\.js.*\n/m, '  <script defer src="{{BASE}}/assets/admin-v3.js?v=20260816-10"></script>\n')
   : sourceShell;
+
 for (const [path, route, title] of routes) {
   const folder = join(output, path);
   await mkdir(folder, { recursive: true });
@@ -58,13 +60,25 @@ for (const [path, route, title] of routes) {
 let css = await readFile(join(root, "app/globals.css"), "utf8");
 css = css.replace(/^@import "tailwindcss";\s*/, "").replaceAll('url("/images/', `url("${base}/images/`);
 css += `\n${await readFile(join(source, "static.css"), "utf8")}`;
+css += `\n${await readFile(join(source, "v3.css"), "utf8")}`;
 await writeFile(join(output, "assets/site.css"), css);
-await cp(join(source, "site.js"), join(output, "assets/site.js"));
-if (!adminOnly) await cp(join(root, "public/images"), join(output, "images"), { recursive: true });
+
+if (adminOnly) {
+  await cp(join(source, "admin-v3.js"), join(output, "assets/admin-v3.js"));
+} else {
+  await cp(join(source, "site.js"), join(output, "assets/site.js"));
+  await cp(join(source, "public-v3.js"), join(output, "assets/public-v3.js"));
+  await cp(join(root, "public/images"), join(output, "images"), { recursive: true });
+}
 await cp(join(root, "public/favicon.svg"), join(output, "favicon.svg"));
 await writeFile(join(output, ".nojekyll"), "");
+
 if (!adminOnly) {
+  const adminFolder = join(output, "admin");
+  await mkdir(adminFolder, { recursive: true });
+  await writeFile(join(adminFolder, "index.html"), `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=https://sosirusok.github.io/crimescene-admin/"><link rel="canonical" href="https://sosirusok.github.io/crimescene-admin/"><title>운영 관리로 이동</title></head><body><a href="https://sosirusok.github.io/crimescene-admin/">운영 관리 페이지로 이동</a></body></html>`);
   const fallback = shell.replaceAll("{{BASE}}", base).replaceAll("{{ROUTE}}", "not-found").replaceAll("{{TITLE}}", "페이지를 찾을 수 없습니다");
   await writeFile(join(output, "404.html"), fallback);
 }
-console.log(`Built ${routes.length} pages in ${output}`);
+
+console.log(`Built ${routes.length} ${adminOnly ? "admin" : "public"} pages in ${output}`);
