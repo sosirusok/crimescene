@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
     paths:
-      - '.final-payload/**'
       - '.github/workflows/apply-final-customer.yml'
   workflow_dispatch:
 
@@ -50,7 +49,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf .final-payload .github/workflows/apply-final-customer.yml _site
+          git restore .github/workflows/pages.yml
+          rm -rf .final-payload _site
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
