@@ -47,7 +47,7 @@ css = css.replace(/^@import "tailwindcss";\s*/, "").replaceAll('url("/images/', 
 css += `\n${await readFile(join(source, "static.css"), "utf8")}`;
 await writeFile(join(output, "assets/site.css"), css);
 await cp(join(source, "site.js"), join(output, "assets/site.js"));
-await cp(join(root, "public/images"), join(output, "images"), { recursive: true });
+if (!adminOnly) await cp(join(root, "public/images"), join(output, "images"), { recursive: true });
 await cp(join(root, "public/favicon.svg"), join(output, "favicon.svg"));
 await writeFile(join(output, ".nojekyll"), "");
 if (!adminOnly) {
