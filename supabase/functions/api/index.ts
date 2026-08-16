@@ -50,6 +50,12 @@ async function sha256(value: string) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+async function adminAccessKeyHash(value: string) {
+  const key = await deriveKey("crimescene-admin-access-v2", ["sign"], "HMAC");
+  const digest = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value)));
+  return Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 function toBase64Url(bytes: Uint8Array) {
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
@@ -386,8 +392,15 @@ async function handleAdminLogin(request: Request) {
     .eq("active", true)
     .limit(1)
     .maybeSingle();
-  if (!data?.password_hash || await sha256(accessKey) !== data.password_hash) {
+  const secureHash = await adminAccessKeyHash(accessKey);
+  const legacyHash = await sha256(accessKey);
+  if (!data?.password_hash || (data.password_hash !== secureHash && data.password_hash !== legacyHash)) {
     return json(request, { error: "관리자 암호키가 올바르지 않습니다." }, 401);
+  }
+  if (data.password_hash === legacyHash) {
+    const { error } = await db.from("admins").update({ password_hash: secureHash }).eq("email", data.email);
+    if (error) throw error;
+    await db.from("audit_logs").insert({ actor: data.email, action: "ADMIN_ACCESS_KEY_HASH_UPGRADED", target_type: "admin", target_id: data.email });
   }
   const session: AdminSession = { email: data.email, role: data.role, exp: Math.floor(Date.now() / 1000) + 8 * 60 * 60 };
   return json(request, { token: await signAdminSession(session), user: { displayName: data.display_name, role: data.role }, expiresIn: 28800 });
@@ -476,14 +489,16 @@ async function handleAdmin(request: Request, path: string, session: AdminSession
     return json(request, { ok: true, id: data.id }, 201);
   }
   if (path === "/admin/change-password" && request.method === "POST") {
-    const currentPassword = String(input.currentPassword ?? "");
-    const nextPassword = String(input.nextPassword ?? "");
-    if (nextPassword.length < 12) return json(request, { error: "새 비밀번호는 12자 이상으로 설정해 주세요." }, 400);
+    const currentPassword = String(input.currentAccessKey ?? input.currentPassword ?? "");
+    const nextPassword = String(input.nextAccessKey ?? input.nextPassword ?? "");
+    if (nextPassword.length < 12) return json(request, { error: "새 암호키는 12자 이상으로 설정해 주세요." }, 400);
     const { data } = await db.from("admins").select("password_hash").eq("email", session.email).single();
-    if (!data?.password_hash || await sha256(currentPassword) !== data.password_hash) return json(request, { error: "현재 비밀번호가 올바르지 않습니다." }, 401);
-    const { error } = await db.from("admins").update({ password_hash: await sha256(nextPassword) }).eq("email", session.email);
+    const currentSecureHash = await adminAccessKeyHash(currentPassword);
+    const currentLegacyHash = await sha256(currentPassword);
+    if (!data?.password_hash || (data.password_hash !== currentSecureHash && data.password_hash !== currentLegacyHash)) return json(request, { error: "현재 암호키가 올바르지 않습니다." }, 401);
+    const { error } = await db.from("admins").update({ password_hash: await adminAccessKeyHash(nextPassword) }).eq("email", session.email);
     if (error) throw error;
-    await db.from("audit_logs").insert({ actor: session.email, action: "ADMIN_PASSWORD_CHANGED", target_type: "admin", target_id: session.email });
+    await db.from("audit_logs").insert({ actor: session.email, action: "ADMIN_ACCESS_KEY_CHANGED", target_type: "admin", target_id: session.email });
     return json(request, { ok: true });
   }
   return json(request, { error: "관리자 API 경로를 찾을 수 없습니다." }, 404);
