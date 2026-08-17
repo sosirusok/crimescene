@@ -5,7 +5,6 @@ import { join } from "node:path";
 const root = new URL("../", import.meta.url).pathname;
 const source = join(root, "pages-src");
 const output = join(root, "_site");
-const base = process.env.PAGES_BASE ?? "/crimescene";
 const adminOnly = process.env.ADMIN_ONLY === "1";
 
 const publicRoutes = [
@@ -34,29 +33,35 @@ await rm(output, { recursive: true, force: true });
 await mkdir(join(output, "assets"), { recursive: true });
 const template = await readFile(join(source, "shell.html"), "utf8");
 
-function documentFor(route, title) {
+function relativeBase(folderPath) {
+  const depth = folderPath ? folderPath.split("/").filter(Boolean).length : 0;
+  return depth === 0 ? "." : Array(depth).fill("..").join("/");
+}
+
+function documentFor(folderPath, route, title) {
+  const pageBase = relativeBase(folderPath);
   const description = adminOnly
     ? "크라임씬플레이 서면1호점 예약 및 운영 관리"
     : "크라임씬플레이 서면1호점 역할형 추리게임 예약 사이트";
   return template
-    .replaceAll("{{BASE}}", base)
+    .replaceAll("{{BASE}}", pageBase)
     .replaceAll("{{ROUTE}}", route)
     .replaceAll("{{TITLE}}", title)
     .replaceAll("{{DESCRIPTION}}", description)
     .replaceAll("{{ROBOTS}}", adminOnly ? "noindex,nofollow,noarchive" : "index,follow,max-image-preview:large")
-    .replaceAll("{{OG_IMAGE}}", adminOnly ? "" : `<meta property="og:image" content="${base}/images/hero-evidence-room.webp">`)
+    .replaceAll("{{OG_IMAGE}}", adminOnly ? "" : `<meta property="og:image" content="${pageBase}/images/hero-evidence-room.webp">`)
     .replaceAll("{{SCRIPT}}", scriptName)
     .replaceAll("{{BODY_CLASS}}", adminOnly ? "admin-document" : "customer-document")
-    .replaceAll("{{LOADING_TITLE}}", adminOnly ? "크라임씬플레이 서면1호점" : "크라임씬플레이 서면1호점")
+    .replaceAll("{{LOADING_TITLE}}", "크라임씬플레이 서면1호점")
     .replaceAll("{{LOADING_TEXT}}", adminOnly ? "운영 관리 화면을 여는 중입니다." : "예약 화면을 준비하고 있습니다.")
-    .replaceAll("{{FALLBACK_LINK}}", adminOnly ? "https://sosirusok.github.io/crimescene/" : `${base}/reservations/`)
+    .replaceAll("{{FALLBACK_LINK}}", adminOnly ? "https://sosirusok.github.io/crimescene/" : `${pageBase}/reservations/`)
     .replaceAll("{{FALLBACK_LABEL}}", adminOnly ? "고객 사이트" : "예약 화면");
 }
 
 for (const [folderPath, route, title] of routes) {
   const folder = join(output, folderPath);
   await mkdir(folder, { recursive: true });
-  await writeFile(join(folder, "index.html"), documentFor(route, title));
+  await writeFile(join(folder, "index.html"), documentFor(folderPath, route, title));
 }
 
 await cp(join(source, "final.css"), join(output, "assets/final.css"));
@@ -68,9 +73,9 @@ if (!adminOnly) {
   const adminFolder = join(output, "admin");
   await mkdir(adminFolder, { recursive: true });
   await writeFile(join(adminFolder, "index.html"), '<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=https://sosirusok.github.io/crimescene-admin/"><title>운영 관리로 이동</title></head><body><a href="https://sosirusok.github.io/crimescene-admin/">운영 관리 페이지로 이동</a></body></html>');
-  await writeFile(join(output, "404.html"), documentFor("not-found", "페이지를 찾을 수 없습니다"));
+  await writeFile(join(output, "404.html"), documentFor("", "not-found", "페이지를 찾을 수 없습니다"));
 } else {
-  await writeFile(join(output, "404.html"), documentFor("admin", "운영 관리"));
+  await writeFile(join(output, "404.html"), documentFor("", "admin", "운영 관리"));
 }
 
 await cp(join(root, "public/favicon.svg"), join(output, "favicon.svg"));
