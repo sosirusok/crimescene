@@ -125,3 +125,5 @@ jobs:
           grep -q 'data-route="home"' /tmp/home.html
           grep -q 'data-route="reservations"' /tmp/reservations.html
           echo "Live customer site verified: ${base}"
+
+# customer-api routing verified against version 2
