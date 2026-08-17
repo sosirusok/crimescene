@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const API = "https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/api";
+  const API = "https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/customer-api";
   const PUBLISHABLE_KEY = "sb_publishable_mA5DOfPA-ExloawT3aJpNw_2PeVgEEc";
   const app = document.querySelector("#app");
   const route = document.body?.dataset?.route || "home";
