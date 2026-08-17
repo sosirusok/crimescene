@@ -44,3 +44,4 @@ jobs:
           assert data.get('cname') == expected, data
           print('custom domain set:', data.get('cname'))
           PY
+# trigger
