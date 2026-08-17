@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: 22
       - name: Build customer site
-        run: PAGES_BASE=/crimescene node pages-src/build.mjs
+        run: node pages-src/build.mjs
       - name: Verify generated customer site
         shell: bash
         run: |
@@ -45,21 +45,29 @@ jobs:
           node scripts/smoke-customer.cjs
           grep -q 'customer-final.js?v=' _site/index.html
           grep -q 'final.css?v=' _site/index.html
+          grep -q 'href="./assets/final.css?v=' _site/index.html
+          grep -q 'src="./assets/customer-final.js?v=' _site/index.html
+          grep -q 'href="../assets/final.css?v=' _site/reservations/index.html
+          grep -q 'href="../../assets/final.css?v=' _site/reservations/new/index.html
           grep -q 'data-route="home"' _site/index.html
           grep -q 'data-route="reservations"' _site/reservations/index.html
           grep -q 'data-route="reservation-new"' _site/reservations/new/index.html
           grep -q 'data-route="reservation-lookup"' _site/reservations/lookup/index.html
+          grep -q 'functions/v1/customer-api' _site/assets/customer-final.js
           grep -q '동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다' _site/assets/customer-final.js
           grep -q '이용 예정 금액' _site/assets/customer-final.js
           ! grep -Eq 'Supabase|OWNER|Reservation form|AES-GCM|서비스 역할' _site/assets/customer-final.js
-      - name: Verify reservation API
+      - name: Verify customer API and Korean domain CORS
         shell: bash
         run: |
           set -euo pipefail
-          api='https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/api'
+          api='https://jhjbiejqtbidloxcwryr.supabase.co/functions/v1/customer-api'
           key='sb_publishable_mA5DOfPA-ExloawT3aJpNw_2PeVgEEc'
-          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" "${api}/health" | grep -q '"version":"4.0.1"'
-          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" "${api}/bootstrap" > /tmp/bootstrap.json
+          origin='https://xn--oi2bkkl05a1gchcr33e50h.com'
+          curl --retry 4 --retry-all-errors -fsSL -D /tmp/health-headers -H "apikey: ${key}" -H "Origin: ${origin}" "${api}/health" -o /tmp/health.json
+          grep -qi "access-control-allow-origin: ${origin}" /tmp/health-headers
+          grep -q '"version":"4.0.1"' /tmp/health.json
+          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" -H "Origin: ${origin}" "${api}/bootstrap" > /tmp/bootstrap.json
           python3 - <<'PY'
           import json
           data=json.load(open('/tmp/bootstrap.json',encoding='utf-8'))
@@ -70,7 +78,7 @@ jobs:
           capacities={t['id']:t['totalCapacity'] for t in data['themes']}
           assert capacities == {'A':8,'B':9,'C':9,'D':8}, capacities
           assert all(t['minPlayers']==4 for t in data['themes'])
-          print('API bootstrap verified', capacities)
+          print('Custom-domain API verified', capacities)
           PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
@@ -111,6 +119,7 @@ jobs:
           curl --retry 4 --retry-all-errors -fsSL "${base}reservations/?sha=${GITHUB_SHA}" -o /tmp/reservations.html
           node --check /tmp/customer-final.js
           test -s /tmp/final.css
+          grep -q 'functions/v1/customer-api' /tmp/customer-final.js
           grep -q '동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다' /tmp/customer-final.js
           grep -q '이용 예정 금액' /tmp/customer-final.js
           grep -q 'data-route="home"' /tmp/home.html
