@@ -22,6 +22,13 @@ export function SiteHeader() {
 
   return (
     <header className={`site-header ${solid ? "is-solid" : ""}`}>
+      <div className="visitor-notice" role="note" aria-label="필수 이용 안내">
+        <div className="visitor-notice-inner">
+          <strong>크라임씬 카페 안내</strong>
+          <span>방탈출카페가 아닙니다. 사건 속 인물이 되어 단서와 진술로 범인을 찾는 추리게임입니다.</span>
+          <Link href="/policies/refunds">이용 당일 고객 사유 취소는 환불되지 않습니다.</Link>
+        </div>
+      </div>
       <div className="header-inner">
         <Link className="brand" href="/" aria-label="크라임씬플레이 홈">
           <span className="brand-mark"><img src="/favicon.svg" alt="" /></span>
