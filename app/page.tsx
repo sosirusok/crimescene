@@ -16,8 +16,8 @@ export default function Home() {
             <p className="eyebrow"><span>부산 서면</span> Roleplay Mystery</p>
             <h1 id="hero-title">당신의 진술이<br />사건의 결말을 바꾼다</h1>
             <p className="hero-lead">
-              다섯 명의 용의자, 엇갈리는 기억, 단 하나의 진실.<br />
-              관객이 아닌 사건의 인물이 되어 90분의 추리를 완성하세요.
+              사건 속 인물이 되어 현장을 조사하고 단서와 진술을 검증하세요.<br />
+              용의자 가운데 진짜 범인을 찾아내는 90분 크라임씬 추리게임입니다.
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/reservations">실시간 예약 <ArrowUpRight /></Link>
@@ -34,7 +34,20 @@ export default function Home() {
             </dl>
           </aside>
         </div>
-        <a className="scroll-cue" href="#cases"><span>Scroll to investigate</span><i /></a>
+        <a className="scroll-cue" href="#service-definition"><span>Scroll to investigate</span><i /></a>
+      </section>
+
+      <section className="service-definition" id="service-definition" aria-labelledby="service-definition-title">
+        <div className="shell service-definition-inner">
+          <div>
+            <p className="eyebrow">Before you book</p>
+            <h2 id="service-definition-title">사건 속 인물이 되어<br />범인을 찾는 크라임씬 카페입니다.</h2>
+          </div>
+          <div className="service-definition-copy">
+            <p>잠금장치를 풀고 공간에서 나오는 방식이 아닙니다. 각자 맡은 인물의 비밀과 진술을 바탕으로 현장을 조사하고, 용의자 중 진범을 찾아내는 역할 추리게임입니다.</p>
+            <p className="service-definition-warning"><strong>예약 전 확인</strong><span>이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</span></p>
+          </div>
+        </div>
       </section>
 
       <section className="section intro-strip">
@@ -73,7 +86,7 @@ export default function Home() {
 
       <section className="section experience-section">
         <div className="shell experience-grid">
-          <div className="experience-title"><p className="eyebrow">The experience</p><h2>방을 탈출하는 게임이 아닙니다.<br />사건 안으로 들어가는 게임입니다.</h2></div>
+          <div className="experience-title"><p className="eyebrow">The experience</p><h2>탈출이 목표가 아닙니다.<br />사건의 진실을 밝히는 게임입니다.</h2></div>
           <ol className="experience-list">
             <li><span>01</span><div><h3>인물을 배정받습니다</h3><p>사건 속 인물의 관계와 비밀을 확인하고, 자신의 방식으로 역할을 완성합니다.</p></div></li>
             <li><span>02</span><div><h3>현장을 조사합니다</h3><p>숨겨진 물건과 기록을 직접 찾아 서로의 진술을 검증합니다.</p></div></li>

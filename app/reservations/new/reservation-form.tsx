@@ -34,8 +34,9 @@ export function ReservationForm() {
       <label className={`open-room-option ${effectiveOpenRoom ? "is-selected" : ""}`}><input type="checkbox" checked={effectiveOpenRoom} disabled={partySize < 4} onChange={(event) => setOpenRoom(event.target.checked)} /><span className="custom-check"/><div><strong>오픈룸으로 예약</strong><p>남은 자리에 다른 플레이어가 참여할 수 있습니다. 1–3명 예약 시 필수입니다.</p></div></label>
       <label className="textarea-field"><span>전달사항 <small>선택</small></span><textarea name="specialRequest" maxLength={300} placeholder="오픈룸 참여자 또는 매장에 전달할 내용을 입력해 주세요." /></label>
       <div className="price-summary"><span>결제 예정 금액</span><strong>{(theme.price * partySize).toLocaleString()}원</strong><small>23,000원 × {partySize}명</small></div>
-      <div className="payment-note"><strong>KISPG 카드 결제</strong><p>일반 국내 신용·체크카드 결제 구조로 준비되어 있습니다. 가맹점 계약 정보가 연결되면 예약 접수 후 KISPG 결제창으로 자동 이동합니다.</p></div>
-      <div className="consent-list"><label><input type="checkbox" name="privacyConsent" required/><span/>개인정보 수집 및 이용에 동의합니다. <Link href="/policies/privacy" target="_blank">내용 보기</Link></label><label><input type="checkbox" name="cancellationConsent" required/><span/>취소 및 환불 규정을 확인했습니다. <Link href="/policies/refunds" target="_blank">내용 보기</Link></label></div>
+      <div className="booking-critical-notice"><strong>예약 전 반드시 확인해 주세요</strong><p>사건 속 인물을 맡아 단서와 진술로 범인을 찾는 크라임씬 추리게임입니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div>
+      <div className="payment-note"><strong>카드 결제</strong><p>온라인 결제가 활성화되면 예약 정보 확인 후 카드 결제 화면으로 이동합니다.</p></div>
+      <div className="consent-list"><label><input type="checkbox" name="privacyConsent" required/><span/>개인정보 수집 및 이용에 동의합니다. <Link href="/policies/privacy" target="_blank">내용 보기</Link></label><label><input type="checkbox" name="cancellationConsent" required/><span/>이용 당일 고객 사유 취소는 환불되지 않음을 확인했습니다. <Link href="/policies/refunds" target="_blank">규정 보기</Link></label></div>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button className="submit-booking" type="submit" disabled={submitting}><span>{submitting ? "예약을 저장하고 있습니다" : "예약 접수하기"}</span><strong>{(theme.price * partySize).toLocaleString()}원</strong><ArrowUpRight /></button>
     </form>
