@@ -35,6 +35,9 @@ vm.runInContext(code,context,{timeout:5000,filename:"customer-final.js"});
 (async()=>{
   await context.__CRIMESCENE_READY__;
   if(!app.innerHTML.includes("사건 속 인물이 되어"))throw new Error("홈 화면이 렌더링되지 않았습니다.");
+  if(!app.innerHTML.includes("방탈출카페가 아닙니다"))throw new Error("게임 방식 필수 안내가 없습니다.");
+  if(!app.innerHTML.includes("이용 당일 고객 사유 취소는 환불되지 않습니다"))throw new Error("당일 취소 환불 안내가 없습니다.");
+  if((app.innerHTML.match(/방탈출카페/g)||[]).length!==1)throw new Error("방탈출카페 표현이 한 번을 초과합니다.");
   if(!app.innerHTML.includes("1~3명은 오픈룸"))throw new Error("오픈룸 핵심 안내가 없습니다.");
   if(!app.innerHTML.includes("실시간 예약"))throw new Error("예약 진입점이 없습니다.");
   if(/Supabase|OWNER|Reservation form|AES-GCM/.test(app.innerHTML))throw new Error("고객 화면에 개발자용 문구가 남아 있습니다.");
