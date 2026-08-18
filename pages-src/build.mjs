@@ -24,7 +24,7 @@ const publicRoutes = [
   ["location", "location", "오시는 길"],
   ["policies/terms", "policy:terms", "이용약관"],
   ["policies/privacy", "policy:privacy", "개인정보처리방침"],
-  ["policies/refunds", "policy:refunds", "예약 취소 안내"],
+  ["policies/refunds", "policy:refunds", "취소 및 환불 안내"],
 ];
 const routes = adminOnly ? [["", "admin", "운영 관리"]] : publicRoutes;
 const scriptName = adminOnly ? "admin-final.js" : "customer-final.js";
@@ -42,7 +42,7 @@ function documentFor(folderPath, route, title) {
   const pageBase = relativeBase(folderPath);
   const description = adminOnly
     ? "크라임씬플레이 서면1호점 예약 및 운영 관리"
-    : "크라임씬플레이 서면1호점 역할형 추리게임 예약 사이트";
+    : "사건 속 인물이 되어 단서와 진술로 용의자 중 범인을 찾는 크라임씬플레이 서면1호점 추리게임 예약 사이트";
   return template
     .replaceAll("{{BASE}}", pageBase)
     .replaceAll("{{ROUTE}}", route)
