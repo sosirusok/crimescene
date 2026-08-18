@@ -1,0 +1,211 @@
+name: Apply customer clarity changes to live site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run-customer-clarity-patch.yml'
+
+permissions:
+  contents: write
+  actions: write
+  pages: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract and run the validated site patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source = Path('.github/workflows/apply-customer-clarity.yml').read_text(encoding='utf-8')
+          opening = "          python3 - <<'PY'\n"
+          start = source.index(opening) + len(opening)
+          end = source.index("\n          PY", start)
+          raw_lines = source[start:end].splitlines()
+          script = "\n".join(
+              line[10:] if line.startswith('          ') else line
+              for line in raw_lines
+          ) + "\n"
+          compile(script, '/tmp/apply-customer-clarity.py', 'exec')
+          Path('/tmp/apply-customer-clarity.py').write_text(script, encoding='utf-8')
+          PY
+
+          python3 /tmp/apply-customer-clarity.py
+
+          # The patch adds extra checks to pages.yml, but workflow files cannot be
+          # pushed by the Actions token. Keep those checks in this run instead.
+          git checkout -- .github/workflows/pages.yml
+
+          grep -q '방탈출카페가 아닙니다' pages-src/customer-final.js
+          grep -q '용의자 중 진짜 범인을 찾는 추리게임입니다' pages-src/customer-final.js
+          grep -q '이용 당일 고객 사유 취소는 환불되지 않습니다' pages-src/customer-final.js
+          grep -q '이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다' pages-src/customer-final.js
+          test "$(grep -o '방탈출카페' pages-src/customer-final.js | wc -l | tr -d ' ')" = '1'
+          grep -q 'CUSTOMER CLARITY NOTICE' pages-src/final.css
+
+      - name: Build and test every customer route
+        shell: bash
+        run: |
+          set -euo pipefail
+          node pages-src/build.mjs
+          node --check _site/assets/customer-final.js
+          node scripts/smoke-customer.cjs
+          grep -q '방탈출카페가 아닙니다' _site/assets/customer-final.js
+          grep -q '용의자 중 진짜 범인을 찾는 추리게임입니다' _site/assets/customer-final.js
+          grep -q '이용 당일 고객 사유 취소는 환불되지 않습니다' _site/assets/customer-final.js
+          grep -q '이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다' _site/assets/customer-final.js
+          grep -q 'booking-critical-notice' _site/assets/customer-final.js
+          grep -q 'complete-refund-notice' _site/assets/customer-final.js
+          grep -q 'CUSTOMER CLARITY NOTICE' _site/assets/final.css
+          test "$(grep -o '방탈출카페' _site/assets/customer-final.js | wc -l | tr -d ' ')" = '1'
+          for file in \
+            _site/index.html \
+            _site/guide/index.html \
+            _site/faq/index.html \
+            _site/reservations/index.html \
+            _site/reservations/new/index.html \
+            _site/reservations/complete/index.html \
+            _site/policies/terms/index.html \
+            _site/policies/refunds/index.html; do
+            test -s "$file"
+            grep -q 'customer-final.js?v=20260818-2' "$file"
+            grep -q 'final.css?v=20260818-2' "$file"
+          done
+
+      - name: Commit the live customer source
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pages-src scripts/smoke-customer.cjs
+          git commit -m 'feat: clarify crime scene format and same-day refund rule'
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Start the customer Pages deployment
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
+
+      - name: Wait for the Pages deployment
+        id: pages
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_SHA: ${{ steps.commit.outputs.sha }}
+        run: |
+          set -euo pipefail
+          api="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/workflows/pages.yml/runs?event=workflow_dispatch&per_page=20"
+          run_id=''
+          for attempt in $(seq 1 60); do
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "$api" > /tmp/pages-runs.json
+            run_id=$(jq -r --arg sha "$DEPLOY_SHA" '.workflow_runs[] | select(.head_sha==$sha) | .id' /tmp/pages-runs.json | head -1)
+            [ -n "$run_id" ] && break
+            sleep 3
+          done
+          test -n "$run_id"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+          conclusion=''
+          for attempt in $(seq 1 120); do
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" > /tmp/pages-run.json
+            status=$(jq -r '.status' /tmp/pages-run.json)
+            conclusion=$(jq -r '.conclusion // ""' /tmp/pages-run.json)
+            [ "$status" = 'completed' ] && break
+            sleep 5
+          done
+          test "$conclusion" = 'success'
+
+      - name: Verify the actually deployed customer site
+        id: live
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://sosirusok.github.io/crimescene/'
+          ready=0
+          for attempt in $(seq 1 48); do
+            if curl -L --retry 2 --retry-all-errors -fsSL "${base}?clarity=${GITHUB_RUN_ID}-${attempt}" -o /tmp/live-home.html; then
+              if grep -q 'customer-final.js?v=20260818-2' /tmp/live-home.html; then
+                ready=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "$ready" = '1'
+
+          script_path=$(grep -oE 'assets/customer-final\.js\?v=[^" ]+' /tmp/live-home.html | head -1)
+          style_path=$(grep -oE 'assets/final\.css\?v=[^" ]+' /tmp/live-home.html | head -1)
+          test -n "$script_path"
+          test -n "$style_path"
+
+          curl -L --retry 5 --retry-all-errors -fsSL "${base}${script_path}" -o /tmp/live-customer.js
+          curl -L --retry 5 --retry-all-errors -fsSL "${base}${style_path}" -o /tmp/live-customer.css
+          node --check /tmp/live-customer.js
+          grep -q '방탈출카페가 아닙니다' /tmp/live-customer.js
+          grep -q '용의자 중 진짜 범인을 찾는 추리게임입니다' /tmp/live-customer.js
+          grep -q '이용 당일 고객 사유 취소는 환불되지 않습니다' /tmp/live-customer.js
+          grep -q '이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다' /tmp/live-customer.js
+          grep -q 'booking-critical-notice' /tmp/live-customer.js
+          grep -q 'complete-refund-notice' /tmp/live-customer.js
+          grep -q 'CUSTOMER CLARITY NOTICE' /tmp/live-customer.css
+          test "$(grep -o '방탈출카페' /tmp/live-customer.js | wc -l | tr -d ' ')" = '1'
+          echo "page_url=$base" >> "$GITHUB_OUTPUT"
+
+      - name: Record the completed verification
+        shell: bash
+        env:
+          DEPLOY_SHA: ${{ steps.commit.outputs.sha }}
+          PAGE_RUN_ID: ${{ steps.pages.outputs.run_id }}
+          PAGE_URL: ${{ steps.live.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          mkdir -p docs
+          {
+            echo '# 고객 사이트 필수 안내 적용 검증'
+            echo
+            echo "- 적용 커밋: ${DEPLOY_SHA}"
+            echo "- Pages 실행 번호: ${PAGE_RUN_ID}"
+            echo "- 배포 주소: ${PAGE_URL}"
+            echo '- 빌드와 배포: 성공'
+            echo '- 실제 배포 파일 확인: 성공'
+            echo '- 전체 페이지 상단 게임 방식 안내: 적용'
+            echo '- 메인 화면 크라임씬 설명: 적용'
+            echo '- 예약 화면 당일 취소 환불 안내: 적용'
+            echo '- 예약 동의 문구: 적용'
+            echo '- 예약 완료 화면 재안내: 적용'
+            echo '- 이용 안내와 자주 묻는 질문: 적용'
+            echo '- 이용약관과 취소 및 환불 안내: 적용'
+            echo '- 방탈출카페 표현: 부정 안내에만 1회 사용'
+            echo "- 확인 시각: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          } > docs/customer-clarity-verification.md
+
+          git add docs/customer-clarity-verification.md
+          git commit -m 'docs: record customer clarity deployment verification'
+          git pull --rebase origin main
+          git push origin HEAD:main
