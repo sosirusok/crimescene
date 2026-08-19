@@ -1,4 +1,4 @@
-# Final full-build check after runtime metadata cleanup
+# Full build check after executable mode corrections
 name: Runtime build verification
 
 on:
