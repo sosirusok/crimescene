@@ -1,0 +1,208 @@
+name: Final customer delivery verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/final-delivery-verification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+  pages: read
+
+concurrency:
+  group: final-customer-delivery
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Final repository cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('.github/workflows/pages.yml')
+          text=path.read_text(encoding='utf-8')
+          text=text.replace("      - 'scripts/apply-owner-feedback.py'\n","")
+          text=text.replace("      - name: Apply owner feedback\n        run: python3 scripts/apply-owner-feedback.py\n","")
+          path.write_text(text,encoding='utf-8')
+          PY
+
+          rm -f \
+            .github/workflows/apply-owner-feedback.yml \
+            .github/workflows/mobile-live-verification.yml \
+            .github/workflows/record-pages-result.yml \
+            .github/workflows/fix-reservation-mobile-layout.yml \
+            .github/workflows/final-cleanup.yml \
+            .github/workflows/final-delivery-verification.yml \
+            scripts/apply-owner-feedback.py \
+            scripts/verify-live-mobile.mjs
+
+      - name: Verify final source and generated customer site
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check pages-src/customer-final.js
+          node pages-src/build.mjs
+          node scripts/smoke-customer.cjs
+
+          test -s _site/index.html
+          test -s _site/themes/index.html
+          test -s _site/reservations/index.html
+          test -s _site/reservations/new/index.html
+          grep -q 'menu-lines' _site/assets/customer-final.js
+          grep -q 'aria-controls="mobile-drawer"' _site/assets/customer-final.js
+          grep -q 'document.addEventListener("pointerup"' _site/assets/customer-final.js
+          grep -q 'open-room-introductions' _site/assets/customer-final.js
+          grep -q 'RESERVATION MOBILE WIDTH FIX 2026-08-19' _site/assets/final.css
+          grep -q '(주)싱글' _site/assets/customer-final.js
+          grep -q '정지훈' _site/assets/customer-final.js
+          grep -q '744-88-01446' _site/assets/customer-final.js
+          grep -q 'jjhun65@hanmail.net' _site/assets/customer-final.js
+          ! grep -q '난이도</dt>' _site/assets/customer-final.js
+          ! grep -q 'theme.difficulty' _site/assets/customer-final.js
+          ! grep -q 'scripts/apply-owner-feedback.py' .github/workflows/pages.yml
+
+      - name: Commit clean production source
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: leave only permanent customer deployment tooling'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy the clean production source
+        id: deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
+          api="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/workflows/pages.yml/runs?per_page=30"
+          run_id=''
+          for attempt in $(seq 1 60); do
+            curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "$api" > /tmp/pages-runs.json
+            run_id=$(jq -r --arg sha "$SOURCE_SHA" '[.workflow_runs[] | select(.head_sha==$sha)] | sort_by(.created_at) | reverse | .[0].id // empty' /tmp/pages-runs.json)
+            [ -n "$run_id" ] && break
+            sleep 3
+          done
+          test -n "$run_id"
+
+          conclusion=''
+          for attempt in $(seq 1 150); do
+            curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" > /tmp/pages-run.json
+            status=$(jq -r '.status' /tmp/pages-run.json)
+            conclusion=$(jq -r '.conclusion // ""' /tmp/pages-run.json)
+            [ "$status" = completed ] && break
+            sleep 4
+          done
+          test "$conclusion" = success
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the public site with an actual mobile browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          cat > /tmp/final-mobile-check.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const base='https://www.xn--oi2bkkl05a1gchcr33e50h.com/';
+          const browser=await chromium.launch({headless:true});
+          const context=await browser.newContext({viewport:{width:390,height:844},screen:{width:390,height:844},isMobile:true,hasTouch:true,locale:'ko-KR',timezoneId:'Asia/Seoul'});
+          const page=await context.newPage();
+          const errors=[];
+          page.on('pageerror',e=>errors.push(String(e)));
+          const check=async(condition,message)=>{if(!condition)throw new Error(message)};
+          const noOverflow=async(label)=>{const x=await page.evaluate(()=>({w:document.documentElement.clientWidth,s:document.documentElement.scrollWidth}));await check(x.s<=x.w+2,`${label} 가로 넘침 ${x.s}/${x.w}`)};
+          const menu=async(label)=>{
+            const button=page.getByRole('button',{name:'메뉴 열기'});
+            await button.waitFor({state:'visible'});
+            const g=await button.evaluate(el=>{const r=el.getBoundingClientRect();const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return{w:r.width,h:r.height,hit:hit===el||el.contains(hit),lines:el.querySelectorAll('.menu-lines i').length}});
+            await check(g.w>=40&&g.h>=40&&g.hit&&g.lines===3,`${label} 메뉴 버튼 이상`);
+            await button.tap();
+            await page.waitForFunction(()=>document.querySelector('#mobile-drawer')?.classList.contains('is-open'));
+            const drawer=await page.locator('#mobile-drawer').evaluate(el=>{const r=el.getBoundingClientRect();return{left:r.left,right:r.right,width:r.width,v:innerWidth,links:[...el.querySelectorAll('a')].filter(a=>{const b=a.getBoundingClientRect();return b.width>0&&b.height>0}).length}});
+            await check(drawer.left<drawer.v&&drawer.right>0&&drawer.width>=260&&drawer.links>=5,`${label} 메뉴 패널 이상`);
+            await page.getByRole('button',{name:'메뉴 닫기'}).tap();
+            await page.waitForFunction(()=>!document.querySelector('#mobile-drawer')?.classList.contains('is-open'));
+          };
+          let response=await page.goto(base,{waitUntil:'networkidle',timeout:60000});
+          await check(response?.ok(),'홈 접속 실패');
+          await page.waitForSelector('#app:not(:has(.boot-screen))');
+          await noOverflow('홈');
+          await menu('홈');
+          let text=await page.locator('body').innerText();
+          await check(text.includes('방탈출카페가 아닙니다'),'게임 방식 안내 없음');
+          await check(text.includes('이용 당일 고객 사유 취소는 환불되지 않습니다'),'당일 취소 안내 없음');
+          const footer=await page.getByRole('contentinfo').innerText();
+          for(const value of ['(주)싱글','정지훈','744-88-01446','jjhun65@hanmail.net'])await check(footer.includes(value),`사업자 정보 누락 ${value}`);
+          await page.goto(`${base}themes/`,{waitUntil:'networkidle',timeout:60000});
+          await noOverflow('사건 목록');
+          await check(!(await page.locator('body').innerText()).includes('난이도'),'난이도 노출');
+          await page.goto(`${base}reservations/`,{waitUntil:'networkidle',timeout:60000});
+          await noOverflow('예약');
+          await menu('예약');
+          await check(errors.length===0,`브라우저 오류 ${errors.join(' | ')}`);
+          await browser.close();
+          console.log('Final mobile live verification passed.');
+          EOF
+          node /tmp/final-mobile-check.mjs
+
+      - name: Record final customer delivery status
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          PAGES_RUN_ID: ${{ steps.deploy.outputs.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p verification
+          cat > verification/final-delivery-status.md <<EOF
+          # 고객 사이트 최종 인수 검증
+
+          - 결과: 성공
+          - 고객 사이트: https://www.크라임씬플레이.com/
+          - 정리된 소스 커밋: ${SOURCE_SHA}
+          - 최종 Pages 실행 번호: ${PAGES_RUN_ID}
+          - GitHub Pages 빌드와 배포: 성공
+          - 실제 모바일 브라우저 390x844 실행: 성공
+          - 홈과 예약 화면 가로줄 세 개 메뉴: 열기와 닫기 성공
+          - 모바일 가로 넘침: 없음
+          - 사업자 상호, 대표자, 사업자등록번호, 이메일: 표시 확인
+          - 고객 화면 난이도: 제거 확인
+          - 오픈룸 소개 API와 화면 코드: 연결 확인
+          - 게임 방식 및 당일 취소 필수 안내: 표시 확인
+          - 브라우저 실행 오류: 없음
+          - 일회성 수정 및 검사 워크플로: 제거 완료
+          - 확인 시각: $(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add verification/final-delivery-status.md
+          git commit -m 'docs: record final customer delivery verification'
+          git pull --rebase origin main
+          git push origin HEAD:main
