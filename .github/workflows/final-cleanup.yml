@@ -1,0 +1,87 @@
+name: Finalize customer site repository
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/final-cleanup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: customer-final-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Remove one-time tooling and simplify normal deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/pages.yml')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace("      - 'scripts/apply-owner-feedback.py'\n", "")
+          text = text.replace("      - name: Apply owner feedback\n        run: python3 scripts/apply-owner-feedback.py\n", "")
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          rm -f \
+            .github/workflows/apply-owner-feedback.yml \
+            .github/workflows/mobile-live-verification.yml \
+            .github/workflows/record-pages-result.yml \
+            .github/workflows/fix-reservation-mobile-layout.yml \
+            .github/workflows/final-cleanup.yml \
+            scripts/apply-owner-feedback.py \
+            scripts/verify-live-mobile.mjs
+
+      - name: Verify final source without temporary patch scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check pages-src/customer-final.js
+          node pages-src/build.mjs
+          node scripts/smoke-customer.cjs
+
+          test -s _site/index.html
+          test -s _site/reservations/index.html
+          test -s _site/reservations/new/index.html
+          grep -q 'menu-lines' _site/assets/customer-final.js
+          grep -q 'aria-controls="mobile-drawer"' _site/assets/customer-final.js
+          grep -q 'document.addEventListener("pointerup"' _site/assets/customer-final.js
+          grep -q 'open-room-introductions' _site/assets/customer-final.js
+          grep -q 'RESERVATION MOBILE WIDTH FIX 2026-08-19' _site/assets/final.css
+          grep -q '(주)싱글' _site/assets/customer-final.js
+          grep -q '정지훈' _site/assets/customer-final.js
+          grep -q '744-88-01446' _site/assets/customer-final.js
+          grep -q 'jjhun65@hanmail.net' _site/assets/customer-final.js
+          ! grep -q '난이도</dt>' _site/assets/customer-final.js
+          ! grep -q 'theme.difficulty' _site/assets/customer-final.js
+          ! grep -q 'scripts/apply-owner-feedback.py' .github/workflows/pages.yml
+
+      - name: Commit final clean repository state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'chore: finalize customer site after verified owner feedback'
+          git pull --rebase origin main
+          git push origin HEAD:main
