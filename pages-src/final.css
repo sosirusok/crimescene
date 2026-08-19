@@ -104,3 +104,32 @@ html.admin-ui body{background:#e8e5df;color:#191b1f;font-size:15px}
 .complete-refund-notice{margin-top:18px;padding:18px 20px;border-left:4px solid var(--red);background:#fff1ee;text-align:left}.complete-refund-notice strong{display:block;color:#962f29;font-size:15px}.complete-refund-notice p{margin:7px 0 0;color:#5d514e;font-size:14px;line-height:1.7}
 @media(max-width:800px){:root{--customer-clarity-height:78px}.customer-clarity-inner{width:calc(100% - 28px);display:grid;grid-template-columns:auto 1fr;gap:2px 10px;justify-content:stretch;padding:8px 0;text-align:left;font-size:11px}.customer-clarity strong{grid-row:1/3;align-self:start;font-size:10px}.customer-clarity a{justify-self:start}.crime-scene-definition{grid-template-columns:1fr;gap:28px;padding:58px 20px}.crime-scene-definition>div>span{font-size:14px}}
 @media(max-width:480px){:root{--customer-clarity-height:96px}.customer-clarity-inner{grid-template-columns:1fr;gap:2px}.customer-clarity strong{grid-row:auto}.customer-clarity span{font-size:10.5px}.crime-scene-definition{padding:48px 20px}.crime-scene-definition h2{font-size:34px}.booking-critical-notice,.complete-refund-notice{padding:17px}}
+
+
+/* OWNER FEEDBACK FINAL 2026-08-19 */
+.customer-clarity{z-index:2400!important;height:auto!important;min-height:52px;overflow:visible}
+.customer-ui .site-header{z-index:2300!important;top:var(--customer-clarity-height)!important}
+.menu-open{position:relative;z-index:2310;pointer-events:auto!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.menu-lines{width:22px;height:16px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.menu-lines i{display:block;width:100%;height:2px;border-radius:2px;background:currentColor;transform:none!important;animation:none!important}
+.drawer-backdrop{z-index:4990!important;display:block;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease,visibility 0s linear .2s}
+.drawer-backdrop.is-open{opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s}
+.mobile-drawer{z-index:5000!important;right:0!important;transform:translateX(105%);visibility:hidden;pointer-events:none;overscroll-behavior:contain;transition:transform .23s ease,visibility 0s linear .23s}
+.mobile-drawer.is-open{right:0!important;transform:translateX(0);visibility:visible;pointer-events:auto;transition-delay:0s}
+body.drawer-open .site-header,body.drawer-open .customer-clarity{pointer-events:none}
+body.drawer-open .mobile-drawer,body.drawer-open .drawer-backdrop{pointer-events:auto}
+.theme-list dl{grid-template-columns:repeat(3,minmax(0,1fr))}
+.open-room-introductions{margin-top:12px;padding:12px 13px;border:1px solid rgba(183,70,61,.24);border-radius:7px;background:rgba(255,255,255,.82);color:var(--ink)}
+.open-room-introductions>strong{display:block;margin:0 0 7px;font-size:12px;font-weight:900;color:var(--red)}
+.open-room-introductions p{display:grid;grid-template-columns:auto 1fr;gap:7px;margin:5px 0;font-size:13px;line-height:1.5}
+.open-room-introductions p b{font-size:12px;white-space:nowrap;color:#704713}
+.open-room-introductions p span{margin:0;color:#454950}
+.open-room-introductions>small{display:block;margin-top:7px;color:var(--muted);font-size:12px}
+.slot .open-room-introductions{padding:9px 10px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#fff}
+.slot .open-room-introductions>strong{color:#f0b0aa}
+.slot .open-room-introductions p{display:block;margin:4px 0;font-size:12px}
+.slot .open-room-introductions p b{display:inline;margin-right:5px;color:#f1d19f}
+.slot .open-room-introductions p span{color:#e2e5e9}
+.room-status .open-room-introductions{width:100%;margin-top:14px}
+@media(max-width:860px){.menu-open{display:grid!important}.mobile-drawer{width:min(340px,92vw);padding-top:max(22px,env(safe-area-inset-top))}}
+@media(max-width:600px){.theme-list dl{grid-template-columns:1fr}.slot .open-room-introductions{margin-top:8px}.open-room-introductions p{grid-template-columns:1fr;gap:1px}}
