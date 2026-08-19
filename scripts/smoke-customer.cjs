@@ -13,11 +13,11 @@ const document={
 };
 const storage={getItem(){return null;},setItem(){},removeItem(){}};
 const mockBootstrap={
-  settings:{storeName:"크라임씬플레이",branchName:"서면1호점",representativeName:"윤호권",businessRegistrationNumber:"839-87-00850",mailOrderRegistrationNumber:"",phone:"070-4304-4340",email:"dbsehrud93@naver.com",addressRoad:"부산광역시 부산진구 신천대로50번길 62",addressDetail:"부전동 우성빌딩 4층",mapQuery:"부산광역시 부산진구 신천대로50번길 62",bookingWindowDays:15,arrivalMinutes:10,cancellationCutoffHours:24,paymentMode:"ONSITE",paymentProvider:"KISPG",privacyOfficerName:"개인정보 보호 담당자",privacyOfficerContact:"문의 연락처",refundPolicyConfirmed:false,customerNotice:""},
+  settings:{storeName:"크라임씬플레이",branchName:"서면1호점",businessName:"(주)싱글",representativeName:"정지훈",businessRegistrationNumber:"744-88-01446",mailOrderRegistrationNumber:"",phone:"070-4304-4340",email:"jjhun65@hanmail.net",addressRoad:"부산광역시 부산진구 신천대로50번길 62",addressDetail:"부전동 우성빌딩 4층",mapQuery:"부산광역시 부산진구 신천대로50번길 62",bookingWindowDays:15,arrivalMinutes:10,cancellationCutoffHours:24,paymentMode:"ONSITE",paymentProvider:"KISPG",privacyOfficerName:"개인정보 보호 담당자",privacyOfficerContact:"문의 연락처",refundPolicyConfirmed:false,customerNotice:""},
   payment:{mode:"ONSITE",label:"매장 결제",onlineEnabled:false,configured:false,legalReady:false},
   themes:[
-    {id:"A",slug:"orientation",episode:7,title:"크라임씬 EP.7 신입생 오티 살인사건",shortTitle:"신입생 오티 살인사건",tagline:"서로 다른 진술",synopsis:"사건 소개",difficulty:"★★★★☆",minPlayers:4,suspectCapacity:4,detectiveCapacity:4,totalCapacity:8,duration:90,price:23000,image:"/images/theme-orientation.webp",times:["10:00"]},
-    {id:"B",slug:"youtuber",episode:8,title:"크라임씬 EP.8 유튜버 살인사건",shortTitle:"유튜버 살인사건",tagline:"사라진 장면",synopsis:"사건 소개",difficulty:"★★★★☆",minPlayers:4,suspectCapacity:5,detectiveCapacity:4,totalCapacity:9,duration:90,price:23000,image:"/images/theme-youtuber.webp",times:["10:00"]},
+    {id:"A",slug:"orientation",episode:7,title:"크라임씬 EP.7 신입생 오티 살인사건",shortTitle:"신입생 오티 살인사건",tagline:"서로 다른 진술",synopsis:"사건 소개",minPlayers:4,suspectCapacity:4,detectiveCapacity:4,totalCapacity:8,duration:90,price:23000,image:"/images/theme-orientation.webp",times:["10:00"]},
+    {id:"B",slug:"youtuber",episode:8,title:"크라임씬 EP.8 유튜버 살인사건",shortTitle:"유튜버 살인사건",tagline:"사라진 장면",synopsis:"사건 소개",minPlayers:4,suspectCapacity:5,detectiveCapacity:4,totalCapacity:9,duration:90,price:23000,image:"/images/theme-youtuber.webp",times:["10:00"]},
   ],
 };
 const context={
@@ -40,6 +40,10 @@ vm.runInContext(code,context,{timeout:5000,filename:"customer-final.js"});
   if((app.innerHTML.match(/방탈출카페/g)||[]).length!==1)throw new Error("방탈출카페 표현이 한 번을 초과합니다.");
   if(!app.innerHTML.includes("1~3명은 오픈룸"))throw new Error("오픈룸 핵심 안내가 없습니다.");
   if(!app.innerHTML.includes("실시간 예약"))throw new Error("예약 진입점이 없습니다.");
+  if(app.innerHTML.includes("난이도"))throw new Error("고객 화면에 난이도가 남아 있습니다.");
+  if(!app.innerHTML.includes("(주)싱글"))throw new Error("사업자 상호가 반영되지 않았습니다.");
+  if(!app.innerHTML.includes("744-88-01446"))throw new Error("사업자등록번호가 반영되지 않았습니다.");
+  if(!app.innerHTML.includes("jjhun65@hanmail.net"))throw new Error("사업자 이메일이 반영되지 않았습니다.");
   if(/Supabase|OWNER|Reservation form|AES-GCM/.test(app.innerHTML))throw new Error("고객 화면에 개발자용 문구가 남아 있습니다.");
   if(app.innerHTML.includes("boot-screen"))throw new Error("로딩 화면이 남았습니다.");
   console.log(`Customer renderer passed (${app.innerHTML.length} bytes).`);

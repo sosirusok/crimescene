@@ -11,11 +11,12 @@
   const FALLBACK_SETTINGS = {
     storeName: "크라임씬플레이",
     branchName: "서면1호점",
-    representativeName: "윤호권",
-    businessRegistrationNumber: "839-87-00850",
+    businessName: "(주)싱글",
+    representativeName: "정지훈",
+    businessRegistrationNumber: "744-88-01446",
     mailOrderRegistrationNumber: "",
     phone: "070-4304-4340",
-    email: "dbsehrud93@naver.com",
+    email: "jjhun65@hanmail.net",
     addressRoad: "부산광역시 부산진구 신천대로50번길 62",
     addressDetail: "부전동 우성빌딩 4층",
     mapQuery: "부산광역시 부산진구 신천대로50번길 62",
@@ -24,17 +25,17 @@
     cancellationCutoffHours: 24,
     paymentMode: "ONSITE",
     paymentProvider: "KISPG",
-    privacyOfficerName: "개인정보 보호 담당자",
-    privacyOfficerContact: "dbsehrud93@naver.com / 070-4304-4340",
+    privacyOfficerName: "정지훈",
+    privacyOfficerContact: "jjhun65@hanmail.net / 070-4304-4340",
     refundPolicyConfirmed: false,
     customerNotice: "",
   };
 
   const FALLBACK_THEMES = [
-    { id:"A",slug:"orientation",episode:7,title:"크라임씬 EP.7 신입생 오티 살인사건",shortTitle:"신입생 오티 살인사건",tagline:"모두 같은 밤을 기억하지만, 진술은 서로 다릅니다.",synopsis:"환영회가 끝난 새벽, 연수원에서 한 사람이 숨진 채 발견됩니다. 흩어진 명찰과 끊긴 기억, 서로 어긋나는 진술을 따라 사건의 진실을 찾아야 합니다.",difficulty:"★★★★☆",minPlayers:4,suspectCapacity:4,detectiveCapacity:4,totalCapacity:8,duration:90,price:23000,image:"/images/theme-orientation.webp",times:["10:00","11:30","13:20","15:10","17:00","18:50","20:40","22:30"],status:"ACTIVE" },
-    { id:"B",slug:"youtuber",episode:8,title:"크라임씬 EP.8 유튜버 살인사건",shortTitle:"유튜버 살인사건",tagline:"마지막 생방송에서 사라진 12초, 누군가는 편집했습니다.",synopsis:"생방송이 끊긴 스튜디오에서 사건이 발생합니다. 카메라는 계속 돌아갔지만 결정적인 장면만 사라졌습니다. 공개된 얼굴 뒤에 숨은 관계를 추적하세요.",difficulty:"★★★★☆",minPlayers:4,suspectCapacity:5,detectiveCapacity:4,totalCapacity:9,duration:90,price:23000,image:"/images/theme-youtuber.webp",times:["10:00","11:50","13:40","15:30","17:20","19:10","21:00","22:50"],status:"ACTIVE" },
-    { id:"C",slug:"hotel",episode:3,title:"크라임씬 EP.3 호텔 살인사건",shortTitle:"호텔 살인사건",tagline:"잠든 듯 발견된 톱 여배우, 객실 열쇠는 하나뿐이었습니다.",synopsis:"화려한 호텔의 가장 조용한 객실에서 국내 톱 여배우가 숨진 채 발견됩니다. 통제된 동선과 서로 맞지 않는 투숙 기록 속에서 범인을 찾아야 합니다.",difficulty:"★★★★★",minPlayers:4,suspectCapacity:5,detectiveCapacity:4,totalCapacity:9,duration:90,price:23000,image:"/images/theme-hotel.webp",times:["10:00","12:10","14:00","15:50","17:40","19:30","21:20","23:10"],status:"ACTIVE" },
-    { id:"D",slug:"cabin",episode:4,title:"크라임씬 EP.4 산장 살인사건",shortTitle:"산장 살인사건",tagline:"폭설로 고립된 산장, 발자국은 들어왔지만 나가지 않았습니다.",synopsis:"한밤의 폭설이 모든 길을 지운 뒤 산장 안에서 사건이 발생합니다. 외부인의 흔적은 없고 출입문은 안에서 잠겨 있었습니다.",difficulty:"★★★★★",minPlayers:4,suspectCapacity:4,detectiveCapacity:4,totalCapacity:8,duration:90,price:23000,image:"/images/theme-cabin.webp",times:["11:00","12:30","14:20","16:10","18:00","19:50","21:40","23:30"],status:"ACTIVE" },
+    { id:"A",slug:"orientation",episode:7,title:"크라임씬 EP.7 신입생 오티 살인사건",shortTitle:"신입생 오티 살인사건",tagline:"모두 같은 밤을 기억하지만, 진술은 서로 다릅니다.",synopsis:"환영회가 끝난 새벽, 연수원에서 한 사람이 숨진 채 발견됩니다. 흩어진 명찰과 끊긴 기억, 서로 어긋나는 진술을 따라 사건의 진실을 찾아야 합니다.",minPlayers:4,suspectCapacity:4,detectiveCapacity:4,totalCapacity:8,duration:90,price:23000,image:"/images/theme-orientation.webp",times:["10:00","11:30","13:20","15:10","17:00","18:50","20:40","22:30"],status:"ACTIVE" },
+    { id:"B",slug:"youtuber",episode:8,title:"크라임씬 EP.8 유튜버 살인사건",shortTitle:"유튜버 살인사건",tagline:"마지막 생방송에서 사라진 12초, 누군가는 편집했습니다.",synopsis:"생방송이 끊긴 스튜디오에서 사건이 발생합니다. 카메라는 계속 돌아갔지만 결정적인 장면만 사라졌습니다. 공개된 얼굴 뒤에 숨은 관계를 추적하세요.",minPlayers:4,suspectCapacity:5,detectiveCapacity:4,totalCapacity:9,duration:90,price:23000,image:"/images/theme-youtuber.webp",times:["10:00","11:50","13:40","15:30","17:20","19:10","21:00","22:50"],status:"ACTIVE" },
+    { id:"C",slug:"hotel",episode:3,title:"크라임씬 EP.3 호텔 살인사건",shortTitle:"호텔 살인사건",tagline:"잠든 듯 발견된 톱 여배우, 객실 열쇠는 하나뿐이었습니다.",synopsis:"화려한 호텔의 가장 조용한 객실에서 국내 톱 여배우가 숨진 채 발견됩니다. 통제된 동선과 서로 맞지 않는 투숙 기록 속에서 범인을 찾아야 합니다.",minPlayers:4,suspectCapacity:5,detectiveCapacity:4,totalCapacity:9,duration:90,price:23000,image:"/images/theme-hotel.webp",times:["10:00","12:10","14:00","15:50","17:40","19:30","21:20","23:10"],status:"ACTIVE" },
+    { id:"D",slug:"cabin",episode:4,title:"크라임씬 EP.4 산장 살인사건",shortTitle:"산장 살인사건",tagline:"폭설로 고립된 산장, 발자국은 들어왔지만 나가지 않았습니다.",synopsis:"한밤의 폭설이 모든 길을 지운 뒤 산장 안에서 사건이 발생합니다. 외부인의 흔적은 없고 출입문은 안에서 잠겨 있었습니다.",minPlayers:4,suspectCapacity:4,detectiveCapacity:4,totalCapacity:8,duration:90,price:23000,image:"/images/theme-cabin.webp",times:["11:00","12:30","14:20","16:10","18:00","19:50","21:40","23:30"],status:"ACTIVE" },
   ];
 
   const state = {
@@ -59,7 +60,7 @@
   const path = (value = "") => `${BASE}/${value}`.replace(/\/$/, value ? "/" : "");
   const image = (value = "") => `${BASE}/images/${String(value).split("/").pop()}`;
   const iconArrow = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg>`;
-  const iconMenu = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`;
+  const iconMenu = `<span class="menu-lines" aria-hidden="true"><i></i><i></i><i></i></span>`;
   const iconClose = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></svg>`;
   const iconCheck = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>`;
 
@@ -102,6 +103,18 @@
     return { roomState,count,cap,min,remaining,...(map[roomState] || map.AVAILABLE) };
   }
 
+
+  function roomIntroductions(slot = {}, compact = false) {
+    const items = Array.isArray(slot.openRoomIntroductions)
+      ? slot.openRoomIntroductions.filter((item) => String(item?.message || "").trim())
+      : [];
+    if (!items.length) return "";
+    const shown = items.slice(0, compact ? 1 : 4);
+    const rows = shown.map((item) => `<p><b>${Number(item.partySize || 0)}명 팀</b><span>${h(item.message)}</span></p>`).join("");
+    const more = items.length > shown.length ? `<small>외 ${items.length - shown.length}팀의 소개가 있습니다.</small>` : "";
+    return `<div class="open-room-introductions ${compact ? "compact" : ""}"><strong>함께할 팀 소개</strong>${rows}${more}</div>`;
+  }
+
   async function api(endpoint, options = {}, timeout = 12000) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
@@ -132,14 +145,14 @@
     return `<a class="skip-link" href="#main-content">본문으로 바로가기</a><div class="customer-clarity" role="note" aria-label="필수 이용 안내"><div class="customer-clarity-inner"><strong>크라임씬 카페 안내</strong><span>방탈출카페가 아닙니다. 사건 속 인물이 되어 단서와 진술로 범인을 찾는 추리게임입니다.</span><a href="${path("policies/refunds")}">이용 당일 고객 사유 취소는 환불되지 않습니다.</a></div></div><header class="site-header"><div class="header-inner">
       <a class="brand" href="${path()}" aria-label="${h(state.settings.storeName)} ${h(state.settings.branchName)} 홈"><span class="brand-symbol">CS</span><span><b>${h(state.settings.storeName)}</b><small>${h(state.settings.branchName)}</small></span></a>
       <nav class="desktop-nav" aria-label="주요 메뉴">${nav.map(([slug,label])=>`<a class="${current===slug?"is-current":""}" href="${path(slug)}">${label}</a>`).join("")}</nav>
-      <div class="header-actions"><a class="header-phone" href="${phoneHref(state.settings.phone)}"><small>예약 문의</small><strong>${h(state.settings.phone)}</strong></a><a class="header-reserve" href="${path("reservations")}">예약하기 ${iconArrow}</a><button class="menu-open" type="button" aria-label="전체 메뉴 열기" aria-expanded="false">${iconMenu}</button></div>
+      <div class="header-actions"><a class="header-phone" href="${phoneHref(state.settings.phone)}"><small>예약 문의</small><strong>${h(state.settings.phone)}</strong></a><a class="header-reserve" href="${path("reservations")}">예약하기 ${iconArrow}</a><button class="menu-open" type="button" aria-label="전체 메뉴 열기" aria-expanded="false" aria-controls="mobile-drawer">${iconMenu}</button></div>
     </div></header>
-    <div class="drawer-backdrop" hidden></div><aside class="mobile-drawer" aria-hidden="true"><header><strong>메뉴</strong><button class="menu-close" type="button" aria-label="전체 메뉴 닫기">${iconClose}</button></header><nav>${nav.map(([slug,label])=>`<a href="${path(slug)}">${label}${iconArrow}</a>`).join("")}<a href="${path("reservations/lookup")}">예약 확인·취소${iconArrow}</a><a href="${path("faq")}">자주 묻는 질문${iconArrow}</a></nav><footer><span>예약 문의</span><a href="${phoneHref(state.settings.phone)}">${h(state.settings.phone)}</a></footer></aside>`;
+    <div class="drawer-backdrop" hidden></div><aside id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" tabindex="-1" aria-hidden="true"><header><strong>메뉴</strong><button class="menu-close" type="button" aria-label="전체 메뉴 닫기">${iconClose}</button></header><nav>${nav.map(([slug,label])=>`<a href="${path(slug)}">${label}${iconArrow}</a>`).join("")}<a href="${path("reservations/lookup")}">예약 확인·취소${iconArrow}</a><a href="${path("faq")}">자주 묻는 질문${iconArrow}</a></nav><footer><span>예약 문의</span><a href="${phoneHref(state.settings.phone)}">${h(state.settings.phone)}</a></footer></aside>`;
   }
 
   function footer() {
     const s=state.settings;
-    return `<footer class="site-footer"><div class="footer-main"><div class="footer-brand"><strong>${h(s.storeName)}</strong><span>${h(s.branchName)}</span><p>사건 속 배역을 맡아 현장을 조사하고, 대화와 추리로 범인을 찾는 역할형 추리게임입니다.</p></div><div class="footer-columns"><div><b>예약</b><a href="${path("reservations")}">실시간 예약</a><a href="${path("reservations/lookup")}">예약 확인·취소</a><a href="${path("guide")}">이용 안내</a></div><div><b>고객 안내</b><a href="${path("notices")}">공지사항</a><a href="${path("faq")}">자주 묻는 질문·문의</a><a href="${path("location")}">오시는 길</a></div><div><b>매장 정보</b><a href="${phoneHref(s.phone)}">${h(s.phone)}</a><a href="mailto:${h(s.email)}">${h(s.email)}</a><span>${h(s.addressRoad)}<br>${h(s.addressDetail)}</span></div></div></div><div class="footer-legal"><div><span>${h(s.storeName)} · 대표 ${h(s.representativeName)} · 사업자등록번호 ${h(s.businessRegistrationNumber)}</span>${s.mailOrderRegistrationNumber?`<span>통신판매업 신고번호 ${h(s.mailOrderRegistrationNumber)}</span>`:""}</div><nav><a href="${path("policies/terms")}">이용약관</a><a href="${path("policies/privacy")}">개인정보처리방침</a><a href="${path("policies/refunds")}">취소 안내</a></nav></div></footer>`;
+    return `<footer class="site-footer"><div class="footer-main"><div class="footer-brand"><strong>${h(s.storeName)}</strong><span>${h(s.branchName)}</span><p>사건 속 배역을 맡아 현장을 조사하고, 대화와 추리로 범인을 찾는 역할형 추리게임입니다.</p></div><div class="footer-columns"><div><b>예약</b><a href="${path("reservations")}">실시간 예약</a><a href="${path("reservations/lookup")}">예약 확인·취소</a><a href="${path("guide")}">이용 안내</a></div><div><b>고객 안내</b><a href="${path("notices")}">공지사항</a><a href="${path("faq")}">자주 묻는 질문·문의</a><a href="${path("location")}">오시는 길</a></div><div><b>매장 정보</b><a href="${phoneHref(s.phone)}">${h(s.phone)}</a><a href="mailto:${h(s.email)}">${h(s.email)}</a><span>${h(s.addressRoad)}<br>${h(s.addressDetail)}</span></div></div></div><div class="footer-legal"><div><span>${h(s.businessName||s.storeName)} · 대표 ${h(s.representativeName)} · 사업자등록번호 ${h(s.businessRegistrationNumber)}</span>${s.mailOrderRegistrationNumber?`<span>통신판매업 신고번호 ${h(s.mailOrderRegistrationNumber)}</span>`:""}</div><nav><a href="${path("policies/terms")}">이용약관</a><a href="${path("policies/privacy")}">개인정보처리방침</a><a href="${path("policies/refunds")}">취소 및 환불</a></nav></div></footer>`;
   }
 
   function pageTitle(kicker,title,description,extra="") {
@@ -161,7 +174,7 @@
   }
 
   function themesPage() {
-    return `${header("themes")}<main id="main-content">${pageTitle("사건 소개","진행 중인 사건","각 사건은 서로 다른 이야기와 배역으로 구성됩니다.")}<section class="section theme-list">${state.themes.map((theme,index)=>`<article><a class="theme-list-image" href="${path(`themes/${theme.slug}`)}"><img src="${image(theme.image)}" alt="${h(theme.shortTitle)}"><span>사건 ${String(index+1).padStart(2,"0")}</span></a><div><p>EP.${theme.episode}</p><h2>${h(theme.shortTitle)}</h2><blockquote>${h(theme.tagline)}</blockquote><span>${h(theme.synopsis)}</span><dl><div><dt>역할 정원</dt><dd>${h(capacity(theme))}<br>최소 ${theme.minPlayers}명 · 최대 ${theme.totalCapacity}명</dd></div><div><dt>이용 시간</dt><dd>${theme.duration}분</dd></div><div><dt>난이도</dt><dd>${h(theme.difficulty)}</dd></div><div><dt>이용 요금</dt><dd>${money(theme.price)} / 1인</dd></div></dl><div class="theme-actions"><a class="button primary" href="${path("reservations")}?theme=${theme.id}">예약 시간 보기 ${iconArrow}</a><a href="${path(`themes/${theme.slug}`)}">상세 소개</a></div></div></article>`).join("")}</section></main>${footer()}`;
+    return `${header("themes")}<main id="main-content">${pageTitle("사건 소개","진행 중인 사건","각 사건은 서로 다른 이야기와 배역으로 구성됩니다.")}<section class="section theme-list">${state.themes.map((theme,index)=>`<article><a class="theme-list-image" href="${path(`themes/${theme.slug}`)}"><img src="${image(theme.image)}" alt="${h(theme.shortTitle)}"><span>사건 ${String(index+1).padStart(2,"0")}</span></a><div><p>EP.${theme.episode}</p><h2>${h(theme.shortTitle)}</h2><blockquote>${h(theme.tagline)}</blockquote><span>${h(theme.synopsis)}</span><dl><div><dt>역할 정원</dt><dd>${h(capacity(theme))}<br>최소 ${theme.minPlayers}명 · 최대 ${theme.totalCapacity}명</dd></div><div><dt>이용 시간</dt><dd>${theme.duration}분</dd></div><div><dt>이용 요금</dt><dd>${money(theme.price)} / 1인</dd></div></dl><div class="theme-actions"><a class="button primary" href="${path("reservations")}?theme=${theme.id}">예약 시간 보기 ${iconArrow}</a><a href="${path(`themes/${theme.slug}`)}">상세 소개</a></div></div></article>`).join("")}</section></main>${footer()}`;
   }
 
   function themePage(slug) {
@@ -190,7 +203,7 @@
       try{
         const data=await api(`/availability?date=${encodeURIComponent(selectedDate)}${selectedTheme?`&theme=${encodeURIComponent(selectedTheme)}`:""}`);
         if(id!==request)return;
-        schedule.innerHTML=data.themes.map(theme=>`<article class="schedule-theme"><header><img src="${image(theme.image)}" alt=""><div><p>EP.${theme.episode}</p><h3>${h(theme.shortTitle)}</h3><span>${theme.duration}분 · ${money(theme.price)} / 1인</span><small>${h(capacity(theme))} · 최대 ${theme.totalCapacity}명</small></div><a href="${path(`themes/${theme.slug}`)}">사건 소개</a></header><div class="slot-grid">${theme.times.map(slot=>{const info=roomInfo(slot,theme);const href=`${path("reservations/new")}?${new URLSearchParams({theme:theme.id,date:selectedDate,time:slot.time})}`;return info.canBook?`<a class="slot ${info.tone}" href="${href}"><time>${h(slot.time)}</time><strong>${h(info.label)}</strong><span>${h(info.detail)}</span><b>${h(info.action)} ${iconArrow}</b></a>`:`<div class="slot ${info.tone} disabled" aria-disabled="true"><time>${h(slot.time)}</time><strong>${h(info.label)}</strong><span>${h(info.detail)}</span><b>${h(info.action)}</b></div>`;}).join("")}</div></article>`).join("");
+        schedule.innerHTML=data.themes.map(theme=>`<article class="schedule-theme"><header><img src="${image(theme.image)}" alt=""><div><p>EP.${theme.episode}</p><h3>${h(theme.shortTitle)}</h3><span>${theme.duration}분 · ${money(theme.price)} / 1인</span><small>${h(capacity(theme))} · 최대 ${theme.totalCapacity}명</small></div><a href="${path(`themes/${theme.slug}`)}">사건 소개</a></header><div class="slot-grid">${theme.times.map(slot=>{const info=roomInfo(slot,theme);const href=`${path("reservations/new")}?${new URLSearchParams({theme:theme.id,date:selectedDate,time:slot.time})}`;return info.canBook?`<a class="slot ${info.tone}" href="${href}"><time>${h(slot.time)}</time><strong>${h(info.label)}</strong><span>${h(info.detail)}</span>${roomIntroductions(slot,true)}<b>${h(info.action)} ${iconArrow}</b></a>`:`<div class="slot ${info.tone} disabled" aria-disabled="true"><time>${h(slot.time)}</time><strong>${h(info.label)}</strong><span>${h(info.detail)}</span>${roomIntroductions(slot,true)}<b>${h(info.action)}</b></div>`;}).join("")}</div></article>`).join("");
       }catch(error){if(id!==request)return;schedule.innerHTML=`<div class="error-panel"><strong>회차를 불러오지 못했습니다.</strong><p>${h(error.message)}</p><button type="button">다시 확인</button></div>`;schedule.querySelector("button")?.addEventListener("click",load);}
     }
     dates.querySelectorAll("[data-date]").forEach(button=>button.addEventListener("click",()=>{dates.querySelectorAll("button").forEach(x=>{x.classList.remove("is-selected");x.setAttribute("aria-pressed","false");});button.classList.add("is-selected");button.setAttribute("aria-pressed","true");selectedDate=button.dataset.date;load();}));
@@ -201,7 +214,7 @@
   function reservationNewPage() {
     const params=new URLSearchParams(location.search),theme=themeById(params.get("theme")),date=params.get("date")||"",time=params.get("time")||"";
     if(!theme||!date||!time)return `${header("reservations")}<main id="main-content">${pageTitle("예약 정보 입력","선택한 회차가 없습니다.","실시간 예약 화면에서 사건과 시간을 먼저 선택해 주세요.")}<section class="section empty-page"><a class="button primary" href="${path("reservations")}">실시간 예약으로 돌아가기</a></section></main>${footer()}`;
-    return `${header("reservations")}<main id="main-content">${pageTitle("예약 정보 입력","예약 내용을 확인해 주세요.","게임 방식과 취소 규정을 확인한 뒤 예약자 정보를 입력해 주세요.","form-title")}<section class="section booking-layout"><aside class="booking-summary"><img src="${image(theme.image)}" alt="${h(theme.shortTitle)}"><div><p>선택한 사건</p><h2>${h(theme.shortTitle)}</h2><dl><div><dt>날짜</dt><dd>${h(formatDate(date))}</dd></div><div><dt>시간</dt><dd>${h(time)}</dd></div><div><dt>이용 시간</dt><dd>${theme.duration}분</dd></div><div><dt>정원</dt><dd>최소 ${theme.minPlayers}명 · 최대 ${theme.totalCapacity}명</dd></div><div><dt>요금</dt><dd>${money(theme.price)} / 1인</dd></div></dl><a href="${path("reservations")}">다른 회차 선택</a></div></aside><form id="booking-form" class="booking-form" novalidate><section class="form-section"><header><span>1</span><div><h2>현재 회차</h2><p>남은 자리와 오픈룸 상태를 먼저 확인합니다.</p></div></header><div id="room-status" class="room-status loading"><i></i><strong>회차를 확인하고 있습니다.</strong></div></section><section class="form-section"><header><span>2</span><div><h2>이용 인원</h2><p>참가할 전체 인원을 선택해 주세요.</p></div></header><div class="party-buttons" id="party-buttons"></div><label class="open-choice" id="open-choice"><input type="checkbox" name="openRoom"><span class="check-box">${iconCheck}</span><div><strong>남은 자리를 다른 팀에게 열기</strong><p>4명 이상일 때 선택할 수 있습니다. 선택하지 않으면 단독팀으로 예약됩니다.</p></div></label><label class="field open-intro" id="open-intro"><span>오픈룸 소개 <em>필수</em></span><textarea name="specialRequest" maxlength="300" placeholder="예: 20대 2명입니다. 즐겁게 플레이하고 싶어요."></textarea><small>같이 플레이할 다른 팀에게만 필요한 간단한 소개를 적어 주세요.</small></label></section><section class="form-section"><header><span>3</span><div><h2>예약자 정보</h2><p>예약 확인과 매장 안내에 사용합니다.</p></div></header><div class="field-grid"><label class="field"><span>예약자 이름 <em>필수</em></span><input name="customerName" autocomplete="name" maxlength="20" required placeholder="이름"></label><label class="field"><span>휴대폰 번호 <em>필수</em></span><input name="phone" autocomplete="tel" inputmode="tel" maxlength="13" required placeholder="010-0000-0000"></label></div></section><section class="form-section"><header><span>4</span><div><h2>최종 확인</h2><p>예약 내용과 필수 안내를 확인해 주세요.</p></div></header><div class="order-summary"><div><span>예약 인원</span><strong><b id="party-count">-</b>명</strong></div><div><span>이용 예정 금액</span><strong id="total-price">-</strong></div></div><div class="booking-critical-notice"><strong>예약 전 반드시 확인해 주세요</strong><p>사건 속 인물을 맡아 단서와 진술로 범인을 찾는 크라임씬 추리게임입니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div><div class="payment-guide" id="payment-guide"></div><div class="consents"><label><input type="checkbox" name="privacyConsent" required><span class="check-box">${iconCheck}</span><div><strong>[필수] 개인정보 수집·이용 동의</strong><p>수집 항목: 이름, 휴대폰 번호, 예약 내용, 요청사항. 예약 확인·변경·취소와 운영 안내에 사용하며 계약·취소 기록은 5년간 보관합니다. 동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다.</p></div></label><label><input type="checkbox" name="cancellationConsent" required><span class="check-box">${iconCheck}</span><div><strong>[필수] 당일 취소 및 환불 안내 확인</strong><p>이용 ${state.settings.cancellationCutoffHours}시간 전까지 온라인 취소가 가능합니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div></label></div><div id="booking-message" class="form-message" role="alert"></div><button class="submit-booking" type="submit" disabled><span>예약 확정하기</span><strong id="submit-price">-</strong>${iconArrow}</button></section></form></section></main>${footer()}`;
+    return `${header("reservations")}<main id="main-content">${pageTitle("예약 정보 입력","예약 내용을 확인해 주세요.","게임 방식과 취소 규정을 확인한 뒤 예약자 정보를 입력해 주세요.","form-title")}<section class="section booking-layout"><aside class="booking-summary"><img src="${image(theme.image)}" alt="${h(theme.shortTitle)}"><div><p>선택한 사건</p><h2>${h(theme.shortTitle)}</h2><dl><div><dt>날짜</dt><dd>${h(formatDate(date))}</dd></div><div><dt>시간</dt><dd>${h(time)}</dd></div><div><dt>이용 시간</dt><dd>${theme.duration}분</dd></div><div><dt>정원</dt><dd>최소 ${theme.minPlayers}명 · 최대 ${theme.totalCapacity}명</dd></div><div><dt>요금</dt><dd>${money(theme.price)} / 1인</dd></div></dl><a href="${path("reservations")}">다른 회차 선택</a></div></aside><form id="booking-form" class="booking-form" novalidate><section class="form-section"><header><span>1</span><div><h2>현재 회차</h2><p>남은 자리와 오픈룸 상태를 먼저 확인합니다.</p></div></header><div id="room-status" class="room-status loading"><i></i><strong>회차를 확인하고 있습니다.</strong></div></section><section class="form-section"><header><span>2</span><div><h2>이용 인원</h2><p>참가할 전체 인원을 선택해 주세요.</p></div></header><div class="party-buttons" id="party-buttons"></div><label class="open-choice" id="open-choice"><input type="checkbox" name="openRoom"><span class="check-box">${iconCheck}</span><div><strong>남은 자리를 다른 팀에게 열기</strong><p>4명 이상일 때 선택할 수 있습니다. 선택하지 않으면 단독팀으로 예약됩니다.</p></div></label><label class="field open-intro" id="open-intro"><span>오픈룸 소개 <em>필수</em></span><textarea name="specialRequest" maxlength="300" placeholder="예: 20대 2명입니다. 즐겁게 플레이하고 싶어요."></textarea><small>예약 시간표의 해당 오픈룸과 합류 화면에 표시됩니다. 이름이나 연락처는 적지 마세요.</small></label></section><section class="form-section"><header><span>3</span><div><h2>예약자 정보</h2><p>예약 확인과 매장 안내에 사용합니다.</p></div></header><div class="field-grid"><label class="field"><span>예약자 이름 <em>필수</em></span><input name="customerName" autocomplete="name" maxlength="20" required placeholder="이름"></label><label class="field"><span>휴대폰 번호 <em>필수</em></span><input name="phone" autocomplete="tel" inputmode="tel" maxlength="13" required placeholder="010-0000-0000"></label></div></section><section class="form-section"><header><span>4</span><div><h2>최종 확인</h2><p>예약 내용과 필수 안내를 확인해 주세요.</p></div></header><div class="order-summary"><div><span>예약 인원</span><strong><b id="party-count">-</b>명</strong></div><div><span>이용 예정 금액</span><strong id="total-price">-</strong></div></div><div class="booking-critical-notice"><strong>예약 전 반드시 확인해 주세요</strong><p>사건 속 인물을 맡아 단서와 진술로 범인을 찾는 크라임씬 추리게임입니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div><div class="payment-guide" id="payment-guide"></div><div class="consents"><label><input type="checkbox" name="privacyConsent" required><span class="check-box">${iconCheck}</span><div><strong>[필수] 개인정보 수집·이용 동의</strong><p>수집 항목: 이름, 휴대폰 번호, 예약 내용, 요청사항. 예약 확인·변경·취소와 운영 안내에 사용하며 계약·취소 기록은 5년간 보관합니다. 동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다.</p></div></label><label><input type="checkbox" name="cancellationConsent" required><span class="check-box">${iconCheck}</span><div><strong>[필수] 당일 취소 및 환불 안내 확인</strong><p>이용 ${state.settings.cancellationCutoffHours}시간 전까지 온라인 취소가 가능합니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div></label></div><div id="booking-message" class="form-message" role="alert"></div><button class="submit-booking" type="submit" disabled><span>예약 확정하기</span><strong id="submit-price">-</strong>${iconArrow}</button></section></form></section></main>${footer()}`;
   }
 
   function bindReservationNewPage() {
@@ -230,7 +243,7 @@
       ready=false;submit.disabled=true;status.className="room-status loading";status.innerHTML=`<i></i><strong>회차를 확인하고 있습니다.</strong>`;
       try{
         const data=await api(`/availability?date=${encodeURIComponent(playDate)}&theme=${encodeURIComponent(theme.id)}`),current=data.themes?.[0]?.times?.find(x=>x.time===startTime);
-        if(!current)throw new Error("선택한 회차를 찾을 수 없습니다.");slot=current;const info=roomInfo(slot,theme);status.className=`room-status ${info.tone}`;status.innerHTML=`<span>${h(info.label)}</span><strong>${h(info.detail)}</strong><small>${info.roomState==="AVAILABLE"?`이 사건은 최대 ${theme.totalCapacity}명까지 참여할 수 있습니다.`:h(info.action)}</small>`;
+        if(!current)throw new Error("선택한 회차를 찾을 수 없습니다.");slot=current;const info=roomInfo(slot,theme);status.className=`room-status ${info.tone}`;status.innerHTML=`<span>${h(info.label)}</span><strong>${h(info.detail)}</strong><small>${info.roomState==="AVAILABLE"?`이 사건은 최대 ${theme.totalCapacity}명까지 참여할 수 있습니다.`:h(info.action)}</small>${roomIntroductions(slot,false)}`;
         if(!info.canBook){picker.innerHTML="";submit.disabled=true;submit.querySelector("span").textContent="예약할 수 없는 회차입니다";return;}
         const max=info.roomState==="AVAILABLE"?theme.totalCapacity:info.remaining,preferred=info.roomState==="AVAILABLE"?Math.min(theme.minPlayers,max):1;renderPicker(max,preferred);ready=true;submit.disabled=false;submit.querySelector("span").textContent=joining()?"오픈룸 합류 예약":"예약 확정하기";update();
       }catch(error){status.className="room-status closed";status.innerHTML=`<strong>회차를 확인하지 못했습니다.</strong><p>${h(error.message)}</p><button type="button">다시 확인</button>`;status.querySelector("button")?.addEventListener("click",load);}
@@ -313,7 +326,7 @@
     const s=state.settings;
     const policies={
       terms:{title:"이용약관",desc:"예약 및 체험 서비스 이용에 관한 기본 조건입니다.",sections:[
-        ["1. 목적",`${s.storeName}(이하 “매장”)이 제공하는 크라임씬 추리게임 예약 및 체험 서비스의 이용 조건과 이용자와 매장 사이의 권리·의무를 정합니다. 이용자는 사건 속 인물이 되어 현장을 조사하고 단서와 진술로 용의자 중 범인을 찾습니다.`],
+        ["1. 목적",`${s.businessName||s.storeName}(이하 “매장”)이 제공하는 크라임씬 추리게임 예약 및 체험 서비스의 이용 조건과 이용자와 매장 사이의 권리·의무를 정합니다. 이용자는 사건 속 인물이 되어 현장을 조사하고 단서와 진술로 용의자 중 범인을 찾습니다.`],
         ["2. 예약의 성립",state.payment.onlineEnabled?"이용자가 예약 정보를 제출하고 온라인 결제를 완료한 뒤 매장이 예약을 확정하면 예약이 성립합니다.":"이용자가 예약 정보를 제출하고 화면에 예약 확정 결과가 표시되면 예약이 성립합니다. 이용 금액은 방문 당일 매장에서 결제합니다."],
         ["3. 정확한 정보 입력","이용자는 예약 확인과 운영 안내를 받을 수 있도록 정확한 이름과 휴대폰 번호를 입력해야 합니다. 잘못된 정보로 안내를 받지 못한 경우 매장으로 문의해 주세요."],
         ["4. 이용 시간과 입장",`배역 배정과 안내를 위해 시작 ${s.arrivalMinutes}분 전까지 도착해 주세요. 시작 후에는 전체 진행 흐름 때문에 입장이 제한되거나 이용 시간이 줄어들 수 있습니다.`],
@@ -343,7 +356,7 @@
       ]},
     };
     const data=policies[kind]||policies.terms;
-    return `${header("guide")}<main id="main-content">${pageTitle("약관 및 정책",data.title,data.desc,"policy-title")}<section class="section policy-layout"><aside><strong>약관 및 정책</strong><a class="${kind==="terms"?"is-current":""}" href="${path("policies/terms")}">이용약관</a><a class="${kind==="privacy"?"is-current":""}" href="${path("policies/privacy")}">개인정보처리방침</a><a class="${kind==="refunds"?"is-current":""}" href="${path("policies/refunds")}">예약 취소 안내</a><small>시행일: 2026년 8월 16일</small></aside><article>${data.sections.map(([title,content])=>`<section><h2>${h(title)}</h2><p>${h(content)}</p></section>`).join("")}</article></section></main>${footer()}`;
+    return `${header("guide")}<main id="main-content">${pageTitle("약관 및 정책",data.title,data.desc,"policy-title")}<section class="section policy-layout"><aside><strong>약관 및 정책</strong><a class="${kind==="terms"?"is-current":""}" href="${path("policies/terms")}">이용약관</a><a class="${kind==="privacy"?"is-current":""}" href="${path("policies/privacy")}">개인정보처리방침</a><a class="${kind==="refunds"?"is-current":""}" href="${path("policies/refunds")}">취소 및 환불 안내</a><small>시행일: 2026년 8월 16일</small></aside><article>${data.sections.map(([title,content])=>`<section><h2>${h(title)}</h2><p>${h(content)}</p></section>`).join("")}</article></section></main>${footer()}`;
   }
 
   function notFoundPage() { return `<main id="main-content" class="not-found"><strong>404</strong><h1>페이지를 찾을 수 없습니다.</h1><p>주소가 바뀌었거나 존재하지 않는 페이지입니다.</p><a class="button primary" href="${path()}">홈으로 돌아가기</a></main>`; }
@@ -368,9 +381,59 @@
   }
 
   function bindCommon() {
-    const drawer=document.querySelector(".mobile-drawer"),backdrop=document.querySelector(".drawer-backdrop"),open=document.querySelector(".menu-open"),close=document.querySelector(".menu-close");
-    function setDrawer(show){if(!drawer||!backdrop||!open)return;drawer.classList.toggle("is-open",show);drawer.setAttribute("aria-hidden",String(!show));backdrop.hidden=!show;open.setAttribute("aria-expanded",String(show));document.body.classList.toggle("drawer-open",show);}
-    open?.addEventListener("click",()=>setDrawer(true));close?.addEventListener("click",()=>setDrawer(false));backdrop?.addEventListener("click",()=>setDrawer(false));addEventListener("keydown",event=>{if(event.key==="Escape")setDrawer(false);});
+    const drawer=document.querySelector(".mobile-drawer"),backdrop=document.querySelector(".drawer-backdrop"),openButton=document.querySelector(".menu-open"),closeButton=document.querySelector(".menu-close"),clarity=document.querySelector(".customer-clarity");
+    const syncTopOffset=()=>{
+      if(!clarity)return;
+      const height=Math.ceil(clarity.getBoundingClientRect().height);
+      if(height>0)document.documentElement.style.setProperty("--customer-clarity-height",`${height}px`);
+    };
+    syncTopOffset();
+    if(clarity&&globalThis.ResizeObserver)new ResizeObserver(syncTopOffset).observe(clarity);
+    addEventListener("resize",syncTopOffset,{passive:true});
+    if(!drawer||!backdrop||!openButton)return;
+    let lastFocused=null,lastTouch=0;
+    function setDrawer(show){
+      if(show){
+        lastFocused=document.activeElement;
+        backdrop.hidden=false;
+        requestAnimationFrame(()=>backdrop.classList.add("is-open"));
+      }else{
+        backdrop.classList.remove("is-open");
+        backdrop.hidden=true;
+      }
+      drawer.classList.toggle("is-open",show);
+      drawer.setAttribute("aria-hidden",String(!show));
+      openButton.setAttribute("aria-expanded",String(show));
+      document.body.classList.toggle("drawer-open",show);
+      if(show){drawer.focus();closeButton?.focus();}
+      else if(lastFocused?.focus)lastFocused.focus();
+    }
+    function handleMenuAction(event){
+      const target=event.target?.closest?.(".menu-open,.menu-close,.drawer-backdrop,.mobile-drawer a");
+      if(!target)return;
+      if(target.matches(".menu-open")){event.preventDefault();event.stopPropagation();setDrawer(true);}
+      else if(target.matches(".menu-close,.drawer-backdrop")){event.preventDefault();setDrawer(false);}
+      else if(target.matches(".mobile-drawer a"))setDrawer(false);
+    }
+    document.addEventListener("pointerup",event=>{
+      if(event.pointerType!=="touch")return;
+      lastTouch=Date.now();
+      handleMenuAction(event);
+    },true);
+    document.addEventListener("click",event=>{
+      if(Date.now()-lastTouch<650)return;
+      handleMenuAction(event);
+    },true);
+    document.addEventListener("keydown",event=>{
+      if(event.key==="Escape"&&drawer.classList.contains("is-open")){event.preventDefault();setDrawer(false);return;}
+      if(event.key!=="Tab"||!drawer.classList.contains("is-open"))return;
+      const focusable=[...drawer.querySelectorAll("a,button,[tabindex]:not([tabindex='-1'])")].filter(node=>!node.disabled);
+      if(!focusable.length)return;
+      const first=focusable[0],last=focusable[focusable.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    });
+    addEventListener("popstate",()=>setDrawer(false));
     addEventListener("scroll",()=>document.querySelector(".site-header")?.classList.toggle("is-scrolled",scrollY>20),{passive:true});
   }
 
