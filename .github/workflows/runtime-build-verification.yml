@@ -1,3 +1,4 @@
+# Final full-build check after runtime metadata cleanup
 name: Runtime build verification
 
 on:
@@ -20,10 +21,11 @@ jobs:
         with:
           node-version: 22
       - name: Install locked dependencies
+        env:
+          SITES_INSTALL_TIMEOUT: 10m
         run: npm run install:ci
       - name: Build and validate runtime artifact
         env:
-          SITES_INSTALL_TIMEOUT: 10m
           SITES_BUILD_TIMEOUT: 5m
         shell: bash
         run: |
