@@ -65,7 +65,7 @@ jobs:
           grep -q 'aria-controls="mobile-drawer"' _site/assets/customer-final.js
           grep -q 'document.addEventListener("click"' _site/assets/customer-final.js
           grep -q 'open-room-introductions' _site/assets/customer-final.js
-          grep -q 'OWNER FEEDBACK FIX 2026-08-19' _site/assets/final.css
+          grep -q 'OWNER FEEDBACK FINAL 2026-08-19' _site/assets/final.css
           ! grep -q '난이도</dt>' _site/assets/customer-final.js
           ! grep -q 'theme.difficulty' _site/assets/customer-final.js
           ! grep -Eq 'Supabase|OWNER|Reservation form|AES-GCM|서비스 역할' _site/assets/customer-final.js
@@ -160,7 +160,7 @@ jobs:
           grep -q 'jjhun65@hanmail.net' /tmp/customer-final.js
           grep -q 'aria-controls="mobile-drawer"' /tmp/customer-final.js
           grep -q 'open-room-introductions' /tmp/customer-final.js
-          grep -q 'OWNER FEEDBACK FIX 2026-08-19' /tmp/final.css
+          grep -q 'OWNER FEEDBACK FINAL 2026-08-19' /tmp/final.css
           ! grep -q '난이도</dt>' /tmp/customer-final.js
           ! grep -q 'theme.difficulty' /tmp/customer-final.js
           grep -q 'data-route="home"' /tmp/home.html
