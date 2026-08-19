@@ -1,4 +1,4 @@
-# Full build check after executable mode corrections
+# Full build check after all helper mode corrections
 name: Runtime build verification
 
 on:
