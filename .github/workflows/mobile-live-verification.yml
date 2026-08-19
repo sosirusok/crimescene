@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/mobile-live-verification.yml'
+      - 'scripts/verify-live-mobile.mjs'
   workflow_dispatch:
 
 permissions:
