@@ -133,3 +133,14 @@ body.drawer-open .mobile-drawer,body.drawer-open .drawer-backdrop{pointer-events
 .room-status .open-room-introductions{width:100%;margin-top:14px}
 @media(max-width:860px){.menu-open{display:grid!important}.mobile-drawer{width:min(340px,92vw);padding-top:max(22px,env(safe-area-inset-top))}}
 @media(max-width:600px){.theme-list dl{grid-template-columns:1fr}.slot .open-room-introductions{margin-top:8px}.open-room-introductions p{grid-template-columns:1fr;gap:1px}}
+
+
+/* RESERVATION MOBILE WIDTH FIX 2026-08-19 */
+html{max-width:100%;overflow-x:hidden}
+body{max-width:100%;overflow-x:clip}
+.reservation-shell,.schedule-controls,.schedule-controls>section,.date-row,.theme-filter,.schedule-heading,.schedule,.schedule-theme,.slot-grid{min-width:0;max-width:100%}
+.schedule-controls>section{width:100%}
+.date-row{width:100%;overflow-x:auto;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
+.theme-filter{width:100%}
+.schedule-theme{width:100%}
+@media(max-width:600px){.reservation-shell{overflow-x:clip}.slot-grid{width:100%}.schedule-theme>header{width:100%}}
