@@ -1,0 +1,225 @@
+name: Apply owner feedback to customer site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-owner-feedback.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-owner-feedback-customer
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Apply verified customer changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          js_path = Path('pages-src/customer-final.js')
+          css_path = Path('pages-src/final.css')
+          shell_path = Path('pages-src/shell.html')
+          smoke_path = Path('scripts/smoke-customer.cjs')
+
+          js = js_path.read_text(encoding='utf-8')
+          css = css_path.read_text(encoding='utf-8')
+          shell = shell_path.read_text(encoding='utf-8')
+          smoke = smoke_path.read_text(encoding='utf-8')
+
+          def replace_once(text, old, new, label):
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected 1 occurrence, found {count}')
+              return text.replace(old, new, 1)
+
+          if 'businessName: "(주)싱글"' not in js:
+              js = replace_once(
+                  js,
+                  '    branchName: "서면1호점",\n    representativeName:',
+                  '    branchName: "서면1호점",\n    businessName: "(주)싱글",\n    representativeName:',
+                  'insert business name',
+              )
+
+          js = js.replace('representativeName: "윤호권"', 'representativeName: "정지훈"')
+          js = js.replace('businessRegistrationNumber: "839-87-00850"', 'businessRegistrationNumber: "744-88-01446"')
+          js = js.replace('email: "dbsehrud93@naver.com"', 'email: "jjhun65@hanmail.net"')
+          js = js.replace('privacyOfficerName: "개인정보 보호 담당자"', 'privacyOfficerName: "정지훈"')
+          js = js.replace('privacyOfficerContact: "dbsehrud93@naver.com / 070-4304-4340"', 'privacyOfficerContact: "jjhun65@hanmail.net / 070-4304-4340"')
+
+          js = re.sub(r',difficulty:"[^"]*"', '', js)
+          difficulty_block = '<div><dt>난이도</dt><dd>${h(theme.difficulty)}</dd></div>'
+          if difficulty_block in js:
+              js = js.replace(difficulty_block, '')
+
+          js = js.replace('${h(s.storeName)} · 대표 ${h(s.representativeName)}', '${h(s.businessName||s.storeName)} · 대표 ${h(s.representativeName)}')
+          js = js.replace('${s.storeName}(이하 “매장”)', '${s.businessName||s.storeName}(이하 “매장”)')
+
+          helper = '''
+  function roomIntroductions(slot = {}, compact = false) {
+    const items = Array.isArray(slot.openRoomIntroductions)
+      ? slot.openRoomIntroductions.filter((item) => String(item?.message || "").trim())
+      : [];
+    if (!items.length) return "";
+    const shown = items.slice(0, compact ? 2 : 4);
+    const rows = shown.map((item) => `<p><b>${Number(item.partySize || 0)}명 팀</b><span>${h(item.message)}</span></p>`).join("");
+    const more = items.length > shown.length ? `<small>외 ${items.length - shown.length}팀의 소개가 있습니다.</small>` : "";
+    return `<div class="open-room-introductions ${compact ? "compact" : ""}"><strong>함께할 팀 소개</strong>${rows}${more}</div>`;
+  }
+'''
+          if 'function roomIntroductions(' not in js:
+              marker = '  async function api(endpoint, options = {}, timeout = 12000) {'
+              if marker not in js:
+                  raise SystemExit('room introduction helper insertion point missing')
+              js = js.replace(marker, helper + '\n' + marker, 1)
+
+          js = js.replace(
+              '<span>${h(info.detail)}</span><b>${h(info.action)} ${iconArrow}</b>',
+              '<span>${h(info.detail)}</span>${roomIntroductions(slot,true)}<b>${h(info.action)} ${iconArrow}</b>',
+          )
+          js = js.replace(
+              '<span>${h(info.detail)}</span><b>${h(info.action)}</b>',
+              '<span>${h(info.detail)}</span>${roomIntroductions(slot,true)}<b>${h(info.action)}</b>',
+          )
+
+          old_status = 'status.innerHTML=`<span>${h(info.label)}</span><strong>${h(info.detail)}</strong><small>${info.roomState==="AVAILABLE"?`이 사건은 최대 ${theme.totalCapacity}명까지 참여할 수 있습니다.`:h(info.action)}</small>`;'
+          new_status = 'status.innerHTML=`<span>${h(info.label)}</span><strong>${h(info.detail)}</strong><small>${info.roomState==="AVAILABLE"?`이 사건은 최대 ${theme.totalCapacity}명까지 참여할 수 있습니다.`:h(info.action)}</small>${roomIntroductions(slot,false)}`;'
+          js = replace_once(js, old_status, new_status, 'reservation room introduction rendering')
+
+          js = js.replace(
+              '같이 플레이할 다른 팀에게만 필요한 간단한 소개를 적어 주세요.',
+              '예약표와 오픈룸 합류 화면에 표시됩니다. 이름이나 연락처는 적지 마세요.',
+          )
+
+          js = js.replace('<aside class="mobile-drawer"', '<aside id="mobile-drawer" class="mobile-drawer"')
+          js = js.replace('aria-expanded="false">${iconMenu}', 'aria-expanded="false" aria-controls="mobile-drawer">${iconMenu}')
+
+          old_bind = '''  function bindCommon() {
+    const drawer=document.querySelector(".mobile-drawer"),backdrop=document.querySelector(".drawer-backdrop"),open=document.querySelector(".menu-open"),close=document.querySelector(".menu-close");
+    function setDrawer(show){if(!drawer||!backdrop||!open)return;drawer.classList.toggle("is-open",show);drawer.setAttribute("aria-hidden",String(!show));backdrop.hidden=!show;open.setAttribute("aria-expanded",String(show));document.body.classList.toggle("drawer-open",show);}
+    open?.addEventListener("click",()=>setDrawer(true));close?.addEventListener("click",()=>setDrawer(false));backdrop?.addEventListener("click",()=>setDrawer(false));addEventListener("keydown",event=>{if(event.key==="Escape")setDrawer(false);});
+    addEventListener("scroll",()=>document.querySelector(".site-header")?.classList.toggle("is-scrolled",scrollY>20),{passive:true});
+  }
+'''
+          new_bind = '''  function bindCommon() {
+    const drawer=document.querySelector(".mobile-drawer"),backdrop=document.querySelector(".drawer-backdrop"),openButton=document.querySelector(".menu-open"),closeButton=document.querySelector(".menu-close");
+    if(!drawer||!backdrop||!openButton)return;
+    function setDrawer(show){
+      backdrop.hidden=!show;
+      drawer.classList.toggle("is-open",show);
+      drawer.setAttribute("aria-hidden",String(!show));
+      openButton.setAttribute("aria-expanded",String(show));
+      document.body.classList.toggle("drawer-open",show);
+      if(show)closeButton?.focus();else openButton.focus();
+    }
+    document.addEventListener("click",event=>{
+      const target=event.target?.closest?.(".menu-open,.menu-close,.drawer-backdrop,.mobile-drawer a");
+      if(!target)return;
+      if(target.matches(".menu-open")){event.preventDefault();event.stopPropagation();setDrawer(true);}
+      else if(target.matches(".menu-close,.drawer-backdrop,.mobile-drawer a"))setDrawer(false);
+    },true);
+    document.addEventListener("keydown",event=>{if(event.key==="Escape"&&drawer.classList.contains("is-open"))setDrawer(false);});
+    addEventListener("scroll",()=>document.querySelector(".site-header")?.classList.toggle("is-scrolled",scrollY>20),{passive:true});
+  }
+'''
+          js = replace_once(js, old_bind, new_bind, 'mobile menu binding')
+
+          css_marker = '/* OWNER FEEDBACK FIX 2026-08-19 */'
+          if css_marker not in css:
+              css += '''
+
+/* OWNER FEEDBACK FIX 2026-08-19 */
+.menu-open{position:relative;z-index:1310;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.drawer-backdrop{z-index:2990}
+.mobile-drawer{z-index:3000;right:0;transform:translateX(105%);visibility:hidden;pointer-events:none;transition:transform .22s ease,visibility 0s linear .22s}
+.mobile-drawer.is-open{right:0;transform:translateX(0);visibility:visible;pointer-events:auto;transition-delay:0s}
+body.drawer-open .site-header{pointer-events:none}
+body.drawer-open .mobile-drawer,body.drawer-open .drawer-backdrop{pointer-events:auto}
+.open-room-introductions{margin-top:12px;padding:12px 13px;border:1px solid rgba(183,70,61,.22);border-radius:7px;background:rgba(255,255,255,.78);color:var(--ink)}
+.open-room-introductions>strong{display:block;margin:0 0 7px;font-size:12px;font-weight:900;color:var(--red)}
+.open-room-introductions p{display:grid;grid-template-columns:auto 1fr;gap:7px;margin:5px 0;font-size:13px;line-height:1.5}
+.open-room-introductions p b{font-size:12px;white-space:nowrap;color:#704713}
+.open-room-introductions p span{margin:0;color:#454950}
+.open-room-introductions>small{display:block;margin-top:7px;color:var(--muted);font-size:12px}
+.slot .open-room-introductions{padding:9px 10px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#fff}
+.slot .open-room-introductions>strong{color:#f0b0aa}
+.slot .open-room-introductions p{display:block;margin:4px 0;font-size:12px}
+.slot .open-room-introductions p b{display:inline;margin-right:5px;color:#f1d19f}
+.slot .open-room-introductions p span{color:#e2e5e9}
+.slot .open-room-introductions.compact p:nth-of-type(n+2){display:none}
+.room-status .open-room-introductions{width:100%}
+@media(max-width:600px){.mobile-drawer{width:min(340px,92vw)}.slot .open-room-introductions{margin-top:8px}.open-room-introductions p{grid-template-columns:1fr;gap:1px}}
+'''
+
+          shell = shell.replace('20260816-31', '20260819-01')
+
+          if 'businessName:"(주)싱글"' not in smoke and 'businessName: "(주)싱글"' not in smoke:
+              smoke = smoke.replace('branchName:"서면1호점",representativeName:', 'branchName:"서면1호점",businessName:"(주)싱글",representativeName:')
+          smoke = smoke.replace('representativeName:"윤호권"', 'representativeName:"정지훈"')
+          smoke = smoke.replace('businessRegistrationNumber:"839-87-00850"', 'businessRegistrationNumber:"744-88-01446"')
+          smoke = smoke.replace('email:"dbsehrud93@naver.com"', 'email:"jjhun65@hanmail.net"')
+          smoke = re.sub(r',difficulty:"[^"]*"', '', smoke)
+          assertion_marker = '  if(!app.innerHTML.includes("실시간 예약"))throw new Error("예약 진입점이 없습니다.");\n'
+          if '고객 화면에 난이도가 남아 있습니다.' not in smoke:
+              smoke = smoke.replace(
+                  assertion_marker,
+                  assertion_marker + '  if(app.innerHTML.includes("난이도"))throw new Error("고객 화면에 난이도가 남아 있습니다.");\n  if(!app.innerHTML.includes("(주)싱글"))throw new Error("사업자 상호가 반영되지 않았습니다.");\n',
+              )
+
+          required = [
+              'businessName: "(주)싱글"',
+              'representativeName: "정지훈"',
+              'businessRegistrationNumber: "744-88-01446"',
+              'email: "jjhun65@hanmail.net"',
+              'function roomIntroductions(',
+              '예약표와 오픈룸 합류 화면에 표시됩니다.',
+              'document.addEventListener("click"',
+          ]
+          for needle in required:
+              if needle not in js:
+                  raise SystemExit(f'missing customer change: {needle}')
+          if '난이도</dt>' in js or 'theme.difficulty' in js:
+              raise SystemExit('difficulty remains in customer renderer')
+
+          js_path.write_text(js, encoding='utf-8')
+          css_path.write_text(css, encoding='utf-8')
+          shell_path.write_text(shell, encoding='utf-8')
+          smoke_path.write_text(smoke, encoding='utf-8')
+          PY
+
+          node --check pages-src/customer-final.js
+          node pages-src/build.mjs
+          node scripts/smoke-customer.cjs
+          grep -q 'OWNER FEEDBACK FIX 2026-08-19' pages-src/final.css
+          grep -q 'open-room-introductions' pages-src/customer-final.js
+          grep -q 'aria-controls="mobile-drawer"' pages-src/customer-final.js
+          ! grep -q '난이도</dt>' pages-src/customer-final.js
+          ! grep -q 'theme.difficulty' pages-src/customer-final.js
+
+      - name: Commit customer changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pages-src/customer-final.js pages-src/final.css pages-src/shell.html scripts/smoke-customer.cjs
+          git commit -m 'fix: apply owner feedback to customer site'
+          git push origin HEAD:main
