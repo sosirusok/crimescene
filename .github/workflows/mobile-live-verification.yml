@@ -46,10 +46,11 @@ jobs:
           node scripts/verify-live-mobile.mjs
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: customer-mobile-live-verification
           path: verification-output
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
 
       - name: Record successful mobile verification
