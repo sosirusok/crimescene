@@ -48,8 +48,13 @@ async function openAndVerifyMenu(page, label) {
 
   await menu.tap();
   const drawer = page.locator("#mobile-drawer");
-  await drawer.waitFor({ state: "visible", timeout: 10_000 });
   await page.waitForFunction(() => document.querySelector(".menu-open")?.getAttribute("aria-expanded") === "true");
+  await page.waitForFunction(() => {
+    const element = document.querySelector("#mobile-drawer");
+    if (!element?.classList.contains("is-open")) return false;
+    const rect = element.getBoundingClientRect();
+    return rect.left < window.innerWidth - 1 && rect.right > 1 && rect.width >= 260;
+  }, null, { timeout: 5_000 });
 
   const drawerGeometry = await drawer.evaluate((element) => {
     const rect = element.getBoundingClientRect();
