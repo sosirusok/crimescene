@@ -10,6 +10,7 @@ on:
       - 'pages-src/shell.html'
       - 'pages-src/build.mjs'
       - 'scripts/smoke-customer.cjs'
+      - 'scripts/apply-owner-feedback.py'
       - 'public/images/**'
       - 'public/favicon.svg'
   workflow_dispatch:
@@ -32,6 +33,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Apply owner feedback
+        run: python3 scripts/apply-owner-feedback.py
       - name: Build customer site
         run: node pages-src/build.mjs
       - name: Verify generated customer site
@@ -56,6 +59,15 @@ jobs:
           grep -q 'functions/v1/customer-api' _site/assets/customer-final.js
           grep -q '동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다' _site/assets/customer-final.js
           grep -q '이용 예정 금액' _site/assets/customer-final.js
+          grep -q '(주)싱글' _site/assets/customer-final.js
+          grep -q '744-88-01446' _site/assets/customer-final.js
+          grep -q 'jjhun65@hanmail.net' _site/assets/customer-final.js
+          grep -q 'aria-controls="mobile-drawer"' _site/assets/customer-final.js
+          grep -q 'document.addEventListener("click"' _site/assets/customer-final.js
+          grep -q 'open-room-introductions' _site/assets/customer-final.js
+          grep -q 'OWNER FEEDBACK FIX 2026-08-19' _site/assets/final.css
+          ! grep -q '난이도</dt>' _site/assets/customer-final.js
+          ! grep -q 'theme.difficulty' _site/assets/customer-final.js
           ! grep -Eq 'Supabase|OWNER|Reservation form|AES-GCM|서비스 역할' _site/assets/customer-final.js
       - name: Verify customer API and Korean domain CORS
         shell: bash
@@ -71,14 +83,35 @@ jobs:
           python3 - <<'PY'
           import json
           data=json.load(open('/tmp/bootstrap.json',encoding='utf-8'))
-          assert data['settings']['bookingWindowDays'] == 15
-          assert data['settings']['paymentMode'] == 'ONSITE'
+          settings=data['settings']
+          assert settings['bookingWindowDays'] == 15
+          assert settings['paymentMode'] == 'ONSITE'
+          assert settings['businessName'] == '(주)싱글', settings
+          assert settings['representativeName'] == '정지훈', settings
+          assert settings['businessRegistrationNumber'] == '744-88-01446', settings
+          assert settings['email'] == 'jjhun65@hanmail.net', settings
           assert data['payment']['onlineEnabled'] is False
           assert data['payment']['integrationReady'] is False
           capacities={t['id']:t['totalCapacity'] for t in data['themes']}
           assert capacities == {'A':8,'B':9,'C':9,'D':8}, capacities
           assert all(t['minPlayers']==4 for t in data['themes'])
-          print('Custom-domain API verified', capacities)
+          assert all(not str(t.get('difficulty') or '').strip() for t in data['themes'])
+          print('Customer bootstrap verified', capacities)
+          PY
+          play_date=$(python3 - <<'PY'
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          print(datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat())
+          PY
+          )
+          curl --retry 4 --retry-all-errors -fsSL -H "apikey: ${key}" -H "Origin: ${origin}" "${api}/availability?date=${play_date}" > /tmp/availability.json
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/availability.json',encoding='utf-8'))
+          slots=[slot for theme in data.get('themes',[]) for slot in theme.get('times',[])]
+          assert slots
+          assert all(isinstance(slot.get('openRoomIntroductions'), list) for slot in slots)
+          print('Open-room introductions verified for', len(slots), 'slots')
           PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
@@ -122,8 +155,14 @@ jobs:
           grep -q 'functions/v1/customer-api' /tmp/customer-final.js
           grep -q '동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다' /tmp/customer-final.js
           grep -q '이용 예정 금액' /tmp/customer-final.js
+          grep -q '(주)싱글' /tmp/customer-final.js
+          grep -q '744-88-01446' /tmp/customer-final.js
+          grep -q 'jjhun65@hanmail.net' /tmp/customer-final.js
+          grep -q 'aria-controls="mobile-drawer"' /tmp/customer-final.js
+          grep -q 'open-room-introductions' /tmp/customer-final.js
+          grep -q 'OWNER FEEDBACK FIX 2026-08-19' /tmp/final.css
+          ! grep -q '난이도</dt>' /tmp/customer-final.js
+          ! grep -q 'theme.difficulty' /tmp/customer-final.js
           grep -q 'data-route="home"' /tmp/home.html
           grep -q 'data-route="reservations"' /tmp/reservations.html
           echo "Live customer site verified: ${base}"
-
-# customer-api routing verified against version 2
