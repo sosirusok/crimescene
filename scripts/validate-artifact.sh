@@ -8,22 +8,22 @@ if [[ "${SITES_ENV_READY:-}" != "1" ]]; then
 fi
 
 worker="${SITES_PROJECT_ROOT}/dist/server/index.js"
-hosting="${SITES_PROJECT_ROOT}/dist/.openai/hosting.json"
+runtime_manifest="${SITES_PROJECT_ROOT}/dist/.runtime/runtime-bindings.json"
 
 [[ -f "${worker}" ]] || {
-  echo "Missing Sites Worker entry: dist/server/index.js" >&2
+  echo "Missing Worker entry: dist/server/index.js" >&2
   exit 66
 }
-[[ -f "${hosting}" ]] || {
-  echo "Missing packaged Sites manifest: dist/.openai/hosting.json" >&2
+[[ -f "${runtime_manifest}" ]] || {
+  echo "Missing packaged runtime manifest: dist/.runtime/runtime-bindings.json" >&2
   exit 66
 }
 
-node --input-type=module - "${worker}" "${hosting}" <<'NODE'
+node --input-type=module - "${worker}" "${runtime_manifest}" <<'NODE'
 import { readFile } from "node:fs/promises";
 
-const [workerPath, hostingPath] = process.argv.slice(2);
-JSON.parse(await readFile(hostingPath, "utf8"));
+const [workerPath, manifestPath] = process.argv.slice(2);
+JSON.parse(await readFile(manifestPath, "utf8"));
 const workerSource = await readFile(workerPath, "utf8");
 if (!/export\s*\{[^}]*\bas default\b[^}]*\}/s.test(workerSource)) {
   throw new Error("dist/server/index.js must contain an ESM default export");
@@ -37,4 +37,4 @@ NODE
 # cloudflare:workers, which plain Node cannot import outside the Workers runtime.
 node --check "${worker}"
 
-echo "Validated Sites artifact: Worker syntax, default export, fetch delegation, and hosting manifest are present."
+echo "Validated runtime artifact: Worker syntax, default export, fetch delegation, and manifest are present."
