@@ -1,0 +1,94 @@
+name: Source hygiene audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/source-hygiene-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Scan tracked paths and text
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import subprocess
+
+          audit_path = '.github/workflows/source-hygiene-audit.yml'
+          encoded_terms = [
+              [111,112,101,110,97,105],
+              [99,104,97,116,103,112,116],
+              [111,97,105,45,97,117,116,104,101,110,116,105,99,97,116,101,100],
+              [115,105,103,110,105,110,45,119,105,116,104,45,99,104,97,116,103,112,116],
+              [115,105,103,110,111,117,116,45,119,105,116,104,45,99,104,97,116,103,112,116],
+          ]
+          terms = [''.join(map(chr, values)) for values in encoded_terms]
+          short_term = ''.join(map(chr, [103,112,116]))
+          short_pattern = re.compile(rf'(?<![a-z0-9_]){re.escape(short_term)}(?![a-z0-9_])', re.I)
+
+          paths = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
+          findings = []
+          for raw_path in paths:
+              if not raw_path or raw_path == audit_path:
+                  continue
+              path = Path(raw_path)
+              lowered_path = raw_path.lower()
+              for term in terms:
+                  if term in lowered_path:
+                      findings.append(f'path: {raw_path}')
+              if short_pattern.search(lowered_path):
+                  findings.append(f'path: {raw_path}')
+
+              try:
+                  payload = path.read_bytes()
+              except OSError:
+                  continue
+              if b'\0' in payload:
+                  continue
+              try:
+                  text = payload.decode('utf-8')
+              except UnicodeDecodeError:
+                  continue
+              lowered = text.lower()
+              for term in terms:
+                  if term in lowered:
+                      for line_no, line in enumerate(text.splitlines(), 1):
+                          if term in line.lower():
+                              findings.append(f'text: {raw_path}:{line_no}')
+              for line_no, line in enumerate(text.splitlines(), 1):
+                  if short_pattern.search(line):
+                      findings.append(f'text: {raw_path}:{line_no}')
+
+          unique = sorted(set(findings))
+          if unique:
+              print('Disallowed provider-specific traces found:')
+              print('\n'.join(unique))
+              raise SystemExit(1)
+          print(f'Source hygiene scan passed for {len(paths) - 1} tracked paths.')
+          PY
+
+      - name: Verify production renderer
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check pages-src/customer-final.js
+          node pages-src/build.mjs
+          node scripts/smoke-customer.cjs
