@@ -41,7 +41,7 @@ export const reservations = sqliteTable("reservations", {
   openRoom: integer("open_room", { mode: "boolean" }).notNull().default(false),
   specialRequest: text("special_request").notNull().default(""),
   totalAmount: integer("total_amount").notNull(),
-  status: text("status").notNull().default("PENDING_PAYMENT"),
+  status: text("status").notNull().default("CONFIRMED"),
   paymentStatus: text("payment_status").notNull().default("READY"),
   cancellationReason: text("cancellation_reason"),
   canceledAt: text("canceled_at"),
@@ -56,7 +56,7 @@ export const reservations = sqliteTable("reservations", {
 export const payments = sqliteTable("payments", {
   id: text("id").primaryKey(),
   reservationId: text("reservation_id").notNull().references(() => reservations.id),
-  provider: text("provider").notNull().default("KISPG"),
+  provider: text("provider").notNull().default("ONSITE"),
   providerTransactionId: text("provider_transaction_id"),
   amount: integer("amount").notNull(),
   status: text("status").notNull().default("READY"),

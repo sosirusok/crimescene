@@ -73,7 +73,7 @@ async function addOpenRoomIntroductions(payload: any, incoming: URL) {
     .select("theme_id,start_time,party_size,special_request,created_at")
     .eq("play_date", playDate)
     .eq("open_room", true)
-    .not("status", "in", "(CANCELED,NO_SHOW)")
+    .in("status", ["CONFIRMED", "COMPLETED", "CANCEL_REQUESTED"])
     .in("theme_id", themeIds)
     .order("created_at", { ascending: true });
   if (error) {

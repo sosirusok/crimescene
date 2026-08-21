@@ -358,7 +358,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'KISPG'"
+          "default": "'ONSITE'"
         },
         "provider_transaction_id": {
           "name": "provider_transaction_id",

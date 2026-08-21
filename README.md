@@ -4,12 +4,12 @@
 
 ## 현재 운영 기능
 
-- 운영 설정을 따르는 예약 가능 기간(현재 30일)과 날짜별 실시간 회차
+- 오늘부터 15일 이내 날짜별 실시간 예약 회차
 - 4개 사건의 정원·가격·시간표와 오픈룸 모집/합류 상태
 - 1~3명 오픈룸 예약, 4명 이상 단독팀 또는 오픈룸 선택
-- 예약번호를 고객에게 노출하지 않는 이름·휴대폰 번호 조회
+- 이름과 휴대폰 번호만 사용하는 간편 예약 조회
 - Supabase PostgreSQL 좌석 동시성 제어, 연락처 보호 저장, 공지·문의 저장
-- KISPG 연동 전 매장 결제, 추후 카드 결제를 붙일 수 있는 결제 상태 모델
+- NICEPAY 키가 없으면 매장 결제, 키를 등록하면 국내 일반 신용·체크카드 온라인 결제
 - 실제 Google 지도와 네이버 지도 연결
 
 ## GitHub Pages 배포 소스
@@ -34,3 +34,5 @@ node --check _site/assets/customer-final.js
 ```
 
 `main`에 반영되면 GitHub Actions가 고객 API, CORS, 오픈룸 응답과 생성 파일을 검증한 뒤 GitHub Pages에 배포합니다. Supabase 운영 함수의 현재 소스는 `supabase/functions/api`와 `supabase/functions/customer-api`에 동기화되어 있으며, 비밀키는 저장소에 포함하지 않습니다.
+
+NICEPAY 가맹점 키 등록과 실결제 전환 절차는 [`docs/NICEPAY_SETUP.md`](docs/NICEPAY_SETUP.md)를 따릅니다.

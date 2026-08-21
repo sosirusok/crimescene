@@ -1,23 +1,55 @@
 import { accessHash, addDays, db, decrypt, encrypt, hhmm, mask, paymentState, phone, publicSettings, publicTheme, readBody, RELEASED, reply, room, settingsRow, sha, themeRows, today } from "./core.ts";
+import { cancelNicepayPayment, reconcileNicepayVerifying } from "./payment.ts";
 
 function errorMessage(error: any) { return String(error?.message ?? error ?? ""); }
 
 async function dashboard(req: Request) {
+  await Promise.all([db.rpc("expire_nicepay_payment_holds"), reconcileNicepayVerifying(3)]);
   const settings = await settingsRow();
   const [themes, resQ, inqQ, slotsQ, noticesQ, logsQ, totalQ, activeQ, todayQ, revenueQ] = await Promise.all([
     themeRows(false),
-    db.from("reservations").select("id,lookup_code,theme_id,play_date,start_time,customer_name,phone_masked,phone_encrypted,party_size,open_room,booking_mode,special_request,admin_note,source,total_amount,status,payment_status,created_at,updated_at,themes(short_title,min_players)").order("play_date", { ascending: false }).order("start_time", { ascending: false }).limit(500),
+    db.from("reservations").select("id,lookup_code,theme_id,play_date,start_time,customer_name,phone_masked,phone_encrypted,party_size,open_room,booking_mode,special_request,admin_note,source,total_amount,status,payment_status,created_at,updated_at,themes(short_title,min_players),payments(provider,status,provider_transaction_id,approved_at,raw_result_code,receipt_url,failure_code,failure_message,expires_at)").order("play_date", { ascending: false }).order("start_time", { ascending: false }).limit(500),
     db.from("inquiries").select("id,customer_name,phone_masked,phone_encrypted,subject,content,status,response,created_at,updated_at").order("created_at", { ascending: false }).limit(150),
     db.from("availability").select("theme_id,play_date,start_time,capacity,booked_count,open_room,status").gte("play_date", today()).lte("play_date", addDays(today(), settings.booking_window_days - 1)).order("play_date").order("start_time").limit(2000),
     db.from("notices").select("id,title,content,pinned,published,created_at,updated_at").order("pinned", { ascending: false }).order("created_at", { ascending: false }).limit(100),
     db.from("audit_logs").select("id,actor,action,target_type,target_id,metadata,created_at").order("created_at", { ascending: false }).limit(150),
     db.from("reservations").select("id", { count: "exact", head: true }),
-    db.from("reservations").select("id", { count: "exact", head: true }).not("status", "in", "(CANCELED,NO_SHOW)"),
-    db.from("reservations").select("id", { count: "exact", head: true }).eq("play_date", today()).not("status", "in", "(CANCELED,NO_SHOW)"),
+    db.from("reservations").select("id", { count: "exact", head: true }).in("status", ["CONFIRMED", "COMPLETED", "CANCEL_REQUESTED"]),
+    db.from("reservations").select("id", { count: "exact", head: true }).eq("play_date", today()).in("status", ["CONFIRMED", "COMPLETED", "CANCEL_REQUESTED"]),
     db.from("reservations").select("total_amount").eq("payment_status", "PAID"),
   ]);
   const error = resQ.error ?? inqQ.error ?? slotsQ.error ?? noticesQ.error ?? logsQ.error ?? totalQ.error ?? activeQ.error ?? todayQ.error ?? revenueQ.error; if (error) throw error;
-  const reservations = await Promise.all((resQ.data ?? []).map(async (r: any) => ({ ...r, phone: await decrypt(r.phone_encrypted) ?? r.phone_masked, phone_encrypted: undefined, start_time: hhmm(r.start_time), theme_title: r.themes?.short_title ?? r.theme_id, min_players: r.themes?.min_players ?? 4, themes: undefined })));
+  const reservations = await Promise.all((resQ.data ?? []).map(async (r: any) => {
+    const paymentRow = Array.isArray(r.payments) ? r.payments[0] : r.payments;
+    const payment = paymentRow ? {
+      provider: paymentRow.provider,
+      status: paymentRow.status,
+      transactionId: paymentRow.provider_transaction_id,
+      approvedAt: paymentRow.approved_at,
+      resultCode: paymentRow.raw_result_code,
+      receiptUrl: paymentRow.receipt_url,
+      failureCode: paymentRow.failure_code,
+      failureMessage: paymentRow.failure_message,
+      expiresAt: paymentRow.expires_at,
+    } : { provider: "ONSITE", status: r.payment_status };
+    return {
+      ...r,
+      phone: await decrypt(r.phone_encrypted) ?? r.phone_masked,
+      phone_encrypted: undefined,
+      start_time: hhmm(r.start_time),
+      theme_title: r.themes?.short_title ?? r.theme_id,
+      min_players: r.themes?.min_players ?? 4,
+      payment,
+      latestPayment: payment,
+      payment_provider: payment.provider,
+      payment_transaction_id: payment.transactionId ?? null,
+      payment_receipt_url: payment.receiptUrl ?? null,
+      payment_failure_code: payment.failureCode ?? null,
+      payment_failure_message: payment.failureMessage ?? null,
+      themes: undefined,
+      payments: undefined,
+    };
+  }));
   const inquiries = await Promise.all((inqQ.data ?? []).map(async (r: any) => ({ ...r, phone: await decrypt(r.phone_encrypted) ?? r.phone_masked, phone_encrypted: undefined })));
   const openRooms = (slotsQ.data ?? []).filter((s: any) => s.booked_count > 0 && s.open_room).map((s: any) => {
     const teams = reservations.filter((r: any) => r.theme_id === s.theme_id && r.play_date === s.play_date && r.start_time === hhmm(s.start_time) && !RELEASED.includes(r.status));
@@ -52,6 +84,8 @@ async function createAdminReservation(req: Request, user: any, b: any) {
 async function updateReservationDetails(req: Request, user: any, b: any) {
   const id = String(b.id ?? ""), p = phone(b.phone), name = String(b.customerName ?? "").trim();
   if (!id || name.length < 2 || !/^01\d{8,9}$/.test(p)) return reply(req, { error: "예약자 정보와 연락처를 확인해 주세요." }, 400);
+  const { data: payment } = await db.from("payments").select("provider,status").eq("reservation_id", id).maybeSingle();
+  if (payment?.provider === "NICEPAY") return reply(req, { error: "나이스페이먼츠 결제 예약은 금액과 승인 정보 보호를 위해 예약 내용을 직접 변경할 수 없습니다. 결제 취소 확인 후 새 예약으로 등록해 주세요." }, 409);
   const { data, error } = await db.rpc("admin_update_reservation_details", { p_actor: user.email, p_reservation_id: id, p_theme_id: String(b.themeId ?? "").toUpperCase(), p_play_date: String(b.playDate ?? ""), p_start_time: hhmm(b.startTime), p_customer_name: name, p_phone_hash: await sha(p), p_phone_masked: mask(p), p_phone_encrypted: await encrypt(p), p_party_size: Number(b.partySize), p_open_room: b.openRoom === true, p_special_request: String(b.specialRequest ?? "").trim(), p_admin_note: String(b.adminNote ?? "").trim(), p_source: String(b.source ?? "ADMIN") });
   if (error) {
     const m = errorMessage(error);
@@ -68,12 +102,22 @@ async function updateReservationDetails(req: Request, user: any, b: any) {
 
 export async function adminAction(req: Request, path: string, user: any) {
   if (path === "/admin/dashboard" && req.method === "GET") return dashboard(req);
+  if (path === "/admin/payments/nicepay/cancel" && req.method === "POST") return cancelNicepayPayment(req, user);
   const b: any = await readBody(req);
 
   if (path === "/admin/reservations" && req.method === "POST") return createAdminReservation(req, user, b);
   if (path === "/admin/reservations/details" && (req.method === "PATCH" || req.method === "PUT")) return updateReservationDetails(req, user, b);
   if (path === "/admin/reservations" && req.method === "PATCH") {
-    const { error } = await db.rpc("admin_update_reservation", { p_actor: user.email, p_reservation_id: String(b.id ?? ""), p_status: String(b.status ?? ""), p_payment_status: String(b.paymentStatus ?? "") });
+    const reservationId = String(b.id ?? "");
+    const [{ data: current }, { data: payment }] = await Promise.all([
+      db.from("reservations").select("status,payment_status").eq("id", reservationId).maybeSingle(),
+      db.from("payments").select("provider,status").eq("reservation_id", reservationId).maybeSingle(),
+    ]);
+    if (!current) return reply(req, { error: "예약을 찾을 수 없습니다." }, 404);
+    if (payment?.provider === "NICEPAY" && String(b.paymentStatus ?? "") !== current.payment_status) return reply(req, { error: "나이스페이먼츠 결제 상태는 승인 결과와 웹훅으로만 변경됩니다." }, 409);
+    if (payment?.provider === "NICEPAY" && current.status === "PENDING_PAYMENT" && String(b.status ?? "") !== "PENDING_PAYMENT") return reply(req, { error: "결제 확인 중인 예약 상태는 승인 결과가 반영된 뒤 변경할 수 있습니다." }, 409);
+    if (payment?.provider === "NICEPAY" && current.payment_status === "PAID" && String(b.status ?? "") === "CANCELED") return reply(req, { error: "결제 완료 예약은 나이스페이먼츠에서 취소 승인 후 자동 반영됩니다. 먼저 취소 요청 상태로 변경해 주세요." }, 409);
+    const { error } = await db.rpc("admin_update_reservation", { p_actor: user.email, p_reservation_id: reservationId, p_status: String(b.status ?? ""), p_payment_status: String(b.paymentStatus ?? "") });
     if (error?.message.includes("reservation_not_found")) return reply(req, { error: "예약을 찾을 수 없습니다." }, 404);
     if (error?.message.includes("slot_capacity_insufficient")) return reply(req, { error: "좌석이 부족하거나 단독 예약과 충돌하여 복원할 수 없습니다." }, 409);
     if (error) throw error; return reply(req, { ok: true });
@@ -106,10 +150,10 @@ export async function adminAction(req: Request, path: string, user: any) {
   }
   if (path === "/admin/settings" && req.method === "PATCH") {
     const current = await settingsRow(), desiredMode = String(b.paymentMode ?? "ONSITE"), pay = paymentState({ ...current, payment_mode: desiredMode, mail_order_registration_number: String(b.mailOrderRegistrationNumber ?? ""), refund_policy_confirmed: b.refundPolicyConfirmed === true });
-    if (desiredMode === "ONLINE" && !pay.configured) return reply(req, { error: "KISPG 가맹점 키와 연동 주소가 모두 등록된 뒤 온라인 결제를 켤 수 있습니다." }, 409);
+    if (desiredMode === "ONLINE" && !pay.configured) return reply(req, { error: "나이스페이먼츠 Client ID, Secret Key와 운영 환경이 등록된 뒤 온라인 결제를 켤 수 있습니다." }, 409);
     if (desiredMode === "ONLINE" && !pay.legalReady) return reply(req, { error: "통신판매업 신고번호와 확정된 환불 기준을 입력한 뒤 온라인 결제를 켜 주세요." }, 409);
     if (desiredMode === "ONLINE" && !pay.integrationReady) return reply(req, { error: "실제 카드 승인·취소·결제 결과 확인 모듈이 배포된 뒤 온라인 결제를 켤 수 있습니다. 현재는 매장 결제로 운영해 주세요." }, 409);
-    const { data, error } = await db.rpc("admin_update_store_settings", { p_actor: user.email, p_store_name: String(b.storeName ?? ""), p_branch_name: String(b.branchName ?? ""), p_representative_name: String(b.representativeName ?? ""), p_business_registration_number: String(b.businessRegistrationNumber ?? ""), p_mail_order_registration_number: String(b.mailOrderRegistrationNumber ?? ""), p_phone: String(b.phone ?? ""), p_email: String(b.email ?? ""), p_address_road: String(b.addressRoad ?? ""), p_address_detail: String(b.addressDetail ?? ""), p_map_query: String(b.mapQuery ?? ""), p_booking_window_days: Number(b.bookingWindowDays), p_arrival_minutes: Number(b.arrivalMinutes), p_cancellation_cutoff_hours: Number(b.cancellationCutoffHours), p_payment_mode: desiredMode, p_payment_provider: String(b.paymentProvider ?? "KISPG"), p_privacy_officer_name: String(b.privacyOfficerName ?? ""), p_privacy_officer_contact: String(b.privacyOfficerContact ?? ""), p_refund_policy_confirmed: b.refundPolicyConfirmed === true, p_customer_notice: String(b.customerNotice ?? "") });
+    const { data, error } = await db.rpc("admin_update_store_settings", { p_actor: user.email, p_store_name: String(b.storeName ?? ""), p_branch_name: String(b.branchName ?? ""), p_representative_name: String(b.representativeName ?? ""), p_business_registration_number: String(b.businessRegistrationNumber ?? ""), p_mail_order_registration_number: String(b.mailOrderRegistrationNumber ?? ""), p_phone: String(b.phone ?? ""), p_email: String(b.email ?? ""), p_address_road: String(b.addressRoad ?? ""), p_address_detail: String(b.addressDetail ?? ""), p_map_query: String(b.mapQuery ?? ""), p_booking_window_days: Number(b.bookingWindowDays), p_arrival_minutes: Number(b.arrivalMinutes), p_cancellation_cutoff_hours: Number(b.cancellationCutoffHours), p_payment_mode: desiredMode, p_payment_provider: "NICEPAY", p_privacy_officer_name: String(b.privacyOfficerName ?? ""), p_privacy_officer_contact: String(b.privacyOfficerContact ?? ""), p_refund_policy_confirmed: b.refundPolicyConfirmed === true, p_customer_notice: String(b.customerNotice ?? "") });
     if (error) return reply(req, { error: "매장 정보와 운영 설정을 확인해 주세요." }, 400);
     return reply(req, { ok: true, settings: publicSettings(data), payment: paymentState(data) });
   }
