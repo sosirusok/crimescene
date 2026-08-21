@@ -6,6 +6,7 @@ const root = new URL("../", import.meta.url).pathname;
 const source = join(root, "pages-src");
 const output = join(root, "_site");
 const adminOnly = process.env.ADMIN_ONLY === "1";
+const assetVersion = (process.env.GITHUB_SHA || "local").slice(0, 12);
 
 const publicRoutes = [
   ["", "home", "홈"],
@@ -50,6 +51,8 @@ function documentFor(folderPath, route, title) {
     .replaceAll("{{DESCRIPTION}}", description)
     .replaceAll("{{ROBOTS}}", adminOnly ? "noindex,nofollow,noarchive" : "index,follow,max-image-preview:large")
     .replaceAll("{{OG_IMAGE}}", adminOnly ? "" : `<meta property="og:image" content="${pageBase}/images/hero-evidence-room.webp">`)
+    .replaceAll("{{ASSET_VERSION}}", assetVersion)
+    .replaceAll("{{CUSTOMER_STYLE}}", adminOnly ? "" : `<link rel="stylesheet" href="${pageBase}/assets/customer-polish.css?v=${assetVersion}">`)
     .replaceAll("{{SCRIPT}}", scriptName)
     .replaceAll("{{BODY_CLASS}}", adminOnly ? "admin-document" : "customer-document")
     .replaceAll("{{LOADING_TITLE}}", "크라임씬플레이 서면1호점")
@@ -65,11 +68,13 @@ for (const [folderPath, route, title] of routes) {
 }
 
 await cp(join(source, "final.css"), join(output, "assets/final.css"));
+if (!adminOnly) await cp(join(source, "customer-polish.css"), join(output, "assets/customer-polish.css"));
 await cp(join(source, scriptName), join(output, "assets", scriptName));
 execFileSync(process.execPath, ["--check", join(output, "assets", scriptName)], { stdio: "inherit" });
 
 if (!adminOnly) {
   await cp(join(root, "public/images"), join(output, "images"), { recursive: true });
+  await cp(join(root, "public/fonts"), join(output, "fonts"), { recursive: true });
   const adminFolder = join(output, "admin");
   await mkdir(adminFolder, { recursive: true });
   await writeFile(join(adminFolder, "index.html"), '<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=https://sosirusok.github.io/crimescene-admin/"><title>운영 관리로 이동</title></head><body><a href="https://sosirusok.github.io/crimescene-admin/">운영 관리 페이지로 이동</a></body></html>');

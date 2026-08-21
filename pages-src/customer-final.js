@@ -7,6 +7,7 @@
   const route = document.body?.dataset?.route || "home";
   const firstPath = location.pathname.split("/").filter(Boolean)[0] || "";
   const BASE = location.hostname.endsWith("github.io") && firstPath ? `/${firstPath}` : "";
+  const BOOTSTRAP_CACHE_KEY = "crimescene-customer-bootstrap-v4";
 
   const FALLBACK_SETTINGS = {
     storeName: "크라임씬플레이",
@@ -20,7 +21,7 @@
     addressRoad: "부산광역시 부산진구 신천대로50번길 62",
     addressDetail: "부전동 우성빌딩 4층",
     mapQuery: "부산광역시 부산진구 신천대로50번길 62",
-    bookingWindowDays: 15,
+    bookingWindowDays: 30,
     arrivalMinutes: 10,
     cancellationCutoffHours: 24,
     paymentMode: "ONSITE",
@@ -57,7 +58,11 @@
   const h = (value) => String(value ?? "").replace(/[&<>'"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
   const money = (value) => `${Number(value || 0).toLocaleString("ko-KR")}원`;
   const digits = (value) => String(value ?? "").replace(/\D/g, "");
-  const path = (value = "") => `${BASE}/${value}`.replace(/\/$/, value ? "/" : "");
+  const path = (value = "") => {
+    const clean=String(value||"").replace(/^\/+|\/+$/g,"");
+    if(!clean)return `${BASE}/`;
+    return `${BASE}/${clean}${/\.[a-z0-9]+$/i.test(clean)?"":"/"}`;
+  };
   const image = (value = "") => `${BASE}/images/${String(value).split("/").pop()}`;
   const iconArrow = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg>`;
   const iconMenu = `<span class="menu-lines" aria-hidden="true"><i></i><i></i><i></i></span>`;
@@ -134,6 +139,23 @@
     } finally { clearTimeout(timer); }
   }
 
+  function applyBootstrap(data) {
+    if(data?.settings)state.settings={...FALLBACK_SETTINGS,...data.settings};
+    if(Array.isArray(data?.themes)&&data.themes.length)state.themes=data.themes;
+    if(data?.payment)state.payment=data.payment;
+    state.bootstrapOnline=true;
+  }
+  function readBootstrapCache() {
+    try {
+      const cached=JSON.parse(sessionStorage.getItem(BOOTSTRAP_CACHE_KEY)||"null");
+      if(!cached?.savedAt||Date.now()-cached.savedAt>30*60*1000||!cached.data?.settings)return null;
+      return cached.data;
+    } catch { return null; }
+  }
+  function writeBootstrapCache(data) {
+    try { sessionStorage.setItem(BOOTSTRAP_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data})); } catch {}
+  }
+
   function toast(message, type = "") {
     let host=document.querySelector(".toast-host");
     if(!host){host=document.createElement("div");host.className="toast-host";document.body.append(host);}
@@ -142,8 +164,8 @@
 
   function header(current = "") {
     const nav=[["themes","사건 소개"],["reservations","실시간 예약"],["guide","이용 안내"],["notices","공지사항"],["location","오시는 길"]];
-    return `<a class="skip-link" href="#main-content">본문으로 바로가기</a><div class="customer-clarity" role="note" aria-label="필수 이용 안내"><div class="customer-clarity-inner"><strong>크라임씬 카페 안내</strong><span>방탈출카페가 아닙니다. 사건 속 인물이 되어 단서와 진술로 범인을 찾는 추리게임입니다.</span><a href="${path("policies/refunds")}">이용 당일 고객 사유 취소는 환불되지 않습니다.</a></div></div><header class="site-header"><div class="header-inner">
-      <a class="brand" href="${path()}" aria-label="${h(state.settings.storeName)} ${h(state.settings.branchName)} 홈"><span class="brand-symbol">CS</span><span><b>${h(state.settings.storeName)}</b><small>${h(state.settings.branchName)}</small></span></a>
+    return `<a class="skip-link" href="#main-content">본문으로 바로가기</a><div class="customer-clarity" role="note" aria-label="필수 이용 안내"><div class="customer-clarity-inner"><strong>이용 안내</strong><span>방탈출이 아닌 배역형 추리게임입니다.</span><a href="${path("policies/refunds")}">당일 취소·환불 안내</a></div></div><header class="site-header"><div class="header-inner">
+      <a class="brand" href="${path()}" aria-label="${h(state.settings.storeName)} ${h(state.settings.branchName)} 홈"><span class="brand-symbol"><img src="${BASE}/favicon.svg" alt=""></span><span><b>${h(state.settings.storeName)}</b><small>${h(state.settings.branchName)}</small></span></a>
       <nav class="desktop-nav" aria-label="주요 메뉴">${nav.map(([slug,label])=>`<a class="${current===slug?"is-current":""}" href="${path(slug)}">${label}</a>`).join("")}</nav>
       <div class="header-actions"><a class="header-phone" href="${phoneHref(state.settings.phone)}"><small>예약 문의</small><strong>${h(state.settings.phone)}</strong></a><a class="header-reserve" href="${path("reservations")}">예약하기 ${iconArrow}</a><button class="menu-open" type="button" aria-label="전체 메뉴 열기" aria-expanded="false" aria-controls="mobile-drawer">${iconMenu}</button></div>
     </div></header>
@@ -163,7 +185,7 @@
   }
 
   function homePage() {
-    return `${header("home")}<main id="main-content"><section class="hero"><img src="${image("hero-evidence-room.webp")}" alt="사건 현장을 연상시키는 추리게임 공간"><div class="hero-overlay"></div><div class="hero-content"><p>${h(state.settings.branchName)} 크라임씬 추리게임</p><h1>사건 속 인물이 되어<br>용의자 중 범인을 찾습니다.</h1><span>잠금장치를 풀고 나오는 게임이 아닙니다. 각자 배역과 비밀을 받은 뒤 현장을 조사하고 단서와 진술로 범인을 찾아냅니다.</span><div><a class="button primary" href="${path("reservations")}">예약 가능한 시간 보기 ${iconArrow}</a><a class="button secondary" href="${path("themes")}">사건 먼저 둘러보기</a></div></div><aside class="hero-guide"><strong>처음 예약하신다면</strong><ol><li><span>1</span>사건과 회차 선택</li><li><span>2</span>인원과 예약자 정보 입력</li><li><span>3</span>예약 확정 후 ${state.settings.arrivalMinutes}분 전 도착</li></ol></aside></section>
+    return `${header("home")}<main id="main-content"><section class="hero"><img src="${image("hero-evidence-room.webp")}" alt="사건 현장을 연상시키는 추리게임 공간"><div class="hero-overlay"></div><div class="hero-content"><p>${h(state.settings.branchName)} 크라임씬 추리게임</p><h1>모두가 용의자인 밤,<br>진범을 찾아내세요.</h1><span>각자 배역과 비밀을 받은 뒤 사건 현장을 조사합니다. 흩어진 단서와 서로 다른 진술을 맞춰, 이 밤의 진실을 밝혀내세요.</span><div><a class="button primary" href="${path("reservations")}">예약 가능한 시간 보기 ${iconArrow}</a><a class="button secondary" href="${path("themes")}">사건 먼저 둘러보기</a></div></div><aside class="hero-guide"><strong>처음 예약하신다면</strong><ol><li><span>1</span>사건과 회차 선택</li><li><span>2</span>인원과 예약자 정보 입력</li><li><span>3</span>예약 확정 후 ${state.settings.arrivalMinutes}분 전 도착</li></ol></aside></section>
       <section class="crime-scene-definition" aria-labelledby="crime-scene-definition-title"><div><p>크라임씬 카페 안내</p><h2 id="crime-scene-definition-title">용의자 중 진짜 범인을 찾는 추리게임입니다.</h2><span>잠금장치를 풀고 공간에서 나오는 것이 목표가 아닙니다. 각자 사건 속 인물이 되어 현장을 조사하고, 단서와 진술을 바탕으로 범인을 추리합니다.</span></div><aside><strong>예약 전 꼭 확인해 주세요</strong><p>이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p><a href="${path("policies/refunds")}">취소 및 환불 기준 보기 ${iconArrow}</a></aside></section>
       <section class="quick-facts"><div><strong>최소 4명</strong><span>게임 진행 기준 인원</span></div><div><strong>약 90분</strong><span>브리핑부터 최종 추리까지</span></div><div><strong>1~3명도 예약 가능</strong><span>오픈룸으로 다른 팀과 합류</span></div><div><strong>최대 8~9명</strong><span>테마별 역할 정원</span></div></section>
       ${state.settings.customerNotice?`<section class="store-notice"><strong>매장 안내</strong><p>${h(state.settings.customerNotice)}</p></section>`:""}
@@ -319,7 +341,7 @@
 
   function locationPage() {
     const s=state.settings,map=encodeURIComponent(s.mapQuery||`${s.addressRoad} ${s.addressDetail}`),naver=encodeURIComponent(`${s.addressRoad} ${s.addressDetail}`);
-    return `${header("location")}<main id="main-content">${pageTitle("오시는 길",`${s.storeName} ${s.branchName}`,"주소와 연락처를 확인해 주세요.")}<section class="section location-layout"><div class="map-frame"><iframe title="${h(s.storeName)} ${h(s.branchName)} 지도" src="https://www.google.com/maps?q=${map}&z=17&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><article><p>${h(s.branchName)}</p><h2>${h(s.addressRoad)}<br>${h(s.addressDetail)}</h2><dl><div><dt>예약 문의</dt><dd><a href="${phoneHref(s.phone)}">${h(s.phone)}</a></dd></div><div><dt>도착 시간</dt><dd>예약 시작 ${s.arrivalMinutes}분 전</dd></div><div><dt>운영 방식</dt><dd>회차별 예약 운영</dd></div></dl><div><a class="button primary" href="https://map.naver.com/p/search/${naver}" target="_blank" rel="noreferrer">네이버 지도 열기 ${iconArrow}</a><a class="button secondary" href="${phoneHref(s.phone)}">전화 문의</a></div><small>지도 위치와 건물명은 방문 전에 한 번 더 확인해 주세요.</small></article></section></main>${footer()}`;
+    return `${header("location")}<main id="main-content">${pageTitle("오시는 길",`${s.storeName} ${s.branchName}`,"주소와 연락처를 확인해 주세요.")}<section class="section location-layout"><div class="map-frame"><iframe title="${h(s.storeName)} ${h(s.branchName)} 지도" src="https://www.google.com/maps?q=${map}&z=17&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><article><p>${h(s.branchName)}</p><h2>${h(s.addressRoad)}<br>${h(s.addressDetail)}</h2><dl><div><dt>예약 문의</dt><dd><a href="${phoneHref(s.phone)}">${h(s.phone)}</a></dd></div><div><dt>도착 시간</dt><dd>예약 시작 ${s.arrivalMinutes}분 전</dd></div><div><dt>매장 위치</dt><dd>${h(s.addressDetail)}</dd></div></dl><div><a class="button primary" href="https://map.naver.com/p/search/${naver}" target="_blank" rel="noreferrer">네이버 지도 열기 ${iconArrow}</a><a class="button secondary" href="${phoneHref(s.phone)}">전화 문의</a></div><small>${h(s.addressDetail)}입니다. 원활한 안내를 위해 예약 시간 ${s.arrivalMinutes}분 전까지 도착해 주세요.</small></article></section></main>${footer()}`;
   }
 
   function policyPage(kind) {
@@ -437,24 +459,22 @@
     addEventListener("scroll",()=>document.querySelector(".site-header")?.classList.toggle("is-scrolled",scrollY>20),{passive:true});
   }
 
-  async function boot() {
-    document.documentElement.classList.add("customer-ui");
-    try {
-      const data=await api("/bootstrap",{},7000);
-      if(data?.settings)state.settings={...FALLBACK_SETTINGS,...data.settings};
-      if(Array.isArray(data?.themes)&&data.themes.length)state.themes=data.themes;
-      if(data?.payment)state.payment=data.payment;
-      state.bootstrapOnline=true;
-    } catch (error) {
-      console.warn("기본 운영 정보로 화면을 표시합니다.",error);
-    }
-    render();bindCommon();
+  function bindRoute() {
     if(route==="reservations")bindReservationsPage();
     if(route==="reservation-new")bindReservationNewPage();
     if(route==="reservation-lookup")bindLookupPage();
     if(route==="notices")bindNoticesPage();
     if(route==="faq")bindFaqPage();
-    return true;
+  }
+
+  function boot() {
+    document.documentElement.classList.add("customer-ui");
+    const cached=readBootstrapCache();
+    if(cached)applyBootstrap(cached);
+    render();bindCommon();
+    bindRoute();
+    api("/bootstrap",{},7000).then(data=>{applyBootstrap(data);writeBootstrapCache(data);}).catch(error=>console.warn("기본 운영 정보로 화면을 표시합니다.",error));
+    return Promise.resolve(true);
   }
 
   globalThis.__CRIMESCENE_READY__=boot().catch(error=>{
