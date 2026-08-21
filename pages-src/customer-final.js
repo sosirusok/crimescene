@@ -7,7 +7,12 @@
   const route = document.body?.dataset?.route || "home";
   const firstPath = location.pathname.split("/").filter(Boolean)[0] || "";
   const BASE = location.hostname.endsWith("github.io") && firstPath ? `/${firstPath}` : "";
-  const BOOTSTRAP_CACHE_KEY = "crimescene-customer-bootstrap-v4";
+  const BOOTSTRAP_CACHE_KEY = "crimescene-customer-bootstrap-v5";
+  const LAST_RESERVATION_KEY = "crimescene-last-reservation";
+  const NICEPAY_SESSION_KEY = "crimescene-nicepay-session-v1";
+  const TRANSACTION_ROUTES = new Set(["reservations", "reservation-new", "reservation-complete", "reservation-lookup"]);
+  const NICEPAY_SDK_ORIGINS = new Set(["https://pay.nicepay.co.kr"]);
+  let nicepaySdkPromise = null;
 
   const FALLBACK_SETTINGS = {
     storeName: "크라임씬플레이",
@@ -21,11 +26,11 @@
     addressRoad: "부산광역시 부산진구 신천대로50번길 62",
     addressDetail: "부전동 우성빌딩 4층",
     mapQuery: "부산광역시 부산진구 신천대로50번길 62",
-    bookingWindowDays: 30,
+    bookingWindowDays: 15,
     arrivalMinutes: 10,
     cancellationCutoffHours: 24,
     paymentMode: "ONSITE",
-    paymentProvider: "KISPG",
+    paymentProvider: "NICEPAY",
     privacyOfficerName: "정지훈",
     privacyOfficerContact: "jjhun65@hanmail.net / 070-4304-4340",
     refundPolicyConfirmed: false,
@@ -42,7 +47,7 @@
   const state = {
     settings: FALLBACK_SETTINGS,
     themes: FALLBACK_THEMES,
-    payment: { mode:"ONSITE",label:"매장 결제",onlineEnabled:false,configured:false,legalReady:false },
+    payment: { mode:"ONSITE",provider:"NICEPAY",label:"매장 결제",onlineEnabled:false,configured:false,legalReady:false },
     bootstrapOnline: false,
   };
 
@@ -53,6 +58,14 @@
     CANCEL_REQUESTED: "취소 확인 중",
     CANCELED: "예약 취소",
     NO_SHOW: "미방문",
+  };
+
+  const PAYMENT_STATUS = {
+    READY: "결제 대기",
+    VERIFYING: "결제 확인 중",
+    PAID: "결제 완료",
+    FAILED: "결제 실패",
+    REFUNDED: "환불 완료",
   };
 
   const h = (value) => String(value ?? "").replace(/[&<>'"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
@@ -68,6 +81,33 @@
   const iconMenu = `<span class="menu-lines" aria-hidden="true"><i></i><i></i><i></i></span>`;
   const iconClose = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></svg>`;
   const iconCheck = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>`;
+
+  function onlinePaymentEnabled() {
+    return state.payment?.onlineEnabled === true && String(state.payment?.provider || state.settings.paymentProvider || "NICEPAY").toUpperCase() === "NICEPAY";
+  }
+  function customerReturnUrl() {
+    return new URL(path("reservations/complete"), location.origin).href;
+  }
+  function normalizePaymentStatus(value) {
+    const status=String(value || "").trim().toUpperCase().replaceAll("-", "_");
+    if(status === "PAID")return "PAID";
+    if(["VERIFYING","PROCESSING","PENDING_APPROVAL"].includes(status))return "VERIFYING";
+    if(["FAILED","FAILURE","EXPIRED"].includes(status))return "FAILED";
+    if(["REFUNDED","CANCELED","CANCELLED","PARTIALCANCELLED","PARTIAL_CANCELLED"].includes(status))return "REFUNDED";
+    return "READY";
+  }
+  function paymentStatusLabel(item = {}) {
+    const status=normalizePaymentStatus(item.paymentStatus || item.payment_status || item.payment?.status);
+    if(status === "READY" && item.status !== "PENDING_PAYMENT")return "매장 결제 예정";
+    return PAYMENT_STATUS[status] || "결제 확인 중";
+  }
+  function safeReceiptUrl(value) {
+    try {
+      const url=new URL(String(value || ""));
+      if(url.protocol !== "https:" || (url.hostname !== "nicepay.co.kr" && !url.hostname.endsWith(".nicepay.co.kr")))return "";
+      return url.href;
+    } catch { return ""; }
+  }
 
   function phoneHref(value) { return `tel:${digits(value)}`; }
   function formatPhone(value) {
@@ -131,12 +171,68 @@
         headers:{ apikey:PUBLISHABLE_KEY,"Content-Type":"application/json",...(options.headers || {}) },
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || "요청을 처리하지 못했습니다.");
+      if (!response.ok) {
+        const requestError=new Error(data.error || "요청을 처리하지 못했습니다.");
+        requestError.status=response.status;
+        requestError.payload=data;
+        throw requestError;
+      }
       return data;
     } catch (error) {
       if (error?.name === "AbortError") throw new Error("응답이 늦어지고 있습니다. 잠시 후 다시 시도해 주세요.");
       throw error;
     } finally { clearTimeout(timer); }
+  }
+
+  function readNicepaySession() {
+    try {
+      const value=JSON.parse(sessionStorage.getItem(NICEPAY_SESSION_KEY) || "null");
+      if(!value?.idempotencyKey)return null;
+      return value;
+    } catch { return null; }
+  }
+  function writeNicepaySession(value) {
+    try { sessionStorage.setItem(NICEPAY_SESSION_KEY, JSON.stringify({ ...value, savedAt:Date.now() })); }
+    catch { throw new Error("브라우저의 결제 확인 저장소를 사용할 수 없습니다. 시크릿 모드를 해제한 뒤 다시 시도해 주세요."); }
+  }
+  function clearNicepaySession(expectedOrderId = "") {
+    const current=readNicepaySession();
+    if(expectedOrderId && current?.orderId && current.orderId !== expectedOrderId)return;
+    sessionStorage.removeItem(NICEPAY_SESSION_KEY);
+  }
+  async function paymentFingerprint(payload) {
+    const canonical=JSON.stringify({
+      themeId:payload.themeId,playDate:payload.playDate,startTime:payload.startTime,
+      customerName:payload.customerName,phone:digits(payload.phone),partySize:payload.partySize,
+      openRoom:payload.openRoom,specialRequest:payload.specialRequest,
+    });
+    const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(canonical));
+    return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,"0")).join("");
+  }
+  async function abortNicepay(session, reason) {
+    if(!session?.orderId || !session?.actionToken)return null;
+    return api("/payments/nicepay/abort",{
+      method:"POST",
+      body:JSON.stringify({ orderId:session.orderId,actionToken:session.actionToken,reason:String(reason || "CUSTOMER_ABORT").slice(0,100) }),
+    },12000);
+  }
+  function normalizeNicepaySdkUrl(value) {
+    const url=new URL(String(value || ""));
+    if(!NICEPAY_SDK_ORIGINS.has(url.origin) || url.pathname !== "/v1/js/" || url.search || url.hash)throw new Error("안전한 카드 결제창 주소를 확인하지 못했습니다.");
+    return url.href;
+  }
+  function loadNicepaySdk(value) {
+    if(globalThis.AUTHNICE?.requestPay)return Promise.resolve(globalThis.AUTHNICE);
+    const src=normalizeNicepaySdkUrl(value);
+    if(nicepaySdkPromise)return nicepaySdkPromise;
+    nicepaySdkPromise=new Promise((resolve,reject)=>{
+      const script=document.createElement("script");
+      script.src=src;script.async=true;script.dataset.nicepaySdk="true";
+      script.onload=()=>globalThis.AUTHNICE?.requestPay?resolve(globalThis.AUTHNICE):reject(new Error("카드 결제창을 불러오지 못했습니다."));
+      script.onerror=()=>reject(new Error("카드 결제창 연결에 실패했습니다. 잠시 후 다시 시도해 주세요."));
+      document.head.append(script);
+    }).catch(error=>{nicepaySdkPromise=null;throw error;});
+    return nicepaySdkPromise;
   }
 
   function applyBootstrap(data) {
@@ -233,20 +329,26 @@
     load();
   }
 
+  function paymentGuideMarkup() {
+    if(onlinePaymentEnabled())return `<strong>나이스페이먼츠 카드 결제</strong><p>예약 정보를 확인한 뒤 안전한 카드 결제창이 열립니다. 결제가 완료되어야 예약이 확정됩니다.</p>`;
+    return `<strong>매장 결제</strong><p>예약은 바로 확정되며, 이용 금액은 방문하신 날 매장에서 결제합니다.</p>`;
+  }
+
   function reservationNewPage() {
     const params=new URLSearchParams(location.search),theme=themeById(params.get("theme")),date=params.get("date")||"",time=params.get("time")||"";
     if(!theme||!date||!time)return `${header("reservations")}<main id="main-content">${pageTitle("예약 정보 입력","선택한 회차가 없습니다.","실시간 예약 화면에서 사건과 시간을 먼저 선택해 주세요.")}<section class="section empty-page"><a class="button primary" href="${path("reservations")}">실시간 예약으로 돌아가기</a></section></main>${footer()}`;
-    return `${header("reservations")}<main id="main-content">${pageTitle("예약 정보 입력","예약 내용을 확인해 주세요.","게임 방식과 취소 규정을 확인한 뒤 예약자 정보를 입력해 주세요.","form-title")}<section class="section booking-layout"><aside class="booking-summary"><img src="${image(theme.image)}" alt="${h(theme.shortTitle)}"><div><p>선택한 사건</p><h2>${h(theme.shortTitle)}</h2><dl><div><dt>날짜</dt><dd>${h(formatDate(date))}</dd></div><div><dt>시간</dt><dd>${h(time)}</dd></div><div><dt>이용 시간</dt><dd>${theme.duration}분</dd></div><div><dt>정원</dt><dd>최소 ${theme.minPlayers}명 · 최대 ${theme.totalCapacity}명</dd></div><div><dt>요금</dt><dd>${money(theme.price)} / 1인</dd></div></dl><a href="${path("reservations")}">다른 회차 선택</a></div></aside><form id="booking-form" class="booking-form" novalidate><section class="form-section"><header><span>1</span><div><h2>현재 회차</h2><p>남은 자리와 오픈룸 상태를 먼저 확인합니다.</p></div></header><div id="room-status" class="room-status loading"><i></i><strong>회차를 확인하고 있습니다.</strong></div></section><section class="form-section"><header><span>2</span><div><h2>이용 인원</h2><p>참가할 전체 인원을 선택해 주세요.</p></div></header><div class="party-buttons" id="party-buttons"></div><label class="open-choice" id="open-choice"><input type="checkbox" name="openRoom"><span class="check-box">${iconCheck}</span><div><strong>남은 자리를 다른 팀에게 열기</strong><p>4명 이상일 때 선택할 수 있습니다. 선택하지 않으면 단독팀으로 예약됩니다.</p></div></label><label class="field open-intro" id="open-intro"><span>오픈룸 소개 <em>필수</em></span><textarea name="specialRequest" maxlength="300" placeholder="예: 20대 2명입니다. 즐겁게 플레이하고 싶어요."></textarea><small>예약 시간표의 해당 오픈룸과 합류 화면에 표시됩니다. 이름이나 연락처는 적지 마세요.</small></label></section><section class="form-section"><header><span>3</span><div><h2>예약자 정보</h2><p>예약 확인과 매장 안내에 사용합니다.</p></div></header><div class="field-grid"><label class="field"><span>예약자 이름 <em>필수</em></span><input name="customerName" autocomplete="name" maxlength="20" required placeholder="이름"></label><label class="field"><span>휴대폰 번호 <em>필수</em></span><input name="phone" autocomplete="tel" inputmode="tel" maxlength="13" required placeholder="010-0000-0000"></label></div></section><section class="form-section"><header><span>4</span><div><h2>최종 확인</h2><p>예약 내용과 필수 안내를 확인해 주세요.</p></div></header><div class="order-summary"><div><span>예약 인원</span><strong><b id="party-count">-</b>명</strong></div><div><span>이용 예정 금액</span><strong id="total-price">-</strong></div></div><div class="booking-critical-notice"><strong>예약 전 반드시 확인해 주세요</strong><p>사건 속 인물을 맡아 단서와 진술로 범인을 찾는 크라임씬 추리게임입니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div><div class="payment-guide" id="payment-guide"></div><div class="consents"><label><input type="checkbox" name="privacyConsent" required><span class="check-box">${iconCheck}</span><div><strong>[필수] 개인정보 수집·이용 동의</strong><p>수집 항목: 이름, 휴대폰 번호, 예약 내용, 요청사항. 예약 확인·변경·취소와 운영 안내에 사용하며 계약·취소 기록은 5년간 보관합니다. 동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다.</p></div></label><label><input type="checkbox" name="cancellationConsent" required><span class="check-box">${iconCheck}</span><div><strong>[필수] 당일 취소 및 환불 안내 확인</strong><p>이용 ${state.settings.cancellationCutoffHours}시간 전까지 온라인 취소가 가능합니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div></label></div><div id="booking-message" class="form-message" role="alert"></div><button class="submit-booking" type="submit" disabled><span>예약 확정하기</span><strong id="submit-price">-</strong>${iconArrow}</button></section></form></section></main>${footer()}`;
+    return `${header("reservations")}<main id="main-content">${pageTitle("예약 정보 입력","예약 내용을 확인해 주세요.","게임 방식과 취소 규정을 확인한 뒤 예약자 정보를 입력해 주세요.","form-title")}<section class="section booking-layout"><aside class="booking-summary"><img src="${image(theme.image)}" alt="${h(theme.shortTitle)}"><div><p>선택한 사건</p><h2>${h(theme.shortTitle)}</h2><dl><div><dt>날짜</dt><dd>${h(formatDate(date))}</dd></div><div><dt>시간</dt><dd>${h(time)}</dd></div><div><dt>이용 시간</dt><dd>${theme.duration}분</dd></div><div><dt>정원</dt><dd>최소 ${theme.minPlayers}명 · 최대 ${theme.totalCapacity}명</dd></div><div><dt>요금</dt><dd>${money(theme.price)} / 1인</dd></div></dl><a href="${path("reservations")}">다른 회차 선택</a></div></aside><form id="booking-form" class="booking-form" novalidate><section class="form-section"><header><span>1</span><div><h2>현재 회차</h2><p>남은 자리와 오픈룸 상태를 먼저 확인합니다.</p></div></header><div id="room-status" class="room-status loading"><i></i><strong>회차를 확인하고 있습니다.</strong></div></section><section class="form-section"><header><span>2</span><div><h2>이용 인원</h2><p>참가할 전체 인원을 선택해 주세요.</p></div></header><div class="party-buttons" id="party-buttons"></div><label class="open-choice" id="open-choice"><input type="checkbox" name="openRoom"><span class="check-box">${iconCheck}</span><div><strong>남은 자리를 다른 팀에게 열기</strong><p>4명 이상일 때 선택할 수 있습니다. 선택하지 않으면 단독팀으로 예약됩니다.</p></div></label><label class="field open-intro" id="open-intro"><span>오픈룸 소개 <em>필수</em></span><textarea name="specialRequest" maxlength="300" placeholder="예: 20대 2명입니다. 즐겁게 플레이하고 싶어요."></textarea><small>예약 시간표의 해당 오픈룸과 합류 화면에 표시됩니다. 이름이나 연락처는 적지 마세요.</small></label></section><section class="form-section"><header><span>3</span><div><h2>예약자 정보</h2><p>예약 확인과 매장 안내에 사용합니다.</p></div></header><div class="field-grid"><label class="field"><span>예약자 이름 <em>필수</em></span><input name="customerName" autocomplete="name" maxlength="20" required placeholder="이름"></label><label class="field"><span>휴대폰 번호 <em>필수</em></span><input name="phone" autocomplete="tel" inputmode="tel" maxlength="13" required placeholder="010-0000-0000"></label></div></section><section class="form-section"><header><span>4</span><div><h2>최종 확인</h2><p>예약 내용과 필수 안내를 확인해 주세요.</p></div></header><div class="order-summary"><div><span>예약 인원</span><strong><b id="party-count">-</b>명</strong></div><div><span>이용 예정 금액</span><strong id="total-price">-</strong></div></div><div class="booking-critical-notice"><strong>예약 전 반드시 확인해 주세요</strong><p>사건 속 인물을 맡아 단서와 진술로 범인을 찾는 크라임씬 추리게임입니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div><div class="payment-guide" id="payment-guide">${paymentGuideMarkup()}</div><div class="consents"><label><input type="checkbox" name="privacyConsent" required><span class="check-box">${iconCheck}</span><div><strong>[필수] 개인정보 수집·이용 동의</strong><p>수집 항목: 이름, 휴대폰 번호, 예약 내용, 요청사항. 예약 확인·변경·취소와 운영 안내에 사용하며 계약·취소 기록은 5년간 보관합니다. 동의를 거부할 수 있으나 필수 정보라 예약은 진행할 수 없습니다.</p></div></label><label><input type="checkbox" name="cancellationConsent" required><span class="check-box">${iconCheck}</span><div><strong>[필수] 당일 취소 및 환불 안내 확인</strong><p>이용 ${state.settings.cancellationCutoffHours}시간 전까지 온라인 취소가 가능합니다. 이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p></div></label></div><div id="booking-message" class="form-message" role="alert"></div><button class="submit-booking" type="submit" disabled><span>${onlinePaymentEnabled()?"카드로 결제하기":"예약 확정하기"}</span><strong id="submit-price">-</strong>${iconArrow}</button><button class="payment-abort" id="payment-abort" type="button" hidden>결제창을 닫았다면 여기를 눌러 다시 시도해 주세요.</button></section></form></section></main>${footer()}`;
   }
 
   function bindReservationNewPage() {
     const form=document.querySelector("#booking-form");if(!form)return;
     const params=new URLSearchParams(location.search),theme=themeById(params.get("theme")),playDate=params.get("date"),startTime=params.get("time");
-    const status=document.querySelector("#room-status"),picker=document.querySelector("#party-buttons"),openChoice=document.querySelector("#open-choice"),openIntro=document.querySelector("#open-intro"),openInput=form.elements.openRoom,request=form.elements.specialRequest,submit=form.querySelector(".submit-booking"),message=document.querySelector("#booking-message");
-    let slot=null,partySize=0,ready=false,userOpen=false;
+    const status=document.querySelector("#room-status"),picker=document.querySelector("#party-buttons"),openChoice=document.querySelector("#open-choice"),openIntro=document.querySelector("#open-intro"),openInput=form.elements.openRoom,request=form.elements.specialRequest,submit=form.querySelector(".submit-booking"),abortButton=document.querySelector("#payment-abort"),message=document.querySelector("#booking-message");
+    let slot=null,partySize=0,ready=false,userOpen=false,activePaymentSession=null;
     form.elements.phone.addEventListener("input",event=>{event.target.value=formatPhone(event.target.value);});
     function joining(){return Boolean(slot&&slot.bookedCount>0&&slot.openRoom&&slot.canJoin);}
     function isOpen(){return joining()||partySize<(theme?.minPlayers||4)||Boolean(openInput.checked);}
+    function actionLabel(){return onlinePaymentEnabled()?"카드로 결제하기":joining()?"오픈룸 합류 예약":"예약 확정하기";}
     function setMessage(text="",type="error"){message.className=`form-message ${text?type:""}`;message.textContent=text;}
     function renderPicker(max,preferred){picker.innerHTML=Array.from({length:max},(_,i)=>i+1).map(n=>`<button type="button" data-party="${n}" class="${n===preferred?"is-selected":""}" aria-pressed="${n===preferred}"><strong>${n}</strong><span>명</span></button>`).join("");partySize=preferred;picker.querySelectorAll("button").forEach(button=>button.addEventListener("click",()=>{picker.querySelectorAll("button").forEach(x=>{x.classList.remove("is-selected");x.setAttribute("aria-pressed","false");});button.classList.add("is-selected");button.setAttribute("aria-pressed","true");partySize=Number(button.dataset.party);update();}));}
     function update(){
@@ -267,37 +369,143 @@
         const data=await api(`/availability?date=${encodeURIComponent(playDate)}&theme=${encodeURIComponent(theme.id)}`),current=data.themes?.[0]?.times?.find(x=>x.time===startTime);
         if(!current)throw new Error("선택한 회차를 찾을 수 없습니다.");slot=current;const info=roomInfo(slot,theme);status.className=`room-status ${info.tone}`;status.innerHTML=`<span>${h(info.label)}</span><strong>${h(info.detail)}</strong><small>${info.roomState==="AVAILABLE"?`이 사건은 최대 ${theme.totalCapacity}명까지 참여할 수 있습니다.`:h(info.action)}</small>${roomIntroductions(slot,false)}`;
         if(!info.canBook){picker.innerHTML="";submit.disabled=true;submit.querySelector("span").textContent="예약할 수 없는 회차입니다";return;}
-        const max=info.roomState==="AVAILABLE"?theme.totalCapacity:info.remaining,preferred=info.roomState==="AVAILABLE"?Math.min(theme.minPlayers,max):1;renderPicker(max,preferred);ready=true;submit.disabled=false;submit.querySelector("span").textContent=joining()?"오픈룸 합류 예약":"예약 확정하기";update();
+        const max=info.roomState==="AVAILABLE"?theme.totalCapacity:info.remaining,preferred=info.roomState==="AVAILABLE"?Math.min(theme.minPlayers,max):1;renderPicker(max,preferred);ready=true;submit.disabled=false;submit.querySelector("span").textContent=actionLabel();update();
       }catch(error){status.className="room-status closed";status.innerHTML=`<strong>회차를 확인하지 못했습니다.</strong><p>${h(error.message)}</p><button type="button">다시 확인</button>`;status.querySelector("button")?.addEventListener("click",load);}
     }
-    const paymentGuide=document.querySelector("#payment-guide");
-    if(state.payment.onlineEnabled){paymentGuide.innerHTML=`<strong>온라인 카드 결제</strong><p>예약 정보를 입력한 뒤 카드 결제를 진행합니다. 결제가 완료되어야 예약이 확정됩니다.</p>`;}
-    else{paymentGuide.innerHTML=`<strong>매장 결제</strong><p>예약은 바로 확정되며, 이용 금액은 방문하신 날 매장에서 결제합니다.</p>`;}
+    async function stopPayment(session,reason,notice){
+      abortButton.hidden=true;abortButton.disabled=true;
+      try{
+        const aborted=await abortNicepay(session,reason),abortedStatus=normalizePaymentStatus(aborted?.status);
+        if(["VERIFYING","PAID"].includes(abortedStatus)){location.href=path("reservations/complete");return;}
+        if(!["FAILED","REFUNDED"].includes(abortedStatus)){setMessage("결제 중단 처리가 아직 끝나지 않았습니다. 잠시 후 다시 눌러 주세요.");abortButton.hidden=false;abortButton.disabled=false;return;}
+        clearNicepaySession(session?.orderId || "");activePaymentSession=null;
+      }catch(error){
+        console.warn("결제 대기 취소를 확인하지 못했습니다.",error);
+        if(error?.status===404){clearNicepaySession(session?.orderId||"");activePaymentSession=null;}
+        else{setMessage("결제 중단 여부를 확인하지 못했습니다. 잠시 후 다시 눌러 주세요.");abortButton.hidden=false;abortButton.disabled=false;return;}
+      }
+      setMessage(notice || "카드 결제를 중단했습니다. 예약 내용을 확인한 뒤 다시 시도해 주세요.");
+      abortButton.disabled=false;await load();
+    }
+    abortButton.addEventListener("click",()=>{
+      const session=activePaymentSession || readNicepaySession();
+      void stopPayment(session,"CUSTOMER_CLOSED_PAYMENT_WINDOW","결제를 중단했습니다. 카드 결제를 다시 진행할 수 있습니다.");
+    });
     form.addEventListener("submit",async event=>{
       event.preventDefault();setMessage();
       if(!ready||!partySize)return;
       if(!form.reportValidity()){setMessage("필수 입력 항목과 동의 내용을 확인해 주세요.");return;}
-      const original=submit.querySelector("span").textContent;submit.disabled=true;submit.querySelector("span").textContent="회차를 다시 확인하고 있습니다";
+      submit.disabled=true;abortButton.hidden=true;submit.querySelector("span").textContent="회차를 다시 확인하고 있습니다";
       try{
-        const latest=await api(`/availability?date=${encodeURIComponent(playDate)}&theme=${encodeURIComponent(theme.id)}`),latestSlot=latest.themes?.[0]?.times?.find(x=>x.time===startTime);if(!latestSlot)throw new Error("회차 정보를 확인할 수 없습니다.");const info=roomInfo(latestSlot,theme);if(!info.canBook)throw new Error("선택한 회차가 방금 마감되었습니다.");if(info.roomState!=="AVAILABLE"&&partySize>info.remaining)throw new Error(`현재 남은 자리는 ${info.remaining}자리입니다.`);
-        const values=Object.fromEntries(new FormData(form)),open=(latestSlot.bookedCount>0&&latestSlot.openRoom&&latestSlot.canJoin)||partySize<theme.minPlayers||Boolean(openInput.checked),intro=String(values.specialRequest||"").trim();if(open&&intro.length<2)throw new Error("오픈룸 소개를 입력해 주세요.");
-        const result=await api("/reservations",{method:"POST",body:JSON.stringify({themeId:theme.id,playDate,startTime,customerName:values.customerName,phone:values.phone,partySize,openRoom:open,specialRequest:intro,privacyConsent:true,cancellationConsent:true})},16000);
-        sessionStorage.setItem("crimescene-last-reservation",JSON.stringify(result));location.href=path("reservations/complete");
-      }catch(error){setMessage(error.message);submit.disabled=false;submit.querySelector("span").textContent=original;await load();}
+        const values=Object.fromEntries(new FormData(form)),intro=String(values.specialRequest||"").trim();
+        let open=joining()||partySize<theme.minPlayers||Boolean(openInput.checked);
+        if(open&&intro.length<2)throw new Error("오픈룸 소개를 입력해 주세요.");
+        let payload={themeId:theme.id,playDate,startTime,customerName:String(values.customerName||"").trim(),phone:values.phone,partySize,openRoom:open,specialRequest:intro,privacyConsent:true,cancellationConsent:true};
+        let fingerprint=onlinePaymentEnabled()?await paymentFingerprint(payload):"",pending=onlinePaymentEnabled()?readNicepaySession():null;
+        const retryingSamePayment=Boolean(pending&&pending.fingerprint===fingerprint);
+        if(!retryingSamePayment){
+          const latest=await api(`/availability?date=${encodeURIComponent(playDate)}&theme=${encodeURIComponent(theme.id)}`),latestSlot=latest.themes?.[0]?.times?.find(x=>x.time===startTime);if(!latestSlot)throw new Error("회차 정보를 확인할 수 없습니다.");const info=roomInfo(latestSlot,theme);if(!info.canBook)throw new Error("선택한 회차가 방금 마감되었습니다.");if(info.roomState!=="AVAILABLE"&&partySize>info.remaining)throw new Error(`현재 남은 자리는 ${info.remaining}자리입니다.`);
+          open=(latestSlot.bookedCount>0&&latestSlot.openRoom&&latestSlot.canJoin)||partySize<theme.minPlayers||Boolean(openInput.checked);if(open&&intro.length<2)throw new Error("오픈룸 소개를 입력해 주세요.");
+          payload={...payload,openRoom:open};
+          if(onlinePaymentEnabled())fingerprint=await paymentFingerprint(payload);
+        }
+        if(!onlinePaymentEnabled()){
+          const result=await api("/reservations",{method:"POST",body:JSON.stringify(payload)},16000);
+          sessionStorage.setItem(LAST_RESERVATION_KEY,JSON.stringify(result));location.href=path("reservations/complete");return;
+        }
+
+        submit.querySelector("span").textContent="카드 결제를 준비하고 있습니다";
+        if(pending && pending.fingerprint !== fingerprint){
+          if(pending.orderId && pending.actionToken){try{await abortNicepay(pending,"RESERVATION_DETAILS_CHANGED");}catch(error){console.warn("이전 결제 대기를 정리하지 못했습니다.",error);}}
+          clearNicepaySession(pending.orderId || "");pending=null;
+        }
+        if(!pending){pending={idempotencyKey:crypto.randomUUID(),fingerprint};writeNicepaySession(pending);}
+        const prepared=await api("/payments/nicepay/prepare",{method:"POST",body:JSON.stringify({...payload,idempotencyKey:pending.idempotencyKey,customerReturnUrl:customerReturnUrl()})},18000);
+        const payment=prepared?.payment || {},candidate={...pending,orderId:String(payment.orderId||""),actionToken:String(prepared?.actionToken||"")};
+        if(candidate.orderId && candidate.actionToken){activePaymentSession=candidate;writeNicepaySession(candidate);}
+        const expectedAmount=theme.price*partySize,amount=Number(payment.amount),expectedReturnOrigin=new URL(API).origin;
+        let returnUrl=null;try{returnUrl=new URL(String(payment.returnUrl||""));}catch{}
+        const paymentValid=String(payment.provider||"").toUpperCase()==="NICEPAY" && candidate.orderId && candidate.orderId.length<=64 && candidate.actionToken && candidate.actionToken.length<=512 && String(payment.clientId||"").trim() && String(payment.clientId).length<=128 && payment.method==="card" && Number.isInteger(amount) && amount===expectedAmount && Number(prepared?.reservation?.totalAmount)===expectedAmount && returnUrl?.origin===expectedReturnOrigin && returnUrl.pathname==="/functions/v1/api/payments/nicepay/return" && !returnUrl.search && !returnUrl.hash && !returnUrl.username && !returnUrl.password;
+        if(!paymentValid)throw new Error("안전한 결제 정보를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+        const nicepay=await loadNicepaySdk(payment.sdkUrl);
+        setMessage("카드 결제창에서 결제를 완료해 주세요. 결제가 끝나면 예약 결과 화면으로 자동 이동합니다.","success");
+        submit.querySelector("span").textContent="카드 결제를 진행해 주세요";abortButton.hidden=false;
+        nicepay.requestPay({
+          clientId:String(payment.clientId),method:"card",orderId:candidate.orderId,amount,
+          goodsName:String(payment.goodsName||theme.shortTitle).slice(0,40),returnUrl:returnUrl.href,
+          buyerName:payload.customerName,buyerTel:digits(payload.phone),language:"KO",returnCharSet:"utf-8",skinType:"dark",
+          fnError:result=>{const detail=String(result?.errorMsg||result?.resultMsg||"").trim();void stopPayment(candidate,"NICEPAY_WINDOW_ERROR",detail?`카드 결제를 완료하지 못했습니다. ${detail}`:"카드 결제를 완료하지 못했습니다. 다시 시도해 주세요.");},
+        });
+      }catch(error){
+        if(activePaymentSession?.orderId){try{await abortNicepay(activePaymentSession,"PAYMENT_START_FAILED");}catch(abortError){console.warn("결제 대기 취소를 확인하지 못했습니다.",abortError);}clearNicepaySession(activePaymentSession.orderId);activePaymentSession=null;}
+        else if(error?.status && error.status<500)clearNicepaySession();
+        setMessage(error.message);abortButton.hidden=true;submit.disabled=false;submit.querySelector("span").textContent=actionLabel();await load();
+      }
     });
     load();
   }
 
+  function readLastReservation() {
+    try { return JSON.parse(sessionStorage.getItem(LAST_RESERVATION_KEY)||"null"); } catch { return null; }
+  }
+  function completionDetails(r) {
+    return `<dl><div><dt>사건</dt><dd>${h(r.themeTitle)}</dd></div><div><dt>날짜</dt><dd>${h(formatDate(r.playDate))}</dd></div><div><dt>시간</dt><dd>${h(r.startTime)}</dd></div><div><dt>인원</dt><dd>${Number(r.partySize||0)}명</dd></div><div><dt>이용 금액</dt><dd>${money(r.totalAmount)}</dd></div><div><dt>예약 상태</dt><dd>${h(STATUS[r.status]||"확인 중")}</dd></div></dl>`;
+  }
+  function completionActions(primaryLabel="예약 확인하기") {
+    return `<div class="complete-actions"><a class="button primary" href="${path("reservations/lookup")}">${h(primaryLabel)}</a><a class="button secondary" href="${path()}">홈으로</a></div>`;
+  }
+  function completionMissing(message="예약 확인 정보를 찾을 수 없습니다.") {
+    return `<main id="main-content" class="complete-page"><section><div class="complete-mark failed">!</div><p>확인 필요</p><h1>${h(message)}</h1><span>예약자 이름과 휴대폰 번호로 예약 상태를 다시 확인해 주세요.</span>${completionActions("예약 조회하기")}</section></main>`;
+  }
+  function completionLoading() {
+    return `<main id="main-content" class="complete-page"><section aria-live="polite"><div class="complete-mark pending"><i></i></div><p>결제 확인 중</p><h1>결제 결과를 확인하고 있습니다.</h1><span>창을 닫거나 뒤로 가지 말고 잠시만 기다려 주세요.</span></section></main>`;
+  }
+  function completionResult(result) {
+    const r=result?.reservation,payment=result?.payment||{};
+    if(!r)return completionMissing();
+    const provider=String(payment.provider||"").toUpperCase(),isNicepay=provider==="NICEPAY",paymentStatus=normalizePaymentStatus(payment.status||r.paymentStatus);
+    if(isNicepay && paymentStatus==="FAILED")return `<main id="main-content" class="complete-page"><section><div class="complete-mark failed">!</div><p>결제 실패</p><h1>카드 결제를 완료하지 못했습니다.</h1><span>${h(payment.failureMessage||"승인 결과를 확인할 수 없거나 결제가 취소되었습니다. 결제 금액은 승인되지 않습니다.")}</span>${completionDetails(r)}${completionActions("예약 상태 조회하기")}</section></main>`;
+    if(isNicepay && paymentStatus==="REFUNDED")return `<main id="main-content" class="complete-page"><section><div class="complete-mark failed">!</div><p>결제 취소</p><h1>결제가 취소되었습니다.</h1><span>환불 처리 시점은 카드사 정책에 따라 다를 수 있습니다.</span>${completionDetails(r)}${completionActions("예약 조회하기")}</section></main>`;
+    if(isNicepay && paymentStatus!=="PAID"){const canAbort=paymentStatus==="READY";return `<main id="main-content" class="complete-page"><section><div class="complete-mark pending">…</div><p>승인 확인 중</p><h1>결제 결과 확인이 지연되고 있습니다.</h1><span>${canAbort?"아직 카드 승인 전입니다. 결제를 중단하거나 잠시 후 다시 확인해 주세요.":"승인 확인 중에는 중복 결제하지 말고 잠시 후 이 화면을 새로고침해 주세요."}</span>${completionDetails(r)}${canAbort?`<button class="complete-abort" id="complete-abort" type="button">결제를 중단하고 예약 화면으로 돌아가기</button>`:""}${completionActions("예약 상태 조회하기")}</section></main>`;}
+    const info=roomInfo(r.room||{}),isPrivate=r.bookingMode==="PRIVATE",receipt=safeReceiptUrl(payment.receiptUrl);
+    return `<main id="main-content" class="complete-page"><section><div class="complete-mark">${iconCheck}</div><p>${isNicepay?"결제 완료":"예약 완료"}</p><h1>예약이 확정되었습니다.</h1><span>${isNicepay?"카드 결제가 정상적으로 완료되었습니다.":"이용 금액은 방문하신 날 매장에서 결제합니다."}</span>${completionDetails(r)}${isNicepay?`<article class="complete-payment"><span>결제 상태</span><strong>나이스페이먼츠 카드 결제 완료</strong>${receipt?`<a href="${h(receipt)}" target="_blank" rel="noopener noreferrer">카드 결제 영수증 보기 ${iconArrow}</a>`:""}</article>`:""}<article class="complete-room ${isPrivate?"private":info.tone}"><span>${isPrivate?"예약 방식":"오픈룸 현황"}</span><strong>${isPrivate?"단독팀 예약":h(info.label)}</strong><p>${isPrivate?"예약한 인원끼리만 플레이합니다.":h(info.detail)}</p></article><article class="complete-refund-notice"><strong>당일 취소 안내</strong><p>이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다. 예약한 날짜와 시작 시간을 다시 확인해 주세요.</p></article><p class="arrival-note">배역 안내를 위해 시작 ${state.settings.arrivalMinutes}분 전까지 도착해 주세요.</p>${completionActions()}</section></main>`;
+  }
   function reservationCompletePage() {
-    let result=null;try{result=JSON.parse(sessionStorage.getItem("crimescene-last-reservation")||"null");}catch{}
-    const r=result?.reservation;
-    if(!r)return `<main id="main-content" class="complete-page"><section><div class="complete-mark">!</div><h1>예약 정보를 찾을 수 없습니다.</h1><p>예약 확인 화면에서 이름과 휴대폰 번호로 다시 조회할 수 있습니다.</p><div><a class="button primary" href="${path("reservations/lookup")}">예약 확인</a><a class="button secondary" href="${path()}">홈으로</a></div></section></main>`;
-    const info=roomInfo(r.room||{}),isPrivate=r.bookingMode==="PRIVATE";
-    return `<main id="main-content" class="complete-page"><section><div class="complete-mark">${iconCheck}</div><p>예약 완료</p><h1>예약이 확정되었습니다.</h1><span>${state.payment.onlineEnabled?"결제 결과와 예약 내용을 확인해 주세요.":"이용 금액은 방문하신 날 매장에서 결제합니다."}</span><dl><div><dt>사건</dt><dd>${h(r.themeTitle)}</dd></div><div><dt>날짜</dt><dd>${h(formatDate(r.playDate))}</dd></div><div><dt>시간</dt><dd>${h(r.startTime)}</dd></div><div><dt>인원</dt><dd>${r.partySize}명</dd></div><div><dt>이용 금액</dt><dd>${money(r.totalAmount)}</dd></div><div><dt>예약 상태</dt><dd>${h(STATUS[r.status]||"예약 확정")}</dd></div></dl><article class="complete-room ${isPrivate?"private":info.tone}"><span>${isPrivate?"예약 방식":"오픈룸 현황"}</span><strong>${isPrivate?"단독팀 예약":h(info.label)}</strong><p>${isPrivate?"예약한 인원끼리만 플레이합니다.":h(info.detail)}</p></article><article class="complete-refund-notice"><strong>당일 취소 안내</strong><p>이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다. 예약한 날짜와 시작 시간을 다시 확인해 주세요.</p></article><p class="arrival-note">배역 안내를 위해 시작 ${state.settings.arrivalMinutes}분 전까지 도착해 주세요.</p><div><a class="button primary" href="${path("reservations/lookup")}">예약 확인하기</a><a class="button secondary" href="${path()}">홈으로</a></div></section></main>`;
+    const session=readNicepaySession(),paymentParam=new URLSearchParams(location.search).get("payment");
+    if(session)return completionLoading();
+    if(["success","failed","pending"].includes(paymentParam||""))return completionMissing("결제 확인 정보가 만료되었습니다.");
+    return completionResult(readLastReservation());
+  }
+  function bindCompleteAbort(session) {
+    const button=document.querySelector("#complete-abort");if(!button)return;
+    button.addEventListener("click",async()=>{button.disabled=true;button.textContent="결제를 정리하고 있습니다";try{const aborted=await abortNicepay(session,"CUSTOMER_ABORT_FROM_RESULT"),status=normalizePaymentStatus(aborted?.status);if(!["FAILED","REFUNDED"].includes(status))throw new Error("승인 결과를 확인하고 있습니다. 중복 결제하지 말고 잠시 후 다시 확인해 주세요.");clearNicepaySession(session.orderId);location.href=path("reservations");}catch(error){button.disabled=false;button.textContent="결제를 중단하고 예약 화면으로 돌아가기";toast(error.message,"error");}});
+  }
+  async function bindReservationCompletePage() {
+    const session=readNicepaySession();if(!session?.orderId||!session?.actionToken)return;
+    const paymentParam=new URLSearchParams(location.search).get("payment")||"";
+    try{
+      let result=null;
+      for(let attempt=0;attempt<4;attempt+=1){
+        result=await api("/payments/nicepay/result",{method:"POST",body:JSON.stringify({orderId:session.orderId,actionToken:session.actionToken})},15000);
+        const status=normalizePaymentStatus(result?.payment?.status||result?.reservation?.paymentStatus);
+        if(!["READY","VERIFYING"].includes(status))break;
+        if(paymentParam==="failed"&&status==="READY"){await abortNicepay(session,"NICEPAY_RETURN_FAILED");result=await api("/payments/nicepay/result",{method:"POST",body:JSON.stringify({orderId:session.orderId,actionToken:session.actionToken})},15000);break;}
+        if(attempt<3)await new Promise(resolve=>setTimeout(resolve,1200));
+      }
+      const status=normalizePaymentStatus(result?.payment?.status||result?.reservation?.paymentStatus);
+      if(["PAID","FAILED","REFUNDED"].includes(status)){
+        try { sessionStorage.setItem(LAST_RESERVATION_KEY,JSON.stringify(result)); } catch {}
+        clearNicepaySession(session.orderId);
+        if(globalThis.history?.replaceState)history.replaceState({},"",path("reservations/complete"));
+      }
+      app.innerHTML=completionResult(result);bindCompleteAbort(session);
+    }catch(error){
+      app.innerHTML=`<main id="main-content" class="complete-page"><section><div class="complete-mark failed">!</div><p>확인 지연</p><h1>결제 결과를 불러오지 못했습니다.</h1><span>${h(error.message)} 중복 결제하지 말고 이 화면을 새로고침해 주세요.</span>${completionActions("예약 상태 조회하기")}</section></main>`;
+    }
   }
 
   function reservationLookupPage() {
-    return `${header("reservations")}<main id="main-content">${pageTitle("예약 확인·취소","예약할 때 입력한 정보를 적어 주세요.","이름과 휴대폰 번호가 일치하는 최근 예약을 확인합니다.","lookup-title")}<section class="section lookup-shell">${reservationNav("lookup")}<div class="lookup-layout"><aside><p>예약 조회</p><h2>별도의 예약번호는<br>필요하지 않습니다.</h2><span>예약할 때 사용한 이름과 휴대폰 번호만 입력하면 예약 상태, 오픈룸 현황과 취소 가능 여부를 확인할 수 있습니다.</span><dl><div><dt>온라인 취소</dt><dd>이용 ${state.settings.cancellationCutoffHours}시간 전까지</dd></div><div><dt>당일 취소</dt><dd>고객 사유 환불 불가</dd></div><div><dt>이후 변경</dt><dd>${h(state.settings.phone)}로 문의</dd></div></dl></aside><div><form id="lookup-form" class="lookup-form"><label class="field"><span>예약자 이름</span><input name="customerName" autocomplete="name" maxlength="20" required placeholder="이름"></label><label class="field"><span>휴대폰 번호</span><input name="phone" autocomplete="tel" inputmode="tel" maxlength="13" required placeholder="010-0000-0000"></label><button type="submit">예약 조회하기</button><div id="lookup-message" role="alert"></div></form><div id="lookup-results"></div></div></div></section></main>${footer()}`;
+    return `${header("reservations")}<main id="main-content">${pageTitle("예약 확인·취소","예약할 때 입력한 정보를 적어 주세요.","이름과 휴대폰 번호가 일치하는 최근 예약을 확인합니다.","lookup-title")}<section class="section lookup-shell">${reservationNav("lookup")}<div class="lookup-layout"><aside><p>예약 조회</p><h2>이름과 휴대폰 번호로<br>바로 확인합니다.</h2><span>예약할 때 사용한 이름과 휴대폰 번호를 입력하면 예약 상태, 오픈룸 현황과 취소 가능 여부를 확인할 수 있습니다.</span><dl><div><dt>온라인 취소</dt><dd>이용 ${state.settings.cancellationCutoffHours}시간 전까지</dd></div><div><dt>당일 취소</dt><dd>고객 사유 환불 불가</dd></div><div><dt>이후 변경</dt><dd>${h(state.settings.phone)}로 문의</dd></div></dl></aside><div><form id="lookup-form" class="lookup-form"><label class="field"><span>예약자 이름</span><input name="customerName" autocomplete="name" maxlength="20" required placeholder="이름"></label><label class="field"><span>휴대폰 번호</span><input name="phone" autocomplete="tel" inputmode="tel" maxlength="13" required placeholder="010-0000-0000"></label><button type="submit">예약 조회하기</button><div id="lookup-message" role="alert"></div></form><div id="lookup-results"></div></div></div></section></main>${footer()}`;
   }
 
   function bindLookupPage() {
@@ -305,7 +513,7 @@
     form.elements.phone.addEventListener("input",event=>{event.target.value=formatPhone(event.target.value);});let identity=null;
     function render(items){
       if(!items.length){results.innerHTML=`<div class="empty-results"><strong>일치하는 예약이 없습니다.</strong><p>이름과 휴대폰 번호를 다시 확인해 주세요.</p></div>`;return;}
-      results.innerHTML=`<div class="result-heading"><strong>예약 내역</strong><span>${items.length}건</span></div><div class="reservation-results">${items.map(item=>{const info=roomInfo(item.room||{}),privateRoom=!item.openRoom,cancelable=!["CANCELED","CANCEL_REQUESTED","COMPLETED","NO_SHOW"].includes(item.status);return `<article><header><span class="status status-${String(item.status).toLowerCase()}">${h(STATUS[item.status]||item.status)}</span><h3>${h(item.themeTitle)}</h3><time>${h(formatDate(item.playDate))} · ${h(item.startTime)}</time></header><dl><div><dt>예약 인원</dt><dd>${item.partySize}명</dd></div><div><dt>연락처</dt><dd>${h(item.phoneMasked)}</dd></div><div><dt>이용 금액</dt><dd>${money(item.totalAmount)}</dd></div><div><dt>예약 방식</dt><dd>${privateRoom?"단독팀":"오픈룸"}</dd></div></dl><section class="lookup-room ${privateRoom?"private":info.tone}"><span>${privateRoom?"단독팀 예약":h(info.label)}</span><p>${privateRoom?"다른 팀이 합류하지 않습니다.":h(info.detail)}</p>${item.openRoomMessage?`<small>내가 남긴 소개: ${h(item.openRoomMessage)}</small>`:""}</section>${cancelable?`<footer><button type="button" data-cancel="${h(item.lookupCode)}">예약 취소</button></footer>`:""}</article>`;}).join("")}</div>`;
+      results.innerHTML=`<div class="result-heading"><strong>예약 내역</strong><span>${items.length}건</span></div><div class="reservation-results">${items.map(item=>{const info=roomInfo(item.room||{}),privateRoom=!item.openRoom,paymentStatus=normalizePaymentStatus(item.paymentStatus||item.payment?.status),paymentProvider=String(item.paymentProvider||item.payment?.provider||"").toUpperCase(),managedPending=paymentProvider==="NICEPAY"&&["READY","VERIFYING"].includes(paymentStatus),cancelable=!["CANCELED","CANCEL_REQUESTED","COMPLETED","NO_SHOW"].includes(item.status)&&!managedPending,paid=paymentStatus==="PAID";return `<article><header><span class="status status-${String(item.status).toLowerCase()}">${h(STATUS[item.status]||item.status)}</span><h3>${h(item.themeTitle)}</h3><time>${h(formatDate(item.playDate))} · ${h(item.startTime)}</time></header><dl><div><dt>예약 인원</dt><dd>${item.partySize}명</dd></div><div><dt>연락처</dt><dd>${h(item.phoneMasked)}</dd></div><div><dt>이용 금액</dt><dd>${money(item.totalAmount)}</dd></div><div><dt>결제 상태</dt><dd>${h(paymentStatusLabel(item))}</dd></div><div><dt>예약 방식</dt><dd>${privateRoom?"단독팀":"오픈룸"}</dd></div></dl><section class="lookup-room ${privateRoom?"private":info.tone}"><span>${privateRoom?"단독팀 예약":h(info.label)}</span><p>${privateRoom?"다른 팀이 합류하지 않습니다.":h(info.detail)}</p>${item.openRoomMessage?`<small>내가 남긴 소개: ${h(item.openRoomMessage)}</small>`:""}</section>${managedPending?`<p class="lookup-payment-note">카드 결제 확인 중에는 예약을 변경하거나 취소할 수 없습니다. 잠시 후 다시 조회해 주세요.</p>`:cancelable?`<footer><button type="button" data-cancel="${h(item.lookupCode)}">${paid?"결제·예약 취소":"예약 취소"}</button></footer>`:""}</article>`;}).join("")}</div>`;
       results.querySelectorAll("[data-cancel]").forEach(button=>button.addEventListener("click",async()=>{if(!identity||!confirm(`예약을 취소하시겠습니까?\n이용 ${state.settings.cancellationCutoffHours}시간 전부터는 온라인 취소가 제한됩니다.\n이용 당일 고객 사유 취소는 환불되지 않습니다.`))return;button.disabled=true;try{const response=await api("/reservations/cancel",{method:"POST",body:JSON.stringify({lookupCode:button.dataset.cancel,customerName:identity.customerName,phone:identity.phone,reason:"고객 온라인 취소"})});toast(response.message,"success");form.requestSubmit();}catch(error){toast(error.message,"error");button.disabled=false;}}));
     }
     form.addEventListener("submit",async event=>{event.preventDefault();if(!form.reportValidity())return;identity=Object.fromEntries(new FormData(form));message.innerHTML=`<div class="mini-loader"><i></i>예약을 찾고 있습니다.</div>`;results.innerHTML="";try{const data=await api("/reservations/lookup",{method:"POST",body:JSON.stringify(identity)});message.innerHTML="";render(data.reservations||[]);}catch(error){message.innerHTML=`<p class="inline-error">${h(error.message)}</p>`;}});
@@ -330,7 +538,7 @@
       ["오픈룸은 어떻게 예약하나요?","실시간 예약표에서 오픈룸 모집 중인 회차를 선택하면 기존 팀에 합류합니다. 빈 회차에서 1~3명을 선택하면 새 오픈룸이 만들어집니다."],
       ["처음 해보는 사람도 참여할 수 있나요?","가능합니다. 입장 전에 배역과 게임 진행 방법을 안내하므로 별도의 사전 경험이 필요하지 않습니다."],
       ["플레이 시간은 얼마나 걸리나요?",`대부분의 사건은 약 90분 진행됩니다. 배역 안내를 위해 시작 ${state.settings.arrivalMinutes}분 전까지 도착해 주세요.`],
-      ["예약은 어떻게 확인하나요?","예약번호 없이 예약자 이름과 휴대폰 번호로 확인할 수 있습니다."],
+      ["예약은 어떻게 확인하나요?","예약할 때 입력한 이름과 휴대폰 번호로 확인할 수 있습니다."],
       ["예약을 취소하려면 어떻게 하나요?",`예약 확인·취소 화면에서 이용 ${state.settings.cancellationCutoffHours}시간 전까지 취소할 수 있습니다. 이후에는 매장으로 문의해야 하며, 이용 당일 고객 사유 취소는 환불되지 않습니다.`],
     ];
     return `${header("guide")}<main id="main-content">${pageTitle("자주 묻는 질문","궁금한 내용을 확인해 보세요.","찾는 내용이 없으면 아래 문의 양식을 이용해 주세요.")}<section class="section faq-layout"><div class="faq-list">${faqs.map(([q,a],i)=>`<details ${i===0?"open":""}><summary><span>${String(i+1).padStart(2,"0")}</span><strong>${h(q)}</strong><i>+</i></summary><p>${h(a)}</p></details>`).join("")}</div><aside class="inquiry-card"><p>1:1 문의</p><h2>문의 내용을 남겨 주세요.</h2><span>확인 후 입력하신 연락처로 안내드립니다.</span><form id="inquiry-form"><label class="field"><span>이름</span><input name="customerName" maxlength="20" required></label><label class="field"><span>휴대폰 번호</span><input name="phone" inputmode="tel" maxlength="13" required></label><label class="field"><span>제목</span><input name="subject" maxlength="100" required></label><label class="field"><span>문의 내용</span><textarea name="content" minlength="10" maxlength="2000" required></textarea></label><label class="simple-check"><input type="checkbox" name="privacyConsent" required><span class="check-box">${iconCheck}</span><span>수집 항목: 이름, 휴대폰 번호, 문의 내용. 문의 확인과 답변에 사용하며 분쟁 처리 기록은 3년간 보관합니다. 동의를 거부할 수 있으나 문의 접수는 진행할 수 없습니다.</span></label><div id="inquiry-message" role="alert"></div><button type="submit">문의 접수하기</button></form></aside></section></main>${footer()}`;
@@ -361,7 +569,7 @@
         ["1. 수집하는 개인정보","예약 시 이름, 휴대폰 번호, 선택한 사건·날짜·시간·인원, 오픈룸 소개 또는 요청사항을 수집합니다. 문의 시 이름, 휴대폰 번호, 제목과 문의 내용을 수집합니다."],
         ["2. 이용 목적","예약 확인·변경·취소, 회차 및 오픈룸 운영, 매장 안내, 결제 처리(온라인 결제 사용 시), 문의 답변과 분쟁 대응에 사용합니다."],
         ["3. 보유 기간","계약 또는 청약철회·예약 취소 기록과 대금결제 및 서비스 제공 기록은 5년, 소비자 불만 또는 분쟁 처리 기록은 3년간 보관합니다. 그 밖에 법령상 보존 의무가 없는 정보는 이용 목적이 끝난 뒤 지체 없이 파기합니다."],
-        ["4. 제3자 제공","법령에 근거가 있거나 이용자가 별도로 동의한 경우를 제외하고 개인정보를 제3자에게 제공하지 않습니다. 온라인 결제를 사용하는 경우 결제 처리를 위해 결제대행사에 필요한 정보가 전달될 수 있으며 결제 화면에서 별도로 안내합니다."],
+        ["4. 처리위탁 및 제3자 제공","법령에 근거가 있거나 이용자가 별도로 동의한 경우를 제외하고 개인정보를 제3자에게 제공하지 않습니다. 온라인 카드 결제 시 결제 처리를 위해 나이스페이먼츠 주식회사에 필요한 최소 정보가 전달되며, 카드번호와 인증정보는 매장 서버에 직접 저장하지 않습니다."],
         ["5. 안전성 확보 조치","개인정보에 대한 접근 권한을 제한하고 전송 구간 보호, 중요 정보의 암호화, 접속 기록 관리 등 필요한 보호 조치를 적용합니다."],
         ["6. 이용자의 권리","이용자는 본인의 개인정보 열람, 정정, 삭제 또는 처리 정지를 요청할 수 있습니다. 법령상 보관 의무가 있는 정보는 해당 기간 동안 삭제가 제한될 수 있습니다."],
         ["7. 개인정보 보호 문의",`${s.privacyOfficerName} · ${s.privacyOfficerContact}`],
@@ -378,7 +586,7 @@
       ]},
     };
     const data=policies[kind]||policies.terms;
-    return `${header("guide")}<main id="main-content">${pageTitle("약관 및 정책",data.title,data.desc,"policy-title")}<section class="section policy-layout"><aside><strong>약관 및 정책</strong><a class="${kind==="terms"?"is-current":""}" href="${path("policies/terms")}">이용약관</a><a class="${kind==="privacy"?"is-current":""}" href="${path("policies/privacy")}">개인정보처리방침</a><a class="${kind==="refunds"?"is-current":""}" href="${path("policies/refunds")}">취소 및 환불 안내</a><small>시행일: 2026년 8월 16일</small></aside><article>${data.sections.map(([title,content])=>`<section><h2>${h(title)}</h2><p>${h(content)}</p></section>`).join("")}</article></section></main>${footer()}`;
+    return `${header("guide")}<main id="main-content">${pageTitle("약관 및 정책",data.title,data.desc,"policy-title")}<section class="section policy-layout"><aside><strong>약관 및 정책</strong><a class="${kind==="terms"?"is-current":""}" href="${path("policies/terms")}">이용약관</a><a class="${kind==="privacy"?"is-current":""}" href="${path("policies/privacy")}">개인정보처리방침</a><a class="${kind==="refunds"?"is-current":""}" href="${path("policies/refunds")}">취소 및 환불 안내</a><small>시행일: 2026년 8월 21일</small></aside><article>${data.sections.map(([title,content])=>`<section><h2>${h(title)}</h2><p>${h(content)}</p></section>`).join("")}</article></section></main>${footer()}`;
   }
 
   function notFoundPage() { return `<main id="main-content" class="not-found"><strong>404</strong><h1>페이지를 찾을 수 없습니다.</h1><p>주소가 바뀌었거나 존재하지 않는 페이지입니다.</p><a class="button primary" href="${path()}">홈으로 돌아가기</a></main>`; }
@@ -462,19 +670,25 @@
   function bindRoute() {
     if(route==="reservations")bindReservationsPage();
     if(route==="reservation-new")bindReservationNewPage();
+    if(route==="reservation-complete")return bindReservationCompletePage();
     if(route==="reservation-lookup")bindLookupPage();
     if(route==="notices")bindNoticesPage();
     if(route==="faq")bindFaqPage();
+    return Promise.resolve();
   }
 
-  function boot() {
+  async function boot() {
     document.documentElement.classList.add("customer-ui");
     const cached=readBootstrapCache();
     if(cached)applyBootstrap(cached);
+    if(TRANSACTION_ROUTES.has(route)){
+      try{const data=await api("/bootstrap",{},7000);applyBootstrap(data);writeBootstrapCache(data);}
+      catch(error){console.warn("최신 운영 정보를 확인하지 못해 저장된 설정으로 화면을 표시합니다.",error);}
+    }
     render();bindCommon();
-    bindRoute();
-    api("/bootstrap",{},7000).then(data=>{applyBootstrap(data);writeBootstrapCache(data);}).catch(error=>console.warn("기본 운영 정보로 화면을 표시합니다.",error));
-    return Promise.resolve(true);
+    await bindRoute();
+    if(!TRANSACTION_ROUTES.has(route))api("/bootstrap",{},7000).then(data=>{applyBootstrap(data);writeBootstrapCache(data);}).catch(error=>console.warn("기본 운영 정보로 화면을 표시합니다.",error));
+    return true;
   }
 
   globalThis.__CRIMESCENE_READY__=boot().catch(error=>{

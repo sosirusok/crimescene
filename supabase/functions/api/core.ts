@@ -1,8 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
-const URL = Deno.env.get("SUPABASE_URL") ?? "";
+export const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-export const db = createClient(URL, SERVICE, { auth: { persistSession: false, autoRefreshToken: false } });
+export const db = createClient(SUPABASE_URL, SERVICE, { auth: { persistSession: false, autoRefreshToken: false } });
 export const RELEASED = ["CANCELED", "NO_SHOW"];
 
 const ORIGINS = new Set([
@@ -134,7 +134,7 @@ export async function settingsRow() {
     business_registration_number: "839-87-00850", mail_order_registration_number: "", phone: "070-4304-4340",
     email: "dbsehrud93@naver.com", address_road: "부산광역시 부산진구 신천대로50번길 62", address_detail: "부전동 우성빌딩 4층",
     map_query: "부산광역시 부산진구 신천대로50번길 62", booking_window_days: 15, arrival_minutes: 10,
-    cancellation_cutoff_hours: 24, payment_mode: "ONSITE", payment_provider: "KISPG", privacy_officer_name: "개인정보 보호 담당자",
+    cancellation_cutoff_hours: 24, payment_mode: "ONSITE", payment_provider: "NICEPAY", privacy_officer_name: "개인정보 보호 담당자",
     privacy_officer_contact: "dbsehrud93@naver.com / 070-4304-4340", refund_policy_confirmed: false, customer_notice: "",
   };
 }
@@ -151,20 +151,32 @@ export function publicSettings(s: any) {
 }
 
 export function paymentState(settings: any) {
-  const required = ["KISPG_MERCHANT_ID", "KISPG_SITE_KEY", "KISPG_API_SECRET", "KISPG_RETURN_URL"];
-  const missing = required.filter((name) => !Deno.env.get(name));
+  const clientId = Deno.env.get("NICEPAY_CLIENT_ID")?.trim() ?? "";
+  const secretKey = Deno.env.get("NICEPAY_SECRET_KEY")?.trim() ?? "";
+  const environment = Deno.env.get("NICEPAY_ENVIRONMENT")?.trim().toLowerCase() ?? "";
+  const missing: string[] = [];
+  if (!clientId) missing.push("NICEPAY_CLIENT_ID");
+  if (!secretKey) missing.push("NICEPAY_SECRET_KEY");
+  if (!['sandbox', 'production'].includes(environment)) missing.push("NICEPAY_ENVIRONMENT");
   const configured = missing.length === 0;
   const legalReady = Boolean(settings.mail_order_registration_number && settings.refund_policy_confirmed);
-  // 결제 승인·취소·결과 검증 모듈을 실제로 배포하기 전에는 키가 있어도 온라인 결제를 켜지 않는다.
-  const integrationReady = false;
+  const integrationReady = true;
+  const onlineEnabled = settings.payment_mode === "ONLINE" && configured && legalReady && integrationReady;
   return {
     mode: settings.payment_mode,
-    provider: settings.payment_provider || "KISPG",
+    provider: "NICEPAY",
     configured,
     legalReady,
     integrationReady,
-    onlineEnabled: settings.payment_mode === "ONLINE" && configured && legalReady && integrationReady,
+    onlineEnabled,
     missing: configured ? [] : missing,
     label: settings.payment_mode === "ONLINE" ? "온라인 카드 결제" : "매장 결제",
+    checkout: onlineEnabled ? {
+      clientId,
+      method: "card",
+      sdkUrl: "https://pay.nicepay.co.kr/v1/js/",
+      returnUrl: `${SUPABASE_URL}/functions/v1/api/payments/nicepay/return`,
+      environment,
+    } : null,
   };
 }

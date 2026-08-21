@@ -51,7 +51,7 @@ CREATE TABLE `notices` (
 CREATE TABLE `payments` (
 	`id` text PRIMARY KEY NOT NULL,
 	`reservation_id` text NOT NULL,
-	`provider` text DEFAULT 'KISPG' NOT NULL,
+	`provider` text DEFAULT 'ONSITE' NOT NULL,
 	`provider_transaction_id` text,
 	`amount` integer NOT NULL,
 	`status` text DEFAULT 'READY' NOT NULL,

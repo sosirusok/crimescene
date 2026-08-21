@@ -1,13 +1,7 @@
-import { env } from "cloudflare:workers";
 import { themes } from "../../data/themes";
 import { encryptPhone, ensureDatabase, hashPhone, isReservableDate, makeLookupCode, maskPhone, normalizePhone } from "../../../db/runtime";
 
 type ReservationPayload = { themeId?: string; playDate?: string; startTime?: string; customerName?: string; phone?: string; partySize?: number; openRoom?: boolean; specialRequest?: string; privacyConsent?: boolean; cancellationConsent?: boolean };
-
-function isKisConfigured() {
-  const config = env as unknown as Record<string, string | undefined>;
-  return Boolean(config.KIS_MID && config.KIS_API_KEY && config.KIS_PAY_REQUEST_URL);
-}
 
 export async function POST(request: Request) {
   let payload: ReservationPayload;
@@ -36,15 +30,15 @@ export async function POST(request: Request) {
     if (!update.meta.changes) return Response.json({ error: "선택한 시간은 방금 예약이 완료되었거나 남은 인원이 부족합니다." }, { status: 409 });
     try {
       await db.batch([
-        db.prepare("INSERT INTO reservations (id, lookup_code, theme_id, play_date, start_time, customer_name, phone_hash, phone_masked, phone_encrypted, party_size, open_room, special_request, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(reservationId, lookupCode, theme.id, date, time, name, phoneHash, maskPhone(phone), phoneEncrypted, partySize, payload.openRoom ? 1 : 0, (payload.specialRequest ?? "").trim().slice(0, 300), totalAmount),
-        db.prepare("INSERT INTO payments (id, reservation_id, amount) VALUES (?, ?, ?)").bind(crypto.randomUUID(), reservationId, totalAmount),
+        db.prepare("INSERT INTO reservations (id, lookup_code, theme_id, play_date, start_time, customer_name, phone_hash, phone_masked, phone_encrypted, party_size, open_room, special_request, total_amount, status, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', 'READY')").bind(reservationId, lookupCode, theme.id, date, time, name, phoneHash, maskPhone(phone), phoneEncrypted, partySize, payload.openRoom ? 1 : 0, (payload.specialRequest ?? "").trim().slice(0, 300), totalAmount),
+        db.prepare("INSERT INTO payments (id, reservation_id, provider, amount) VALUES (?, ?, 'ONSITE', ?)").bind(crypto.randomUUID(), reservationId, totalAmount),
         db.prepare("INSERT INTO audit_logs (actor, action, target_type, target_id, metadata) VALUES ('customer', 'RESERVATION_CREATED', 'reservation', ?, ?)").bind(reservationId, JSON.stringify({ themeId: theme.id, date, time, partySize })),
       ]);
     } catch (error) {
       await db.prepare("UPDATE availability SET booked_count = MAX(0, booked_count - ?), status = 'OPEN', updated_at = CURRENT_TIMESTAMP WHERE theme_id = ? AND play_date = ? AND start_time = ?").bind(partySize, theme.id, date, time).run();
       throw error;
     }
-    return Response.json({ reservation: { id: reservationId, lookupCode, themeTitle: theme.title, playDate: date, startTime: time, partySize, totalAmount, status: "PENDING_PAYMENT", paymentStatus: "READY" }, payment: { provider: "KISPG", enabled: isKisConfigured() } }, { status: 201 });
+    return Response.json({ reservation: { id: reservationId, lookupCode, themeTitle: theme.title, playDate: date, startTime: time, partySize, totalAmount, status: "CONFIRMED", paymentStatus: "READY" }, payment: { provider: "ONSITE", enabled: false } }, { status: 201 });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "예약을 저장하지 못했습니다." }, { status: 503 });
   }

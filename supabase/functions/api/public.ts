@@ -1,11 +1,14 @@
 import { accessHash, db, encrypt, hhmm, limited, mask, paymentState, phone, publicSettings, publicTheme, readBody, reply, reservableDate, room, settingsRow, sha, signSession, themeRows } from "./core.ts";
+import { reconcileNicepayVerifying } from "./payment.ts";
 
 export async function bootstrap(req: Request) {
+  await Promise.all([db.rpc("expire_nicepay_payment_holds"), reconcileNicepayVerifying(2)]);
   const [settings, themes] = await Promise.all([settingsRow(), themeRows(true)]);
   return reply(req, { settings: publicSettings(settings), themes: themes.map(publicTheme), payment: paymentState(settings) });
 }
 
 export async function availability(req: Request, url: URL) {
+  await Promise.all([db.rpc("expire_nicepay_payment_holds"), reconcileNicepayVerifying(2)]);
   const settings = await settingsRow();
   const date = url.searchParams.get("date") ?? "", wanted = (url.searchParams.get("theme") ?? "").toUpperCase();
   if (!reservableDate(date, settings.booking_window_days)) return reply(req, { error: `오늘부터 ${settings.booking_window_days}일 이내의 날짜를 선택해 주세요.` }, 400);
@@ -21,6 +24,7 @@ export async function createReservation(req: Request) {
   if (!await limited(req, "reservation-create", 600, 10)) return reply(req, { error: "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요." }, 429);
   const settings = await settingsRow(), pay = paymentState(settings), b: any = await readBody(req);
   if (settings.payment_mode === "ONLINE" && !pay.onlineEnabled) return reply(req, { error: "온라인 결제 설정이 완료되지 않아 현재 예약을 받을 수 없습니다. 매장으로 문의해 주세요." }, 503);
+  if (pay.onlineEnabled) return reply(req, { error: "온라인 카드 결제 예약은 결제 준비 경로를 이용해 주세요." }, 409);
   const themeId = String(b.themeId ?? "").toUpperCase(), date = String(b.playDate ?? ""), time = hhmm(b.startTime), name = String(b.customerName ?? "").trim(), p = phone(b.phone), size = Number(b.partySize), open = b.openRoom === true, message = String(b.specialRequest ?? "").trim();
   if (!reservableDate(date, settings.booking_window_days)) return reply(req, { error: "예약 가능한 날짜를 확인해 주세요." }, 400);
   if (name.length < 2 || name.length > 20 || !/^01\d{8,9}$/.test(p) || !Number.isInteger(size)) return reply(req, { error: "예약자 이름, 휴대폰 번호와 인원을 확인해 주세요." }, 400);
@@ -40,7 +44,7 @@ export async function createReservation(req: Request) {
     throw rpcError;
   }
   const { data: s } = await db.from("availability").select("capacity,booked_count,open_room,status").eq("theme_id", themeId).eq("play_date", date).eq("start_time", time).maybeSingle();
-  return reply(req, { reservation: { id: r?.id ?? id, themeTitle: t.title, playDate: date, startTime: time, partySize: size, totalAmount: total, status: r?.status ?? (settings.payment_mode === "ONLINE" ? "PENDING_PAYMENT" : "CONFIRMED"), paymentStatus: "READY", bookingMode: r?.booking_mode ?? (open ? "OPEN_HOST" : "PRIVATE"), room: room(s, t.min_players) }, payment: { ...pay, enabled: pay.onlineEnabled } }, 201);
+  return reply(req, { reservation: { id: r?.id ?? id, themeTitle: t.title, playDate: date, startTime: time, partySize: size, totalAmount: total, status: r?.status ?? "CONFIRMED", paymentStatus: "READY", bookingMode: r?.booking_mode ?? (open ? "OPEN_HOST" : "PRIVATE"), room: room(s, t.min_players) }, payment: { provider: "ONSITE", status: "READY", mode: "ONSITE", label: "매장 결제", enabled: false } }, 201);
 }
 
 export async function lookup(req: Request) {
@@ -48,11 +52,13 @@ export async function lookup(req: Request) {
   const b: any = await readBody(req), name = String(b.customerName ?? "").trim(), p = phone(b.phone);
   if (name.length < 2 || !/^01\d{8,9}$/.test(p)) return reply(req, { error: "예약자 이름과 휴대폰 번호를 확인해 주세요." }, 400);
   const settings = await settingsRow();
-  const { data, error } = await db.from("reservations").select("id,lookup_code,theme_id,play_date,start_time,customer_name,phone_masked,party_size,open_room,booking_mode,special_request,total_amount,status,payment_status,created_at,themes(title,min_players)").eq("customer_name", name).eq("phone_hash", await sha(p)).order("created_at", { ascending: false }).limit(10); if (error) throw error;
+  await db.rpc("expire_nicepay_payment_holds");
+  const { data, error } = await db.from("reservations").select("id,lookup_code,theme_id,play_date,start_time,customer_name,phone_masked,party_size,open_room,booking_mode,special_request,total_amount,status,payment_status,created_at,themes(title,min_players),payments(provider,status,receipt_url,failure_message)").eq("customer_name", name).eq("phone_hash", await sha(p)).order("created_at", { ascending: false }).limit(10); if (error) throw error;
   const reservations = [];
   for (const r of data ?? []) {
     const { data: s } = await db.from("availability").select("capacity,booked_count,open_room,status").eq("theme_id", r.theme_id).eq("play_date", r.play_date).eq("start_time", hhmm(r.start_time)).maybeSingle();
-    reservations.push({ id: r.id, lookupCode: r.lookup_code, themeId: r.theme_id, themeTitle: (r as any).themes?.title ?? r.theme_id, playDate: r.play_date, startTime: hhmm(r.start_time), customerName: r.customer_name, phoneMasked: r.phone_masked, partySize: r.party_size, openRoom: r.open_room, bookingMode: r.booking_mode, openRoomMessage: r.open_room ? r.special_request : "", totalAmount: r.total_amount, status: r.status, paymentStatus: r.payment_status, createdAt: r.created_at, room: s ? room(s, (r as any).themes?.min_players ?? 4) : null });
+    const payment = Array.isArray((r as any).payments) ? (r as any).payments[0] : (r as any).payments;
+    reservations.push({ id: r.id, lookupCode: r.lookup_code, themeId: r.theme_id, themeTitle: (r as any).themes?.title ?? r.theme_id, playDate: r.play_date, startTime: hhmm(r.start_time), customerName: r.customer_name, phoneMasked: r.phone_masked, partySize: r.party_size, openRoom: r.open_room, bookingMode: r.booking_mode, openRoomMessage: r.open_room ? r.special_request : "", totalAmount: r.total_amount, status: r.status, paymentStatus: r.payment_status, paymentProvider: payment?.provider ?? "ONSITE", receiptUrl: payment?.receipt_url ?? null, paymentFailureMessage: payment?.failure_message ?? null, createdAt: r.created_at, room: s ? room(s, (r as any).themes?.min_players ?? 4) : null });
   }
   return reply(req, { reservations, cancellationCutoffHours: settings.cancellation_cutoff_hours });
 }
@@ -65,6 +71,7 @@ export async function cancelReservation(req: Request) {
   if (error) {
     if (error.message.includes("reservation_not_found")) return reply(req, { error: "일치하는 예약이 없습니다." }, 404);
     if (error.message.includes("already_canceled")) return reply(req, { error: "이미 취소된 예약입니다." }, 409);
+    if (error.message.includes("nicepay_pending_cancel_requires_abort") || error.message.includes("provider_managed_payment")) return reply(req, { error: "카드 결제 확인 중에는 일반 예약 취소를 할 수 없습니다. 결제 결과를 확인한 뒤 다시 시도해 주세요." }, 409);
     if (error.message.includes("within_cutoff") || error.message.includes("within_24_hours")) return reply(req, { error: `이용 ${settings.cancellation_cutoff_hours}시간 전부터는 온라인 취소가 제한됩니다. 매장으로 문의해 주세요.` }, 409);
     throw error;
   }

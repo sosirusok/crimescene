@@ -11,6 +11,9 @@ on:
       - 'pages-src/shell.html'
       - 'pages-src/build.mjs'
       - 'scripts/smoke-customer.cjs'
+      - 'scripts/smoke-nicepay.cjs'
+      - 'supabase/functions/**'
+      - 'supabase/migrations/**'
       - 'public/images/**'
       - 'public/favicon.svg'
       - 'public/fonts/**'
@@ -54,6 +57,7 @@ jobs:
 
           node --check _site/assets/customer-final.js
           node scripts/smoke-customer.cjs
+          node scripts/smoke-nicepay.cjs
 
           grep -q 'customer-final.js?v=' _site/index.html
           grep -q 'final.css?v=' _site/index.html
@@ -93,7 +97,8 @@ jobs:
             -H "apikey: ${key}" -H "Origin: ${origin}" \
             "${api}/health" -o /tmp/health.json
           grep -qi "access-control-allow-origin: ${origin}" /tmp/health-headers
-          grep -q '"version":"4.0.1"' /tmp/health.json
+          grep -q '"version":"5.0.0"' /tmp/health.json
+          grep -q '"paymentProvider":"NICEPAY"' /tmp/health.json
 
           curl --retry 4 --retry-all-errors -fsSL \
             -H "apikey: ${key}" -H "Origin: ${origin}" \
@@ -103,11 +108,12 @@ jobs:
           data=json.load(open('/tmp/bootstrap.json',encoding='utf-8'))
           settings=data['settings']
           assert isinstance(settings.get('bookingWindowDays'), int)
-          assert 1 <= settings['bookingWindowDays'] <= 60, settings
+          assert settings['bookingWindowDays'] == 15, settings
           assert settings.get('paymentMode') in {'ONSITE','ONLINE'}
           for field in ('storeName','branchName','phone','addressRoad'):
               assert isinstance(settings.get(field), str) and settings[field].strip(), (field, settings)
           payment=data.get('payment') or {}
+          assert payment.get('provider') == 'NICEPAY', payment
           assert isinstance(payment.get('onlineEnabled'), bool)
           assert isinstance(payment.get('integrationReady'), bool)
           themes=data.get('themes') or []
