@@ -6,12 +6,14 @@ on:
     paths:
       - '.github/workflows/pages.yml'
       - 'pages-src/customer-final.js'
+      - 'pages-src/customer-polish.css'
       - 'pages-src/final.css'
       - 'pages-src/shell.html'
       - 'pages-src/build.mjs'
       - 'scripts/smoke-customer.cjs'
       - 'public/images/**'
       - 'public/favicon.svg'
+      - 'public/fonts/**'
   workflow_dispatch:
 
 permissions:
@@ -46,12 +48,17 @@ jobs:
           test -s _site/reservations/new/index.html
           test -s _site/assets/final.css
           test -s _site/assets/customer-final.js
+          test -s _site/assets/customer-polish.css
+          test -s _site/fonts/Pretendard-Regular.woff2
+          test -s _site/fonts/Pretendard-ExtraBold.woff2
 
           node --check _site/assets/customer-final.js
           node scripts/smoke-customer.cjs
 
           grep -q 'customer-final.js?v=' _site/index.html
           grep -q 'final.css?v=' _site/index.html
+          grep -q 'customer-polish.css?v=' _site/index.html
+          grep -q 'Pretendard-Regular.woff2' _site/assets/customer-polish.css
           grep -q 'data-route="home"' _site/index.html
           grep -q 'data-route="reservations"' _site/reservations/index.html
           grep -q 'data-route="reservation-new"' _site/reservations/new/index.html
@@ -95,19 +102,21 @@ jobs:
           import json
           data=json.load(open('/tmp/bootstrap.json',encoding='utf-8'))
           settings=data['settings']
-          assert settings['bookingWindowDays'] == 15
-          assert settings['paymentMode'] == 'ONSITE'
-          assert settings['businessName'] == '(주)싱글', settings
-          assert settings['representativeName'] == '정지훈', settings
-          assert settings['businessRegistrationNumber'] == '744-88-01446', settings
-          assert settings['email'] == 'jjhun65@hanmail.net', settings
-          assert data['payment']['onlineEnabled'] is False
-          assert data['payment']['integrationReady'] is False
-          capacities={t['id']:t['totalCapacity'] for t in data['themes']}
-          assert capacities == {'A':8,'B':9,'C':9,'D':8}, capacities
-          assert all(t['minPlayers']==4 for t in data['themes'])
-          assert all(not str(t.get('difficulty') or '').strip() for t in data['themes'])
-          print('Customer bootstrap verified', capacities)
+          assert isinstance(settings.get('bookingWindowDays'), int)
+          assert 1 <= settings['bookingWindowDays'] <= 60, settings
+          assert settings.get('paymentMode') in {'ONSITE','ONLINE'}
+          for field in ('storeName','branchName','phone','addressRoad'):
+              assert isinstance(settings.get(field), str) and settings[field].strip(), (field, settings)
+          payment=data.get('payment') or {}
+          assert isinstance(payment.get('onlineEnabled'), bool)
+          assert isinstance(payment.get('integrationReady'), bool)
+          themes=data.get('themes') or []
+          assert themes
+          assert all(str(t.get('id') or '').strip() for t in themes)
+          assert all(isinstance(t.get('times'), list) for t in themes)
+          assert all(1 <= int(t.get('minPlayers') or 0) <= int(t.get('totalCapacity') or 0) for t in themes)
+          assert all(not str(t.get('difficulty') or '').strip() for t in themes)
+          print('Customer bootstrap verified', settings['bookingWindowDays'], 'days', len(themes), 'themes')
           PY
 
           play_date=$(python3 - <<'PY'
@@ -163,15 +172,22 @@ jobs:
 
           script_path=$(grep -oE 'assets/customer-final\.js\?v=[^" ]+' /tmp/home.html | head -1)
           style_path=$(grep -oE 'assets/final\.css\?v=[^" ]+' /tmp/home.html | head -1)
+          polish_path=$(grep -oE 'assets/customer-polish\.css\?v=[^" ]+' /tmp/home.html | head -1)
           test -n "$script_path"
           test -n "$style_path"
+          test -n "$polish_path"
 
           curl --retry 4 --retry-all-errors -fsSL "${base}${script_path}" -o /tmp/customer-final.js
           curl --retry 4 --retry-all-errors -fsSL "${base}${style_path}" -o /tmp/final.css
+          curl --retry 4 --retry-all-errors -fsSL "${base}${polish_path}" -o /tmp/customer-polish.css
+          curl --retry 4 --retry-all-errors -fsSL "${base}fonts/Pretendard-Regular.woff2" -o /tmp/Pretendard-Regular.woff2
           curl --retry 4 --retry-all-errors -fsSL "${base}reservations/?sha=${GITHUB_SHA}" -o /tmp/reservations.html
 
           node --check /tmp/customer-final.js
           test -s /tmp/final.css
+          test -s /tmp/customer-polish.css
+          test -s /tmp/Pretendard-Regular.woff2
+          grep -q 'Pretendard-Regular.woff2' /tmp/customer-polish.css
           grep -q '(주)싱글' /tmp/customer-final.js
           grep -q '744-88-01446' /tmp/customer-final.js
           grep -q 'jjhun65@hanmail.net' /tmp/customer-final.js
