@@ -30,6 +30,7 @@ public/fonts/                 self-hosted Pretendard 웹폰트
 ```bash
 node pages-src/build.mjs
 node scripts/smoke-customer.cjs
+node scripts/smoke-responsive.cjs
 node --check _site/assets/customer-final.js
 ```
 
