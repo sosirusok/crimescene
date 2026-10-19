@@ -195,6 +195,14 @@
     try { sessionStorage.setItem(NICEPAY_SESSION_KEY, JSON.stringify({ ...value, savedAt:Date.now() })); }
     catch { throw new Error("브라우저의 결제 확인 저장소를 사용할 수 없습니다. 시크릿 모드를 해제한 뒤 다시 시도해 주세요."); }
   }
+  // crypto.randomUUID is missing on iOS Safari before 15.4, so build the same v4 format from getRandomValues there.
+  function createIdempotencyKey() {
+    if(typeof crypto.randomUUID==="function")return crypto.randomUUID();
+    const bytes=crypto.getRandomValues(new Uint8Array(16));
+    bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+    const hex=Array.from(bytes,value=>value.toString(16).padStart(2,"0")).join("");
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  }
   function clearNicepaySession(expectedOrderId = "") {
     const current=readNicepaySession();
     if(expectedOrderId && current?.orderId && current.orderId !== expectedOrderId)return;
@@ -281,7 +289,7 @@
   }
 
   function homePage() {
-    return `${header("home")}<main id="main-content"><section class="hero"><img src="${image("hero-evidence-room.webp")}" alt="사건 현장을 연상시키는 추리게임 공간"><div class="hero-overlay"></div><div class="hero-content"><p>${h(state.settings.branchName)} 크라임씬 추리게임</p><h1>모두가 용의자인 밤,<br>진범을 찾아내세요.</h1><span>각자 배역과 비밀을 받은 뒤 사건 현장을 조사합니다. 흩어진 단서와 서로 다른 진술을 맞춰, 이 밤의 진실을 밝혀내세요.</span><div><a class="button primary" href="${path("reservations")}">예약 가능한 시간 보기 ${iconArrow}</a><a class="button secondary" href="${path("themes")}">사건 먼저 둘러보기</a></div></div><aside class="hero-guide"><strong>처음 예약하신다면</strong><ol><li><span>1</span>사건과 회차 선택</li><li><span>2</span>인원과 예약자 정보 입력</li><li><span>3</span>예약 확정 후 ${state.settings.arrivalMinutes}분 전 도착</li></ol></aside></section>
+    return `${header("home")}<main id="main-content"><section class="hero"><img src="${image("hero-evidence-room.webp")}" alt="사건 현장을 연상시키는 추리게임 공간" fetchpriority="high"><div class="hero-overlay"></div><div class="hero-content"><p>${h(state.settings.branchName)} 크라임씬 추리게임</p><h1>모두가 용의자인 밤,<br>진범을 찾아내세요.</h1><span>각자 배역과 비밀을 받은 뒤 사건 현장을 조사합니다. 흩어진 단서와 서로 다른 진술을 맞춰, 이 밤의 진실을 밝혀내세요.</span><div><a class="button primary" href="${path("reservations")}">예약 가능한 시간 보기 ${iconArrow}</a><a class="button secondary" href="${path("themes")}">사건 먼저 둘러보기</a></div></div><aside class="hero-guide"><strong>처음 예약하신다면</strong><ol><li><span>1</span>사건과 회차 선택</li><li><span>2</span>인원과 예약자 정보 입력</li><li><span>3</span>예약 확정 후 ${state.settings.arrivalMinutes}분 전 도착</li></ol></aside></section>
       <section class="crime-scene-definition" aria-labelledby="crime-scene-definition-title"><div><p>크라임씬 카페 안내</p><h2 id="crime-scene-definition-title">용의자 중 진짜 범인을 찾는 추리게임입니다.</h2><span>잠금장치를 풀고 공간에서 나오는 것이 목표가 아닙니다. 각자 사건 속 인물이 되어 현장을 조사하고, 단서와 진술을 바탕으로 범인을 추리합니다.</span></div><aside><strong>예약 전 꼭 확인해 주세요</strong><p>이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p><a href="${path("policies/refunds")}">취소 및 환불 기준 보기 ${iconArrow}</a></aside></section>
       <section class="quick-facts"><div><strong>최소 4명</strong><span>게임 진행 기준 인원</span></div><div><strong>약 90분</strong><span>브리핑부터 최종 추리까지</span></div><div><strong>1~3명도 예약 가능</strong><span>오픈룸으로 다른 팀과 합류</span></div><div><strong>최대 8~9명</strong><span>테마별 역할 정원</span></div></section>
       ${state.settings.customerNotice?`<section class="store-notice"><strong>매장 안내</strong><p>${h(state.settings.customerNotice)}</p></section>`:""}
@@ -419,7 +427,7 @@
           if(pending.orderId && pending.actionToken){try{await abortNicepay(pending,"RESERVATION_DETAILS_CHANGED");}catch(error){console.warn("이전 결제 대기를 정리하지 못했습니다.",error);}}
           clearNicepaySession(pending.orderId || "");pending=null;
         }
-        if(!pending){pending={idempotencyKey:crypto.randomUUID(),fingerprint};writeNicepaySession(pending);}
+        if(!pending){pending={idempotencyKey:createIdempotencyKey(),fingerprint};writeNicepaySession(pending);}
         const prepared=await api("/payments/nicepay/prepare",{method:"POST",body:JSON.stringify({...payload,idempotencyKey:pending.idempotencyKey,customerReturnUrl:customerReturnUrl()})},18000);
         const payment=prepared?.payment || {},candidate={...pending,orderId:String(payment.orderId||""),actionToken:String(prepared?.actionToken||"")};
         if(candidate.orderId && candidate.actionToken){activePaymentSession=candidate;writeNicepaySession(candidate);}
@@ -664,7 +672,6 @@
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
     });
     addEventListener("popstate",()=>setDrawer(false));
-    addEventListener("scroll",()=>document.querySelector(".site-header")?.classList.toggle("is-scrolled",scrollY>20),{passive:true});
   }
 
   function bindRoute() {
