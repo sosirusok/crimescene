@@ -12,6 +12,7 @@ on:
       - 'pages-src/build.mjs'
       - 'scripts/smoke-customer.cjs'
       - 'scripts/smoke-nicepay.cjs'
+      - 'scripts/smoke-responsive.cjs'
       - 'supabase/functions/**'
       - 'supabase/migrations/**'
       - 'public/images/**'
@@ -58,6 +59,7 @@ jobs:
           node --check _site/assets/customer-final.js
           node scripts/smoke-customer.cjs
           node scripts/smoke-nicepay.cjs
+          node scripts/smoke-responsive.cjs
 
           grep -q 'customer-final.js?v=' _site/index.html
           grep -q 'final.css?v=' _site/index.html
@@ -80,6 +82,7 @@ jobs:
           grep -q '예약 시간표의 해당 오픈룸과 합류 화면에 표시됩니다' _site/assets/customer-final.js
           grep -q 'RESERVATION MOBILE WIDTH FIX 2026-08-19' _site/assets/final.css
           grep -q 'OWNER FEEDBACK FINAL 2026-08-19' _site/assets/final.css
+          grep -q 'RESPONSIVE RELIABILITY 2026-10-19' _site/assets/final.css
 
           ! grep -q '난이도</dt>' _site/assets/customer-final.js
           ! grep -q 'theme.difficulty' _site/assets/customer-final.js
@@ -202,6 +205,7 @@ jobs:
           grep -q 'document.addEventListener("pointerup"' /tmp/customer-final.js
           grep -q 'open-room-introductions' /tmp/customer-final.js
           grep -q 'RESERVATION MOBILE WIDTH FIX 2026-08-19' /tmp/final.css
+          grep -q 'RESPONSIVE RELIABILITY 2026-10-19' /tmp/final.css
           ! grep -q '난이도</dt>' /tmp/customer-final.js
           ! grep -q 'theme.difficulty' /tmp/customer-final.js
           grep -q 'data-route="home"' /tmp/home.html

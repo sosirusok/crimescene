@@ -7,6 +7,9 @@ const source = join(root, "pages-src");
 const output = join(root, "_site");
 const adminOnly = process.env.ADMIN_ONLY === "1";
 const assetVersion = (process.env.GITHUB_SHA || "local").slice(0, 12);
+const siteOrigin = (process.env.SITE_ORIGIN || "https://www.xn--oi2bkkl05a1gchcr33e50h.com").replace(/\/+$/, "");
+// 404.html is served at any missing path depth, so its assets need a root-absolute base.
+const rootBase = (process.env.PAGES_BASE_PATH || "").replace(/\/+$/, "");
 
 const publicRoutes = [
   ["", "home", "홈"],
@@ -39,8 +42,7 @@ function relativeBase(folderPath) {
   return depth === 0 ? "." : Array(depth).fill("..").join("/");
 }
 
-function documentFor(folderPath, route, title) {
-  const pageBase = relativeBase(folderPath);
+function documentFor(folderPath, route, title, pageBase = relativeBase(folderPath)) {
   const description = adminOnly
     ? "크라임씬플레이 서면1호점 예약 및 운영 관리"
     : "사건 속 인물이 되어 단서와 진술로 용의자 중 범인을 찾는 크라임씬플레이 서면1호점 추리게임 예약 사이트";
@@ -50,7 +52,7 @@ function documentFor(folderPath, route, title) {
     .replaceAll("{{TITLE}}", title)
     .replaceAll("{{DESCRIPTION}}", description)
     .replaceAll("{{ROBOTS}}", adminOnly ? "noindex,nofollow,noarchive" : "index,follow,max-image-preview:large")
-    .replaceAll("{{OG_IMAGE}}", adminOnly ? "" : `<meta property="og:image" content="${pageBase}/images/hero-evidence-room.webp">`)
+    .replaceAll("{{OG_IMAGE}}", adminOnly ? "" : `<meta property="og:image" content="${siteOrigin}/images/hero-evidence-room.webp">`)
     .replaceAll("{{ASSET_VERSION}}", assetVersion)
     .replaceAll("{{CUSTOMER_STYLE}}", adminOnly ? "" : `<link rel="stylesheet" href="${pageBase}/assets/customer-polish.css?v=${assetVersion}">`)
     .replaceAll("{{SCRIPT}}", scriptName)
@@ -78,7 +80,7 @@ if (!adminOnly) {
   const adminFolder = join(output, "admin");
   await mkdir(adminFolder, { recursive: true });
   await writeFile(join(adminFolder, "index.html"), '<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=https://sosirusok.github.io/crimescene-admin/"><title>운영 관리로 이동</title></head><body><a href="https://sosirusok.github.io/crimescene-admin/">운영 관리 페이지로 이동</a></body></html>');
-  await writeFile(join(output, "404.html"), documentFor("", "not-found", "페이지를 찾을 수 없습니다"));
+  await writeFile(join(output, "404.html"), documentFor("", "not-found", "페이지를 찾을 수 없습니다", rootBase));
 } else {
   await writeFile(join(output, "404.html"), documentFor("", "admin", "운영 관리"));
 }
