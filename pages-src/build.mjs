@@ -53,6 +53,8 @@ function documentFor(folderPath, route, title, pageBase = relativeBase(folderPat
     .replaceAll("{{DESCRIPTION}}", description)
     .replaceAll("{{ROBOTS}}", adminOnly ? "noindex,nofollow,noarchive" : "index,follow,max-image-preview:large")
     .replaceAll("{{OG_IMAGE}}", adminOnly ? "" : `<meta property="og:image" content="${siteOrigin}/images/hero-evidence-room.webp">`)
+    // customer-final.js inserts the home hero; the preload starts it early and must match image() exactly to be reused.
+    .replaceAll("{{PRELOAD}}", route === "home" ? `<link rel="preload" as="image" href="${pageBase}/images/hero-evidence-room.webp" fetchpriority="high">` : "")
     .replaceAll("{{ASSET_VERSION}}", assetVersion)
     .replaceAll("{{CUSTOMER_STYLE}}", adminOnly ? "" : `<link rel="stylesheet" href="${pageBase}/assets/customer-polish.css?v=${assetVersion}">`)
     .replaceAll("{{SCRIPT}}", scriptName)
