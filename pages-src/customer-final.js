@@ -10,6 +10,8 @@
   const BOOTSTRAP_CACHE_KEY = "crimescene-customer-bootstrap-v5";
   const LAST_RESERVATION_KEY = "crimescene-last-reservation";
   const NICEPAY_SESSION_KEY = "crimescene-nicepay-session-v1";
+  const ONSITE_REQUEST_KEY = "crimescene-onsite-request-v1";
+  const ONSITE_REQUEST_TTL = 30 * 60 * 1000;
   const TRANSACTION_ROUTES = new Set(["reservations", "reservation-new", "reservation-complete", "reservation-lookup"]);
   const NICEPAY_SDK_ORIGINS = new Set(["https://pay.nicepay.co.kr"]);
   let nicepaySdkPromise = null;
@@ -171,15 +173,18 @@
     return `<div class="open-room-introductions ${compact ? "compact" : ""}"><strong>함께할 팀 소개</strong>${rows}${more}</div>`;
   }
 
+  // GETs go out without custom headers (no apikey, no Content-Type) so the browser sends them as CORS simple requests
+  // with no OPTIONS preflight round trip; the functions answer them without a key. POSTs keep their JSON headers.
   async function api(endpoint, options = {}, timeout = 12000) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
+    const simpleGet = String(options.method || "GET").toUpperCase() === "GET";
     try {
       const response = await fetch(`${API}${endpoint}`, {
         ...options,
         cache:"no-store",
         signal:controller.signal,
-        headers:{ apikey:PUBLISHABLE_KEY,"Content-Type":"application/json",...(options.headers || {}) },
+        ...(simpleGet ? {} : { headers:{ apikey:PUBLISHABLE_KEY,"Content-Type":"application/json",...(options.headers || {}) } }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -228,6 +233,25 @@
     });
     const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(canonical));
     return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,"0")).join("");
+  }
+  // ONSITE bookings send one idempotencyKey per identical payload (by fingerprint, like the NICEPAY session), so resending
+  // after a timeout or a lost response maps to the reservation the first request may already have made. Storage or
+  // hashing failures only lose that retry protection; they never block the booking itself.
+  function readOnsiteRequest() {
+    try {
+      const value=JSON.parse(sessionStorage.getItem(ONSITE_REQUEST_KEY) || "null");
+      if(!value?.idempotencyKey || !value.fingerprint || !(Date.now()-Number(value.savedAt||0) < ONSITE_REQUEST_TTL))return null;
+      return value;
+    } catch { return null; }
+  }
+  function writeOnsiteRequest(value) {
+    try { sessionStorage.setItem(ONSITE_REQUEST_KEY, JSON.stringify({ ...value, savedAt:Date.now() })); } catch {}
+  }
+  function clearOnsiteRequest() {
+    try { sessionStorage.removeItem(ONSITE_REQUEST_KEY); } catch {}
+  }
+  async function onsiteFingerprint(payload) {
+    try { return await paymentFingerprint(payload); } catch { return ""; }
   }
   async function abortNicepay(session, reason) {
     if(!session?.orderId || !session?.actionToken)return null;
@@ -432,17 +456,26 @@
         let open=joining()||partySize<theme.minPlayers||Boolean(openInput.checked);
         if(open&&intro.length<2)throw new Error("오픈룸 소개를 입력해 주세요.");
         let payload={themeId:theme.id,playDate,startTime,customerName:String(values.customerName||"").trim(),phone:values.phone,partySize,openRoom:open,specialRequest:intro,privacyConsent:true,cancellationConsent:true};
-        let fingerprint=onlinePaymentEnabled()?await paymentFingerprint(payload):"",pending=onlinePaymentEnabled()?readNicepaySession():null;
-        const retryingSamePayment=Boolean(pending&&pending.fingerprint===fingerprint);
+        const fingerprintOf=value=>onlinePaymentEnabled()?paymentFingerprint(value):onsiteFingerprint(value);
+        let fingerprint=await fingerprintOf(payload),pending=onlinePaymentEnabled()?readNicepaySession():readOnsiteRequest();
+        // Resending the same booking skips the pre-check: the slot may already show this customer's own earlier request.
+        const retryingSamePayment=Boolean(pending&&fingerprint&&pending.fingerprint===fingerprint);
         if(!retryingSamePayment){
           const latest=await api(`/availability?date=${encodeURIComponent(playDate)}&theme=${encodeURIComponent(theme.id)}`),latestSlot=latest.themes?.[0]?.times?.find(x=>x.time===startTime);if(!latestSlot)throw new Error("회차 정보를 확인할 수 없습니다.");const info=roomInfo(latestSlot,theme);if(!info.canBook)throw new Error("선택한 회차가 방금 마감되었습니다.");if(info.roomState!=="AVAILABLE"&&partySize>info.remaining)throw new Error(`현재 남은 자리는 ${info.remaining}자리입니다.`);
           open=(latestSlot.bookedCount>0&&latestSlot.openRoom&&latestSlot.canJoin)||partySize<theme.minPlayers||Boolean(openInput.checked);if(open&&intro.length<2)throw new Error("오픈룸 소개를 입력해 주세요.");
           payload={...payload,openRoom:open};
-          if(onlinePaymentEnabled())fingerprint=await paymentFingerprint(payload);
+          fingerprint=await fingerprintOf(payload);
         }
         if(!onlinePaymentEnabled()){
-          const result=await api("/reservations",{method:"POST",body:JSON.stringify(payload)},16000);
-          sessionStorage.setItem(LAST_RESERVATION_KEY,JSON.stringify(result));leftForComplete=true;location.href=path("reservations/complete");return;
+          if(!pending||!fingerprint||pending.fingerprint!==fingerprint){pending={idempotencyKey:createIdempotencyKey(),fingerprint};if(fingerprint)writeOnsiteRequest(pending);}
+          let result;
+          try{result=await api("/reservations",{method:"POST",body:JSON.stringify({...payload,idempotencyKey:pending.idempotencyKey})},16000);}
+          catch(error){
+            // No final answer (timeout, network loss, 5xx, 429): the booking may exist, so keep the key and the form as entered.
+            if(!error?.status||error.status>=500||error.status===429){setMessage(`${error.message} 예약이 이미 접수되었을 수 있으니 입력 내용은 그대로 두고 다시 눌러 주세요.`);submit.disabled=false;submit.querySelector("span").textContent=actionLabel();return;}
+            clearOnsiteRequest();throw error;
+          }
+          sessionStorage.setItem(LAST_RESERVATION_KEY,JSON.stringify(result));clearOnsiteRequest();leftForComplete=true;location.href=path("reservations/complete");return;
         }
 
         submit.querySelector("span").textContent="카드 결제를 준비하고 있습니다";

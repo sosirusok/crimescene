@@ -1,0 +1,193 @@
+name: Deploy Supabase functions
+
+# Checks, deploys and live-verifies the production Edge Functions (api, customer-api).
+# Deploying needs the repository secret SUPABASE_ACCESS_TOKEN; without it the job only runs the checks.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - 'scripts/verify-supabase-functions.py'
+      - 'scripts/supabase-functions-revision.py'
+      - 'scripts/test_supabase_functions_revision.py'
+      - '.github/workflows/supabase-functions.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One production deploy at a time and a running deploy is never cancelled. While one runs, only the newest queued main
+# run waits: GitHub cancels an older pending run when a newer one queues. Each run deploys its own HEAD only when that
+# still has main's function sources, and takes its rollback target from what is live, so a skipped run leaves nothing
+# behind. Runs on other refs only check, so they get their own group and cannot cancel a pending main deploy.
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'supabase-functions-production' || format('supabase-functions-checks-{0}', github.ref) }}
+  cancel-in-progress: false
+
+env:
+  PROJECT_REF: jhjbiejqtbidloxcwryr
+  SUPABASE_CLI_VERSION: 2.120.0
+  DENO_NO_PACKAGE_JSON: '1'
+  DO_NOT_TRACK: '1'
+
+jobs:
+  deploy:
+    name: Check, deploy and verify
+    runs-on: ubuntu-latest
+    # Above the sum of the step timeouts (scripts/test_supabase_functions_revision.py checks it): a hung step then fails
+    # on its own timeout and the rollback still runs, instead of the job limit cancelling everything first.
+    timeout-minutes: 90
+    steps:
+      - name: Check out
+        timeout-minutes: 5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Deno
+        timeout-minutes: 5
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: 2.9.6
+
+      - name: Type-check functions
+        timeout-minutes: 5
+        run: deno check --node-modules-dir=none supabase/functions/api/index.ts supabase/functions/customer-api/index.ts
+
+      - name: Run function unit tests
+        timeout-minutes: 5
+        env:
+          GOLDEN_REQUIRE_BASE: '1'
+        run: deno test --node-modules-dir=none -A supabase/functions/tests/
+
+      - name: Test the REVISION and rollback-target script
+        timeout-minutes: 3
+        run: python3 scripts/test_supabase_functions_revision.py
+
+      # Each change to the api/customer-api sources needs a new REVISION, or the live check could pass against old code.
+      - name: Check REVISION was bumped
+        timeout-minutes: 2
+        run: python3 scripts/supabase-functions-revision.py check
+
+      # A re-run keeps its original commit, so a main run deploys only while its api/customer-api sources are still the
+      # ones on main's tip (read from the GitHub API); otherwise an older run would put older code over newer live code.
+      - name: Check deploy token and main's tip
+        id: gate
+        timeout-minutes: 3
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "${SUPABASE_ACCESS_TOKEN}" ]; then
+            echo "::warning title=Supabase functions were not deployed::Repository secret SUPABASE_ACCESS_TOKEN is not set. The owner must create a personal access token at https://supabase.com/dashboard/account/tokens and add it under Settings > Secrets and variables > Actions as SUPABASE_ACCESS_TOKEN, then start a new run with Actions > Deploy Supabase functions > Run workflow on main. Type checks and unit tests passed; nothing was deployed."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          elif [ "${GITHUB_REF}" != 'refs/heads/main' ]; then
+            echo "::notice title=Checks only::Production is deployed only from main; ${GITHUB_REF} was checked but not deployed."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            python3 scripts/supabase-functions-revision.py main-tip
+          fi
+
+      # The rollback target is the newest commit whose functions report the revision that is live now (read before
+      # deploying), never a commit that was only pushed. Unknown, mixed or ambiguous live code means no automatic rollback.
+      - name: Pick rollback commit
+        id: previous
+        if: steps.gate.outputs.deploy == 'true'
+        timeout-minutes: 3
+        run: python3 scripts/supabase-functions-revision.py rollback-target
+
+      - name: Set up Node.js for the Supabase CLI
+        if: steps.gate.outputs.deploy == 'true'
+        timeout-minutes: 5
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+
+      - name: Install Supabase CLI
+        if: steps.gate.outputs.deploy == 'true'
+        timeout-minutes: 5
+        uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      # JWT verification stays OFF (--no-verify-jwt): the customer site calls the functions without a Supabase JWT.
+      - name: Deploy api
+        id: deploy_api
+        if: steps.gate.outputs.deploy == 'true'
+        timeout-minutes: 5
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy api --project-ref "${PROJECT_REF}" --no-verify-jwt --use-api
+
+      - name: Deploy customer-api
+        id: deploy_customer_api
+        if: steps.gate.outputs.deploy == 'true'
+        timeout-minutes: 5
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy customer-api --project-ref "${PROJECT_REF}" --no-verify-jwt --use-api
+
+      - name: Verify live functions
+        id: verify
+        if: steps.gate.outputs.deploy == 'true'
+        timeout-minutes: 8
+        run: python3 scripts/verify-supabase-functions.py --expect-revision-from supabase/functions/api/router.ts --wait-seconds 180
+
+      # Runs when a deploy step or the live check failed or was cancelled after a deploy was attempted, and a rollback
+      # target was found. A cancel does not stop it (cancelled() keeps it running); use Force cancel only as a last resort.
+      - name: Roll back to the functions that were live
+        id: rollback
+        if: (failure() || cancelled()) && steps.gate.outputs.deploy == 'true' && steps.previous.outputs.sha != '' && (steps.deploy_api.outcome == 'success' || steps.deploy_api.outcome == 'failure' || steps.deploy_api.outcome == 'cancelled')
+        timeout-minutes: 10
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          ROLLBACK_SHA: ${{ steps.previous.outputs.sha }}
+        run: |
+          set -euo pipefail
+          dir="${RUNNER_TEMP}/rollback"
+          git worktree add --detach "${dir}" "${ROLLBACK_SHA}"
+          cd "${dir}"
+          echo "::warning title=Rolling back::Redeploying api and customer-api from ${ROLLBACK_SHA}."
+          for fn in api customer-api; do
+            if [ -f "supabase/functions/${fn}/index.ts" ]; then
+              # Retry so a transient Management API error does not leave the failed deploy live.
+              for attempt in 1 2 3; do
+                if supabase functions deploy "${fn}" --project-ref "${PROJECT_REF}" --no-verify-jwt --use-api; then break; fi
+                if [ "${attempt}" = 3 ]; then echo "::error::Rollback deploy of ${fn} failed 3 times."; exit 1; fi
+                echo "::warning::Rollback deploy of ${fn} failed (attempt ${attempt}); retrying."
+                sleep $((attempt * 20))
+              done
+            else
+              echo "::warning::${fn} does not exist at ${ROLLBACK_SHA}; it was left as deployed."
+            fi
+          done
+
+      - name: Re-check health after rollback
+        id: recheck
+        if: (failure() || cancelled()) && (steps.rollback.outcome == 'success' || steps.rollback.outcome == 'failure')
+        timeout-minutes: 6
+        run: python3 scripts/verify-supabase-functions.py --mode health --expect-revision-from "${RUNNER_TEMP}/rollback/supabase/functions/api/router.ts" --wait-seconds 180
+
+      - name: Report failed deploy
+        if: (failure() || cancelled()) && steps.gate.outputs.deploy == 'true'
+        timeout-minutes: 1
+        shell: bash
+        env:
+          DEPLOY_OUTCOME: ${{ steps.deploy_api.outcome }}
+          ROLLBACK_OUTCOME: ${{ steps.rollback.outcome }}
+          RECHECK_OUTCOME: ${{ steps.recheck.outcome }}
+          ROLLBACK_SHA: ${{ steps.previous.outputs.sha }}
+          ROLLBACK_REASON: ${{ steps.previous.outputs.reason }}
+        run: |
+          if [ -z "${DEPLOY_OUTCOME}" ] || [ "${DEPLOY_OUTCOME}" = 'skipped' ]; then
+            detail='Stopped before deploying; production was not changed.'
+          elif [ -n "${ROLLBACK_SHA}" ]; then
+            detail="Rollback to ${ROLLBACK_SHA}: ${ROLLBACK_OUTCOME:-not run}; health after rollback: ${RECHECK_OUTCOME:-not run}."
+          else
+            detail="Automatic rollback unavailable: ${ROLLBACK_REASON:-no rollback target}. Check production and redeploy a known-good commit by hand."
+          fi
+          echo "::error title=Supabase functions deploy failed::${detail} See the step logs and the job summary."
+          exit 1

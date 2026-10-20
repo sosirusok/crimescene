@@ -5,7 +5,7 @@ const root = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const payment = read("supabase/functions/api/payment.ts");
 const core = read("supabase/functions/api/core.ts");
-const routes = read("supabase/functions/api/index.ts");
+const routes = read("supabase/functions/api/router.ts"); // api/index.ts only hands router.ts's handler to Deno.serve
 const admin = read("supabase/functions/api/admin.ts");
 const publicApi = read("supabase/functions/api/public.ts");
 const customer = read("pages-src/customer-final.js");
