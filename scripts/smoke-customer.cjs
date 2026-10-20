@@ -14,6 +14,9 @@ const mockBootstrap={
 };
 const onlineBootstrap={...mockBootstrap,settings:{...mockBootstrap.settings,paymentMode:"ONLINE",paymentProvider:"NICEPAY"},payment:{mode:"ONLINE",provider:"NICEPAY",label:"카드 결제",onlineEnabled:true,configured:true,legalReady:true}};
 
+// Every API call the renderer makes, so the request-header rules below are checked on real calls.
+const apiRequests=[];
+
 function createStorage(seed={}) {
   const values=new Map(Object.entries(seed));
   return {getItem(key){return values.has(key)?values.get(key):null;},setItem(key,value){values.set(key,String(value));},removeItem(key){values.delete(key);}};
@@ -40,8 +43,9 @@ async function renderAt({hostname,pathname,route,search="",bootstrap=mockBootstr
     addEventListener(){},removeEventListener(){},scrollY:0,
     console,Intl,Date,URL,URLSearchParams,AbortController,TextEncoder,TextDecoder,
     setTimeout(callback,delay,...args){return global.setTimeout(callback,delay===1200?0:delay,...args);},clearTimeout,confirm(){return false;},requestAnimationFrame(callback){callback();},crypto:webcrypto,
-    fetch:async(input)=>{
+    fetch:async(input,init={})=>{
       const url=new URL(String(input));
+      apiRequests.push({path:url.pathname.replace(/^.*\/customer-api/,""),method:String(init.method||"GET").toUpperCase(),headers:Object.fromEntries(new Headers(init.headers||{}))});
       let body=bootstrap;
       if(url.pathname.endsWith("/payments/nicepay/result"))body=paymentResult||{};
       return new Response(JSON.stringify(body),{status:200,headers:{"content-type":"application/json"}});
@@ -63,6 +67,20 @@ async function renderAt({hostname,pathname,route,search="",bootstrap=mockBootstr
     if(!shell.includes(host))throw new Error(`NICEPAY CSP 허용 주소 누락: ${host}`);
   }
   if(!/form-action[^;]*https:\/\/jhjbiejqtbidloxcwryr\.supabase\.co/.test(shell))throw new Error("NICEPAY return POST 대상이 form-action CSP에 없습니다.");
+
+  // GET = CORS simple request: a custom header (apikey, Content-Type) makes the browser send an OPTIONS preflight first.
+  const apiFn=code.match(/async function api\(endpoint[\s\S]*?\n  \}\n/)?.[0]||"";
+  if(!/simpleGet = String\(options\.method \|\| "GET"\)\.toUpperCase\(\) === "GET"/.test(apiFn)||!/\.\.\.\(simpleGet \? \{\} : \{ headers:\{ apikey:PUBLISHABLE_KEY,"Content-Type":"application\/json"/.test(apiFn)||(apiFn.match(/headers:/g)||[]).length!==1)throw new Error("api()의 GET 요청에 apikey/Content-Type 헤더가 붙으면 요청마다 CORS 사전 요청(OPTIONS)이 추가됩니다.");
+  // ONSITE booking: one idempotencyKey per identical payload, kept across a lost response, cleared after success.
+  for(const marker of [
+    'const ONSITE_REQUEST_KEY = "crimescene-onsite-request-v1";',
+    'pending=onlinePaymentEnabled()?readNicepaySession():readOnsiteRequest();',
+    'if(!pending||!fingerprint||pending.fingerprint!==fingerprint){pending={idempotencyKey:createIdempotencyKey(),fingerprint};if(fingerprint)writeOnsiteRequest(pending);}',
+    'api("/reservations",{method:"POST",body:JSON.stringify({...payload,idempotencyKey:pending.idempotencyKey})},16000)',
+    'if(!error?.status||error.status>=500||error.status===429){setMessage(',
+    'sessionStorage.setItem(LAST_RESERVATION_KEY,JSON.stringify(result));clearOnsiteRequest();',
+  ])if(!code.includes(marker))throw new Error(`매장 결제 예약의 중복 방지 키 흐름 누락: ${marker}`);
+  if((code.match(/api\("\/reservations",/g)||[]).length!==1)throw new Error("매장 결제 예약 POST가 중복 방지 키 없이 전송되는 경로가 있습니다.");
 
   const home=await renderAt({hostname:"sosirusok.github.io",pathname:"/crimescene/",route:"home"});
   if(!home.includes("모두가 용의자인 밤"))throw new Error("홈 화면이 렌더링되지 않았습니다.");
@@ -104,6 +122,11 @@ async function renderAt({hostname,pathname,route,search="",bootstrap=mockBootstr
   const onsiteResult={reservation:{...reservation,paymentStatus:"READY"},payment:{provider:"ONSITE",status:"READY"}};
   const onsite=await renderAt({hostname:"sosirusok.github.io",pathname:"/crimescene/reservations/complete/",route:"reservation-complete",seed:{"crimescene-last-reservation":JSON.stringify(onsiteResult)}});
   if(!onsite.includes("방문하신 날 매장에서 결제"))throw new Error("NICEPAY 키가 없을 때 매장 결제 완료 안내가 없습니다.");
+
+  const gets=apiRequests.filter(r=>r.method==="GET"),posts=apiRequests.filter(r=>r.method==="POST");
+  if(!gets.some(r=>r.path==="/bootstrap")||!gets.some(r=>r.path==="/availability")||!posts.length)throw new Error(`헤더 검사에 필요한 API 호출이 없습니다: ${JSON.stringify(apiRequests)}`);
+  for(const r of gets)if(Object.keys(r.headers).length)throw new Error(`GET ${r.path}에 ${Object.keys(r.headers).join(",")} 헤더가 있어 CORS 사전 요청(OPTIONS)이 생깁니다.`);
+  for(const r of posts)if(r.headers.apikey!=="sb_publishable_mA5DOfPA-ExloawT3aJpNw_2PeVgEEc"||r.headers["content-type"]!=="application/json")throw new Error(`POST ${r.path}의 apikey/Content-Type 헤더가 빠졌습니다.`);
 
   console.log(`Customer renderer passed (${home.length} + ${location.length} + ${onlineForm.length} + ${complete.length} + ${failed.length} + ${pending.length} + ${onsite.length} bytes).`);
 })().catch(error=>{console.error(error);process.exit(1);});

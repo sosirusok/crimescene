@@ -2,10 +2,14 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 export const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-export const db = createClient(SUPABASE_URL, SERVICE, { auth: { persistSession: false, autoRefreshToken: false } });
+export let db = createClient(SUPABASE_URL, SERVICE, { auth: { persistSession: false, autoRefreshToken: false } });
+// Tests swap in a client backed by a fake PostgREST; production never calls this, so every module keeps using the client above.
+export function setDb(client: typeof db) { db = client; }
 export const RELEASED = ["CANCELED", "NO_SHOW"];
 
 const ORIGINS = new Set([
+  "https://xn--oi2bkkl05a1gchcr33e50h.com",
+  "https://www.xn--oi2bkkl05a1gchcr33e50h.com",
   "https://sosirusok.github.io",
   "https://www.crimesceneplay.com",
   "https://crimesceneplay.com",
