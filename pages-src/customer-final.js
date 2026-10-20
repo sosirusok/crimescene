@@ -78,7 +78,7 @@
   };
   const image = (value = "") => `${BASE}/images/${String(value).split("/").pop()}`;
   const iconArrow = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg>`;
-  const iconMenu = `<span class="menu-lines" aria-hidden="true"><i></i><i></i><i></i></span>`;
+  const iconMenu = `<svg class="menu-lines" aria-hidden="true" viewBox="0 0 22 16"><rect width="22" height="2" rx="1"/><rect y="7" width="22" height="2" rx="1"/><rect y="14" width="22" height="2" rx="1"/></svg>`;
   const iconClose = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></svg>`;
   const iconCheck = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>`;
 
@@ -115,14 +115,25 @@
     if (n.startsWith("02")) return n.length <= 2 ? n : n.length <= 5 ? `${n.slice(0,2)}-${n.slice(2)}` : n.length <= 9 ? `${n.slice(0,2)}-${n.slice(2,5)}-${n.slice(5)}` : `${n.slice(0,2)}-${n.slice(2,6)}-${n.slice(6)}`;
     return n.length <= 3 ? n : n.length <= 7 ? `${n.slice(0,3)}-${n.slice(3)}` : `${n.slice(0,3)}-${n.slice(3,7)}-${n.slice(7)}`;
   }
+  // Reformat while typing but keep the caret after the same number of digits.
+  function formatPhoneInput(event) {
+    const input=event.target,raw=input.value,next=formatPhone(raw);
+    if(next===raw)return;
+    const keep=digits(raw.slice(0,input.selectionStart??raw.length)).length;
+    input.value=next;
+    if(document.activeElement!==input)return;
+    let caret=0;for(let seen=0;caret<next.length&&seen<keep;caret++)if(/\d/.test(next[caret]))seen++;
+    input.setSelectionRange(caret,caret);
+  }
+  // Date-only values are always Korean calendar days, whatever the device time zone.
   function dateValue(date) {
     return new Intl.DateTimeFormat("en-CA", { timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit" }).format(date);
   }
   function todayValue() { return dateValue(new Date()); }
-  function addDate(value, amount) { const d=new Date(`${value}T12:00:00+09:00`);d.setDate(d.getDate()+amount);return dateValue(d); }
+  function addDate(value, amount) { const d=new Date(`${value}T12:00:00+09:00`);d.setUTCDate(d.getUTCDate()+amount);return dateValue(d); }
   function formatDate(value, short = false) {
     if (!value) return "-";
-    return new Intl.DateTimeFormat("ko-KR", short ? { month:"long",day:"numeric",weekday:"short" } : { year:"numeric",month:"long",day:"numeric",weekday:"short" }).format(new Date(`${value}T12:00:00+09:00`));
+    return new Intl.DateTimeFormat("ko-KR", short ? { timeZone:"Asia/Seoul",month:"long",day:"numeric",weekday:"short" } : { timeZone:"Asia/Seoul",year:"numeric",month:"long",day:"numeric",weekday:"short" }).format(new Date(`${value}T12:00:00+09:00`));
   }
   function formatDateTime(value) {
     if (!value) return "-";
@@ -180,6 +191,7 @@
       return data;
     } catch (error) {
       if (error?.name === "AbortError") throw new Error("응답이 늦어지고 있습니다. 잠시 후 다시 시도해 주세요.");
+      if (error instanceof TypeError) throw new Error("네트워크 연결이 원활하지 않습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.", { cause:error });
       throw error;
     } finally { clearTimeout(timer); }
   }
@@ -288,11 +300,21 @@
     return `<nav class="reservation-nav" aria-label="예약 메뉴"><a class="${active==="schedule"?"is-active":""}" href="${path("reservations")}">실시간 예약</a><a class="${active==="lookup"?"is-active":""}" href="${path("reservations/lookup")}">예약 확인·취소</a><a href="${path("guide")}">이용 안내</a></nav>`;
   }
 
+  function storeNoticeHtml() {
+    return state.settings.customerNotice?`<section class="store-notice"><strong>매장 안내</strong><p>${h(state.settings.customerNotice)}</p></section>`:"";
+  }
+  function syncStoreNotice() {
+    if(route!=="home")return;
+    const current=document.querySelector(".store-notice"),html=storeNoticeHtml();
+    if(current){if(html)current.outerHTML=html;else current.remove();}
+    else if(html)document.querySelector(".quick-facts")?.insertAdjacentHTML("afterend",html);
+  }
+
   function homePage() {
     return `${header("home")}<main id="main-content"><section class="hero"><img src="${image("hero-evidence-room.webp")}" alt="사건 현장을 연상시키는 추리게임 공간" fetchpriority="high"><div class="hero-overlay"></div><div class="hero-content"><p>${h(state.settings.branchName)} 크라임씬 추리게임</p><h1>모두가 용의자인 밤,<br>진범을 찾아내세요.</h1><span>각자 배역과 비밀을 받은 뒤 사건 현장을 조사합니다. 흩어진 단서와 서로 다른 진술을 맞춰, 이 밤의 진실을 밝혀내세요.</span><div><a class="button primary" href="${path("reservations")}">예약 가능한 시간 보기 ${iconArrow}</a><a class="button secondary" href="${path("themes")}">사건 먼저 둘러보기</a></div></div><aside class="hero-guide"><strong>처음 예약하신다면</strong><ol><li><span>1</span>사건과 회차 선택</li><li><span>2</span>인원과 예약자 정보 입력</li><li><span>3</span>예약 확정 후 ${state.settings.arrivalMinutes}분 전 도착</li></ol></aside></section>
       <section class="crime-scene-definition" aria-labelledby="crime-scene-definition-title"><div><p>크라임씬 카페 안내</p><h2 id="crime-scene-definition-title">용의자 중 진짜 범인을 찾는 추리게임입니다.</h2><span>잠금장치를 풀고 공간에서 나오는 것이 목표가 아닙니다. 각자 사건 속 인물이 되어 현장을 조사하고, 단서와 진술을 바탕으로 범인을 추리합니다.</span></div><aside><strong>예약 전 꼭 확인해 주세요</strong><p>이용 당일 고객 사유 취소와 무단 불참은 환불되지 않습니다.</p><a href="${path("policies/refunds")}">취소 및 환불 기준 보기 ${iconArrow}</a></aside></section>
       <section class="quick-facts"><div><strong>최소 4명</strong><span>게임 진행 기준 인원</span></div><div><strong>약 90분</strong><span>브리핑부터 최종 추리까지</span></div><div><strong>1~3명도 예약 가능</strong><span>오픈룸으로 다른 팀과 합류</span></div><div><strong>최대 8~9명</strong><span>테마별 역할 정원</span></div></section>
-      ${state.settings.customerNotice?`<section class="store-notice"><strong>매장 안내</strong><p>${h(state.settings.customerNotice)}</p></section>`:""}
+      ${storeNoticeHtml()}
       <section class="section theme-showcase"><header class="section-heading"><div><p>현재 진행 중인 사건</p><h2>원하는 사건을 선택해 보세요.</h2></div><a href="${path("themes")}">사건 비교하기 ${iconArrow}</a></header><div class="theme-cards">${state.themes.map((theme,index)=>`<article><a href="${path(`themes/${theme.slug}`)}"><figure><img src="${image(theme.image)}" alt="${h(theme.shortTitle)}" loading="${index?"lazy":"eager"}"><span>EP.${theme.episode}</span></figure><div><h3>${h(theme.shortTitle)}</h3><p>${h(theme.tagline)}</p><dl><div><dt>인원</dt><dd>최소 ${theme.minPlayers}명 · 최대 ${theme.totalCapacity}명</dd></div><div><dt>시간</dt><dd>${theme.duration}분</dd></div></dl><b>자세히 보기 ${iconArrow}</b></div></a></article>`).join("")}</div></section>
       <section class="section how-it-works"><header><p>게임 진행 방식</p><h2>처음 오셔도 어렵지 않습니다.</h2></header><ol><li><span>01</span><div><h3>배역 확인</h3><p>각자 사건 속 인물과 관계, 본인만 알아야 할 정보를 확인합니다.</p></div></li><li><span>02</span><div><h3>현장 조사</h3><p>공간과 소품을 살피며 사건을 풀 단서를 직접 찾습니다.</p></div></li><li><span>03</span><div><h3>대화와 심문</h3><p>찾은 증거와 서로의 진술을 비교해 의심되는 부분을 확인합니다.</p></div></li><li><span>04</span><div><h3>최종 추리</h3><p>각자의 판단으로 범인을 지목하고 사건의 전말을 확인합니다.</p></div></li></ol></section>
       <section class="open-room-explain"><div><p>인원이 부족할 때</p><h2>1~3명은 오픈룸으로 예약합니다.</h2><span>같은 사건과 같은 회차를 선택한 다른 팀이 남은 자리에 합류합니다. 예약표에서 현재 인원과 정원, 게임 진행 가능 여부를 바로 확인할 수 있습니다.</span><a class="button light" href="${path("reservations")}">오픈룸 확인하기 ${iconArrow}</a></div><div class="room-example"><span>예시</span><article><b>15:10</b><strong>3/8명 · 오픈룸 모집 중</strong><small>1명 이상 더 모이면 진행 가능</small></article><article class="playable"><b>18:50</b><strong>4/8명 · 게임 진행 가능</strong><small>남은 4자리 합류 가능</small></article></div></section>
@@ -322,14 +344,14 @@
     if(!dates||!filters||!schedule)return;
     const initial=new URLSearchParams(location.search).get("theme")||"";
     let selectedDate=dateChoices()[0].value,selectedTheme=initial,request=0;
-    dates.innerHTML=dateChoices().map(({value,date,index})=>`<button type="button" data-date="${value}" class="${index===0?"is-selected":""}" aria-pressed="${index===0}"><small>${index===0?"오늘":new Intl.DateTimeFormat("ko-KR",{weekday:"short"}).format(date)}</small><strong>${date.getDate()}</strong><span>${date.getMonth()+1}월</span></button>`).join("");
+    dates.innerHTML=dateChoices().map(({value,date,index})=>`<button type="button" data-date="${value}" class="${index===0?"is-selected":""}" aria-pressed="${index===0}"><small>${index===0?"오늘":new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",weekday:"short"}).format(date)}</small><strong>${Number(value.slice(8,10))}</strong><span>${Number(value.slice(5,7))}월</span></button>`).join("");
     filters.innerHTML=`<button type="button" data-theme="" class="${selectedTheme?"":"is-selected"}" aria-pressed="${selectedTheme?"false":"true"}">전체</button>${state.themes.map(theme=>`<button type="button" data-theme="${theme.id}" class="${selectedTheme===theme.id?"is-selected":""}" aria-pressed="${selectedTheme===theme.id}">${h(theme.shortTitle)}</button>`).join("")}`;
     async function load(){
       const id=++request;schedule.innerHTML=`<div class="loading-panel"><i></i><strong>${h(formatDate(selectedDate,true))} 회차를 확인하고 있습니다.</strong></div>`;
       try{
-        const data=await api(`/availability?date=${encodeURIComponent(selectedDate)}${selectedTheme?`&theme=${encodeURIComponent(selectedTheme)}`:""}`);
+        const data=await takeAvailability(`/availability?date=${encodeURIComponent(selectedDate)}${selectedTheme?`&theme=${encodeURIComponent(selectedTheme)}`:""}`);
         if(id!==request)return;
-        schedule.innerHTML=data.themes.map(theme=>`<article class="schedule-theme"><header><img src="${image(theme.image)}" alt=""><div><p>EP.${theme.episode}</p><h3>${h(theme.shortTitle)}</h3><span>${theme.duration}분 · ${money(theme.price)} / 1인</span><small>${h(capacity(theme))} · 최대 ${theme.totalCapacity}명</small></div><a href="${path(`themes/${theme.slug}`)}">사건 소개</a></header><div class="slot-grid">${theme.times.map(slot=>{const info=roomInfo(slot,theme);const href=`${path("reservations/new")}?${new URLSearchParams({theme:theme.id,date:selectedDate,time:slot.time})}`;return info.canBook?`<a class="slot ${info.tone}" href="${href}"><time>${h(slot.time)}</time><strong>${h(info.label)}</strong><span>${h(info.detail)}</span>${roomIntroductions(slot,true)}<b>${h(info.action)} ${iconArrow}</b></a>`:`<div class="slot ${info.tone} disabled" aria-disabled="true"><time>${h(slot.time)}</time><strong>${h(info.label)}</strong><span>${h(info.detail)}</span>${roomIntroductions(slot,true)}<b>${h(info.action)}</b></div>`;}).join("")}</div></article>`).join("");
+        schedule.innerHTML=data.themes.map(theme=>`<article class="schedule-theme"><header><img src="${image(theme.image).replace(/\.webp$/,"-thumb.webp")}" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=this.src.replace('-thumb.webp','.webp')"><div><p>EP.${theme.episode}</p><h3>${h(theme.shortTitle)}</h3><span>${theme.duration}분 · ${money(theme.price)} / 1인</span><small>${h(capacity(theme))} · 최대 ${theme.totalCapacity}명</small></div><a href="${path(`themes/${theme.slug}`)}">사건 소개</a></header><div class="slot-grid">${theme.times.map(slot=>{const info=roomInfo(slot,theme);const href=`${path("reservations/new")}?${new URLSearchParams({theme:theme.id,date:selectedDate,time:slot.time})}`;return info.canBook?`<a class="slot ${info.tone}" href="${href}"><time>${h(slot.time)}</time><strong>${h(info.label)}</strong><span>${h(info.detail)}</span>${roomIntroductions(slot,true)}<b>${h(info.action)} ${iconArrow}</b></a>`:`<div class="slot ${info.tone} disabled" aria-disabled="true"><time>${h(slot.time)}</time><strong>${h(info.label)}</strong><span>${h(info.detail)}</span>${roomIntroductions(slot,true)}<b>${h(info.action)}</b></div>`;}).join("")}</div></article>`).join("");
       }catch(error){if(id!==request)return;schedule.innerHTML=`<div class="error-panel"><strong>회차를 불러오지 못했습니다.</strong><p>${h(error.message)}</p><button type="button">다시 확인</button></div>`;schedule.querySelector("button")?.addEventListener("click",load);}
     }
     dates.querySelectorAll("[data-date]").forEach(button=>button.addEventListener("click",()=>{dates.querySelectorAll("button").forEach(x=>{x.classList.remove("is-selected");x.setAttribute("aria-pressed","false");});button.classList.add("is-selected");button.setAttribute("aria-pressed","true");selectedDate=button.dataset.date;load();}));
@@ -352,8 +374,9 @@
     const form=document.querySelector("#booking-form");if(!form)return;
     const params=new URLSearchParams(location.search),theme=themeById(params.get("theme")),playDate=params.get("date"),startTime=params.get("time");
     const status=document.querySelector("#room-status"),picker=document.querySelector("#party-buttons"),openChoice=document.querySelector("#open-choice"),openIntro=document.querySelector("#open-intro"),openInput=form.elements.openRoom,request=form.elements.specialRequest,submit=form.querySelector(".submit-booking"),abortButton=document.querySelector("#payment-abort"),message=document.querySelector("#booking-message");
-    let slot=null,partySize=0,ready=false,userOpen=false,activePaymentSession=null;
-    form.elements.phone.addEventListener("input",event=>{event.target.value=formatPhone(event.target.value);});
+    let slot=null,partySize=0,ready=false,userOpen=false,activePaymentSession=null,leftForComplete=false;
+    form.elements.phone.addEventListener("input",formatPhoneInput);
+    addEventListener("pageshow",event=>{if(event.persisted&&leftForComplete)location.reload();});
     function joining(){return Boolean(slot&&slot.bookedCount>0&&slot.openRoom&&slot.canJoin);}
     function isOpen(){return joining()||partySize<(theme?.minPlayers||4)||Boolean(openInput.checked);}
     function actionLabel(){return onlinePaymentEnabled()?"카드로 결제하기":joining()?"오픈룸 합류 예약":"예약 확정하기";}
@@ -374,7 +397,7 @@
     async function load(){
       ready=false;submit.disabled=true;status.className="room-status loading";status.innerHTML=`<i></i><strong>회차를 확인하고 있습니다.</strong>`;
       try{
-        const data=await api(`/availability?date=${encodeURIComponent(playDate)}&theme=${encodeURIComponent(theme.id)}`),current=data.themes?.[0]?.times?.find(x=>x.time===startTime);
+        const data=await takeAvailability(`/availability?date=${encodeURIComponent(playDate)}&theme=${encodeURIComponent(theme.id)}`),current=data.themes?.[0]?.times?.find(x=>x.time===startTime);
         if(!current)throw new Error("선택한 회차를 찾을 수 없습니다.");slot=current;const info=roomInfo(slot,theme);status.className=`room-status ${info.tone}`;status.innerHTML=`<span>${h(info.label)}</span><strong>${h(info.detail)}</strong><small>${info.roomState==="AVAILABLE"?`이 사건은 최대 ${theme.totalCapacity}명까지 참여할 수 있습니다.`:h(info.action)}</small>${roomIntroductions(slot,false)}`;
         if(!info.canBook){picker.innerHTML="";submit.disabled=true;submit.querySelector("span").textContent="예약할 수 없는 회차입니다";return;}
         const max=info.roomState==="AVAILABLE"?theme.totalCapacity:info.remaining,preferred=info.roomState==="AVAILABLE"?Math.min(theme.minPlayers,max):1;renderPicker(max,preferred);ready=true;submit.disabled=false;submit.querySelector("span").textContent=actionLabel();update();
@@ -384,7 +407,7 @@
       abortButton.hidden=true;abortButton.disabled=true;
       try{
         const aborted=await abortNicepay(session,reason),abortedStatus=normalizePaymentStatus(aborted?.status);
-        if(["VERIFYING","PAID"].includes(abortedStatus)){location.href=path("reservations/complete");return;}
+        if(["VERIFYING","PAID"].includes(abortedStatus)){leftForComplete=true;location.href=path("reservations/complete");return;}
         if(!["FAILED","REFUNDED"].includes(abortedStatus)){setMessage("결제 중단 처리가 아직 끝나지 않았습니다. 잠시 후 다시 눌러 주세요.");abortButton.hidden=false;abortButton.disabled=false;return;}
         clearNicepaySession(session?.orderId || "");activePaymentSession=null;
       }catch(error){
@@ -419,7 +442,7 @@
         }
         if(!onlinePaymentEnabled()){
           const result=await api("/reservations",{method:"POST",body:JSON.stringify(payload)},16000);
-          sessionStorage.setItem(LAST_RESERVATION_KEY,JSON.stringify(result));location.href=path("reservations/complete");return;
+          sessionStorage.setItem(LAST_RESERVATION_KEY,JSON.stringify(result));leftForComplete=true;location.href=path("reservations/complete");return;
         }
 
         submit.querySelector("span").textContent="카드 결제를 준비하고 있습니다";
@@ -518,11 +541,11 @@
 
   function bindLookupPage() {
     const form=document.querySelector("#lookup-form"),results=document.querySelector("#lookup-results"),message=document.querySelector("#lookup-message");if(!form)return;
-    form.elements.phone.addEventListener("input",event=>{event.target.value=formatPhone(event.target.value);});let identity=null;
+    form.elements.phone.addEventListener("input",formatPhoneInput);let identity=null;
     function render(items){
       if(!items.length){results.innerHTML=`<div class="empty-results"><strong>일치하는 예약이 없습니다.</strong><p>이름과 휴대폰 번호를 다시 확인해 주세요.</p></div>`;return;}
       results.innerHTML=`<div class="result-heading"><strong>예약 내역</strong><span>${items.length}건</span></div><div class="reservation-results">${items.map(item=>{const info=roomInfo(item.room||{}),privateRoom=!item.openRoom,paymentStatus=normalizePaymentStatus(item.paymentStatus||item.payment?.status),paymentProvider=String(item.paymentProvider||item.payment?.provider||"").toUpperCase(),managedPending=paymentProvider==="NICEPAY"&&["READY","VERIFYING"].includes(paymentStatus),cancelable=!["CANCELED","CANCEL_REQUESTED","COMPLETED","NO_SHOW"].includes(item.status)&&!managedPending,paid=paymentStatus==="PAID";return `<article><header><span class="status status-${String(item.status).toLowerCase()}">${h(STATUS[item.status]||item.status)}</span><h3>${h(item.themeTitle)}</h3><time>${h(formatDate(item.playDate))} · ${h(item.startTime)}</time></header><dl><div><dt>예약 인원</dt><dd>${item.partySize}명</dd></div><div><dt>연락처</dt><dd>${h(item.phoneMasked)}</dd></div><div><dt>이용 금액</dt><dd>${money(item.totalAmount)}</dd></div><div><dt>결제 상태</dt><dd>${h(paymentStatusLabel(item))}</dd></div><div><dt>예약 방식</dt><dd>${privateRoom?"단독팀":"오픈룸"}</dd></div></dl><section class="lookup-room ${privateRoom?"private":info.tone}"><span>${privateRoom?"단독팀 예약":h(info.label)}</span><p>${privateRoom?"다른 팀이 합류하지 않습니다.":h(info.detail)}</p>${item.openRoomMessage?`<small>내가 남긴 소개: ${h(item.openRoomMessage)}</small>`:""}</section>${managedPending?`<p class="lookup-payment-note">카드 결제 확인 중에는 예약을 변경하거나 취소할 수 없습니다. 잠시 후 다시 조회해 주세요.</p>`:cancelable?`<footer><button type="button" data-cancel="${h(item.lookupCode)}">${paid?"결제·예약 취소":"예약 취소"}</button></footer>`:""}</article>`;}).join("")}</div>`;
-      results.querySelectorAll("[data-cancel]").forEach(button=>button.addEventListener("click",async()=>{if(!identity||!confirm(`예약을 취소하시겠습니까?\n이용 ${state.settings.cancellationCutoffHours}시간 전부터는 온라인 취소가 제한됩니다.\n이용 당일 고객 사유 취소는 환불되지 않습니다.`))return;button.disabled=true;try{const response=await api("/reservations/cancel",{method:"POST",body:JSON.stringify({lookupCode:button.dataset.cancel,customerName:identity.customerName,phone:identity.phone,reason:"고객 온라인 취소"})});toast(response.message,"success");form.requestSubmit();}catch(error){toast(error.message,"error");button.disabled=false;}}));
+      results.querySelectorAll("[data-cancel]").forEach(button=>button.addEventListener("click",async()=>{if(!identity||!confirm(`예약을 취소하시겠습니까?\n이용 ${state.settings.cancellationCutoffHours}시간 전부터는 온라인 취소가 제한됩니다.\n이용 당일 고객 사유 취소는 환불되지 않습니다.`))return;button.disabled=true;try{const response=await api("/reservations/cancel",{method:"POST",body:JSON.stringify({lookupCode:button.dataset.cancel,customerName:identity.customerName,phone:identity.phone,reason:"고객 온라인 취소"})});toast(response.message,"success");if(typeof form.requestSubmit==="function")form.requestSubmit();else form.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true}));}catch(error){toast(error.message,"error");button.disabled=false;}}));
     }
     form.addEventListener("submit",async event=>{event.preventDefault();if(!form.reportValidity())return;identity=Object.fromEntries(new FormData(form));message.innerHTML=`<div class="mini-loader"><i></i>예약을 찾고 있습니다.</div>`;results.innerHTML="";try{const data=await api("/reservations/lookup",{method:"POST",body:JSON.stringify(identity)});message.innerHTML="";render(data.reservations||[]);}catch(error){message.innerHTML=`<p class="inline-error">${h(error.message)}</p>`;}});
   }
@@ -552,7 +575,7 @@
     return `${header("guide")}<main id="main-content">${pageTitle("자주 묻는 질문","궁금한 내용을 확인해 보세요.","찾는 내용이 없으면 아래 문의 양식을 이용해 주세요.")}<section class="section faq-layout"><div class="faq-list">${faqs.map(([q,a],i)=>`<details ${i===0?"open":""}><summary><span>${String(i+1).padStart(2,"0")}</span><strong>${h(q)}</strong><i>+</i></summary><p>${h(a)}</p></details>`).join("")}</div><aside class="inquiry-card"><p>1:1 문의</p><h2>문의 내용을 남겨 주세요.</h2><span>확인 후 입력하신 연락처로 안내드립니다.</span><form id="inquiry-form"><label class="field"><span>이름</span><input name="customerName" maxlength="20" required></label><label class="field"><span>휴대폰 번호</span><input name="phone" inputmode="tel" maxlength="13" required></label><label class="field"><span>제목</span><input name="subject" maxlength="100" required></label><label class="field"><span>문의 내용</span><textarea name="content" minlength="10" maxlength="2000" required></textarea></label><label class="simple-check"><input type="checkbox" name="privacyConsent" required><span class="check-box">${iconCheck}</span><span>수집 항목: 이름, 휴대폰 번호, 문의 내용. 문의 확인과 답변에 사용하며 분쟁 처리 기록은 3년간 보관합니다. 동의를 거부할 수 있으나 문의 접수는 진행할 수 없습니다.</span></label><div id="inquiry-message" role="alert"></div><button type="submit">문의 접수하기</button></form></aside></section></main>${footer()}`;
   }
   function bindFaqPage() {
-    const form=document.querySelector("#inquiry-form");if(!form)return;form.elements.phone.addEventListener("input",event=>{event.target.value=formatPhone(event.target.value);});form.addEventListener("submit",async event=>{event.preventDefault();if(!form.reportValidity())return;const button=form.querySelector("button"),message=document.querySelector("#inquiry-message"),values=Object.fromEntries(new FormData(form));button.disabled=true;button.textContent="접수 중";try{const result=await api("/inquiries",{method:"POST",body:JSON.stringify({...values,privacyConsent:true})});message.innerHTML=`<p class="inline-success">${h(result.message)}</p>`;form.reset();}catch(error){message.innerHTML=`<p class="inline-error">${h(error.message)}</p>`;}finally{button.disabled=false;button.textContent="문의 접수하기";}});
+    const form=document.querySelector("#inquiry-form");if(!form)return;form.elements.phone.addEventListener("input",formatPhoneInput);form.addEventListener("submit",async event=>{event.preventDefault();if(!form.reportValidity())return;const button=form.querySelector("button"),message=document.querySelector("#inquiry-message"),values=Object.fromEntries(new FormData(form));button.disabled=true;button.textContent="접수 중";try{const result=await api("/inquiries",{method:"POST",body:JSON.stringify({...values,privacyConsent:true})});message.innerHTML=`<p class="inline-success">${h(result.message)}</p>`;form.reset();}catch(error){message.innerHTML=`<p class="inline-error">${h(error.message)}</p>`;}finally{button.disabled=false;button.textContent="문의 접수하기";}});
   }
 
   function locationPage() {
@@ -622,17 +645,18 @@
     const drawer=document.querySelector(".mobile-drawer"),backdrop=document.querySelector(".drawer-backdrop"),openButton=document.querySelector(".menu-open"),closeButton=document.querySelector(".menu-close"),clarity=document.querySelector(".customer-clarity");
     const syncTopOffset=()=>{
       if(!clarity)return;
-      const height=Math.ceil(clarity.getBoundingClientRect().height);
+      const height=Math.floor(clarity.getBoundingClientRect().height);
       if(height>0)document.documentElement.style.setProperty("--customer-clarity-height",`${height}px`);
     };
     syncTopOffset();
     if(clarity&&globalThis.ResizeObserver)new ResizeObserver(syncTopOffset).observe(clarity);
     addEventListener("resize",syncTopOffset,{passive:true});
     if(!drawer||!backdrop||!openButton)return;
-    let lastFocused=null,lastTouch=0;
+    let lastFocused=null,openedAt=0;
     function setDrawer(show){
       if(show){
         lastFocused=document.activeElement;
+        openedAt=Date.now();
         backdrop.hidden=false;
         requestAnimationFrame(()=>backdrop.classList.add("is-open"));
       }else{
@@ -642,32 +666,33 @@
       drawer.classList.toggle("is-open",show);
       drawer.setAttribute("aria-hidden",String(!show));
       openButton.setAttribute("aria-expanded",String(show));
+      document.documentElement.style.scrollbarGutter=show&&innerWidth>document.documentElement.clientWidth?"stable":"";
       document.body.classList.toggle("drawer-open",show);
+      document.documentElement.classList.toggle("drawer-open",show);
       if(show){drawer.focus();closeButton?.focus();}
       else if(lastFocused?.focus)lastFocused.focus();
     }
+    // Drawer actions run on click only: closing on touch pointerup let the follow-up click land on the page behind.
+    // A pointer click on the menu button's spot right after opening is the second tap of a double tap; the first link slides over that spot.
     function handleMenuAction(event){
       const target=event.target?.closest?.(".menu-open,.menu-close,.drawer-backdrop,.mobile-drawer a");
       if(!target)return;
-      if(target.matches(".menu-open")){event.preventDefault();event.stopPropagation();setDrawer(true);}
+      if(target.matches(".menu-open")){event.preventDefault();event.stopPropagation();if(!drawer.classList.contains("is-open"))setDrawer(true);}
       else if(target.matches(".menu-close,.drawer-backdrop")){event.preventDefault();setDrawer(false);}
-      else if(target.matches(".mobile-drawer a"))setDrawer(false);
+      else if(target.matches(".mobile-drawer a")){
+        if(event.detail&&Date.now()-openedAt<500){const r=openButton.getBoundingClientRect(),x=event.clientX,y=event.clientY;if(x>r.left-8&&x<r.right+8&&y>r.top-8&&y<r.bottom+8){event.preventDefault();return;}}
+        setDrawer(false);
+      }
     }
-    document.addEventListener("pointerup",event=>{
-      if(event.pointerType!=="touch")return;
-      lastTouch=Date.now();
-      handleMenuAction(event);
-    },true);
-    document.addEventListener("click",event=>{
-      if(Date.now()-lastTouch<650)return;
-      handleMenuAction(event);
-    },true);
+    document.addEventListener("click",handleMenuAction,true);
+    backdrop.addEventListener("click",()=>{if(drawer.classList.contains("is-open"))setDrawer(false);});
     document.addEventListener("keydown",event=>{
       if(event.key==="Escape"&&drawer.classList.contains("is-open")){event.preventDefault();setDrawer(false);return;}
       if(event.key!=="Tab"||!drawer.classList.contains("is-open"))return;
       const focusable=[...drawer.querySelectorAll("a,button,[tabindex]:not([tabindex='-1'])")].filter(node=>!node.disabled);
       if(!focusable.length)return;
       const first=focusable[0],last=focusable[focusable.length-1];
+      if(!drawer.contains(document.activeElement)){event.preventDefault();(event.shiftKey?last:first).focus();return;}
       if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
     });
@@ -684,17 +709,32 @@
     return Promise.resolve();
   }
 
+  // The first schedule request depends only on the URL, so it can run while /bootstrap is loading.
+  let availabilityPrefetch=null;
+  function prefetchAvailability() {
+    const params=new URLSearchParams(location.search),theme=params.get("theme")||"";let url="";
+    if(route==="reservations")url=`/availability?date=${encodeURIComponent(todayValue())}${theme?`&theme=${encodeURIComponent(theme)}`:""}`;
+    else if(route==="reservation-new"&&theme&&params.get("date")&&params.get("time"))url=`/availability?date=${encodeURIComponent(params.get("date"))}&theme=${encodeURIComponent(theme)}`;
+    if(!url)return;
+    const promise=api(url);promise.catch(()=>{});availabilityPrefetch={url,promise};
+  }
+  function takeAvailability(url) {
+    const hit=availabilityPrefetch?.url===url?availabilityPrefetch.promise:null;availabilityPrefetch=null;
+    return hit||api(url);
+  }
+
   async function boot() {
     document.documentElement.classList.add("customer-ui");
     const cached=readBootstrapCache();
     if(cached)applyBootstrap(cached);
     if(TRANSACTION_ROUTES.has(route)){
+      prefetchAvailability();
       try{const data=await api("/bootstrap",{},7000);applyBootstrap(data);writeBootstrapCache(data);}
       catch(error){console.warn("최신 운영 정보를 확인하지 못해 저장된 설정으로 화면을 표시합니다.",error);}
     }
     render();bindCommon();
     await bindRoute();
-    if(!TRANSACTION_ROUTES.has(route))api("/bootstrap",{},7000).then(data=>{applyBootstrap(data);writeBootstrapCache(data);}).catch(error=>console.warn("기본 운영 정보로 화면을 표시합니다.",error));
+    if(!TRANSACTION_ROUTES.has(route))api("/bootstrap",{},7000).then(data=>{applyBootstrap(data);writeBootstrapCache(data);syncStoreNotice();}).catch(error=>console.warn("기본 운영 정보로 화면을 표시합니다.",error));
     return true;
   }
 

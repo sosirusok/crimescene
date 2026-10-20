@@ -55,6 +55,10 @@ jobs:
           test -s _site/assets/customer-polish.css
           test -s _site/fonts/Pretendard-Regular.woff2
           test -s _site/fonts/Pretendard-ExtraBold.woff2
+          test -s _site/fonts/SiteSubset-Regular.woff2
+          test -s _site/fonts/SiteSubset-Bold.woff2
+          test -s _site/fonts/SiteSubset-ExtraBold.woff2
+          test -s _site/images/theme-orientation-thumb.webp
 
           node --check _site/assets/customer-final.js
           node scripts/smoke-customer.cjs
@@ -65,6 +69,9 @@ jobs:
           grep -q 'final.css?v=' _site/index.html
           grep -q 'customer-polish.css?v=' _site/index.html
           grep -q 'Pretendard-Regular.woff2' _site/assets/customer-polish.css
+          grep -q 'SiteSubset-Regular.woff2' _site/assets/customer-polish.css
+          grep -q 'rel="preload" as="image" href="./images/hero-evidence-room.webp"' _site/index.html
+          ! grep -q 'rel="preload"' _site/reservations/index.html
           grep -q 'data-route="home"' _site/index.html
           grep -q 'data-route="reservations"' _site/reservations/index.html
           grep -q 'data-route="reservation-new"' _site/reservations/new/index.html
@@ -77,12 +84,13 @@ jobs:
           grep -q 'jjhun65@hanmail.net' _site/assets/customer-final.js
           grep -q 'menu-lines' _site/assets/customer-final.js
           grep -q 'aria-controls="mobile-drawer"' _site/assets/customer-final.js
-          grep -q 'document.addEventListener("pointerup"' _site/assets/customer-final.js
+          grep -q 'document.addEventListener("click",handleMenuAction,true)' _site/assets/customer-final.js
           grep -q 'open-room-introductions' _site/assets/customer-final.js
           grep -q '예약 시간표의 해당 오픈룸과 합류 화면에 표시됩니다' _site/assets/customer-final.js
           grep -q 'RESERVATION MOBILE WIDTH FIX 2026-08-19' _site/assets/final.css
           grep -q 'OWNER FEEDBACK FINAL 2026-08-19' _site/assets/final.css
           grep -q 'RESPONSIVE RELIABILITY 2026-10-19' _site/assets/final.css
+          grep -q 'DRAWER TOUCH RELIABILITY 2026-10-19' _site/assets/final.css
 
           ! grep -q '난이도</dt>' _site/assets/customer-final.js
           ! grep -q 'theme.difficulty' _site/assets/customer-final.js
@@ -190,22 +198,26 @@ jobs:
           curl --retry 4 --retry-all-errors -fsSL "${base}${style_path}" -o /tmp/final.css
           curl --retry 4 --retry-all-errors -fsSL "${base}${polish_path}" -o /tmp/customer-polish.css
           curl --retry 4 --retry-all-errors -fsSL "${base}fonts/Pretendard-Regular.woff2" -o /tmp/Pretendard-Regular.woff2
+          curl --retry 4 --retry-all-errors -fsSL "${base}fonts/SiteSubset-Regular.woff2" -o /tmp/SiteSubset-Regular.woff2
           curl --retry 4 --retry-all-errors -fsSL "${base}reservations/?sha=${GITHUB_SHA}" -o /tmp/reservations.html
 
           node --check /tmp/customer-final.js
           test -s /tmp/final.css
           test -s /tmp/customer-polish.css
           test -s /tmp/Pretendard-Regular.woff2
+          test -s /tmp/SiteSubset-Regular.woff2
           grep -q 'Pretendard-Regular.woff2' /tmp/customer-polish.css
+          grep -q 'SiteSubset-Regular.woff2' /tmp/customer-polish.css
           grep -q '(주)싱글' /tmp/customer-final.js
           grep -q '744-88-01446' /tmp/customer-final.js
           grep -q 'jjhun65@hanmail.net' /tmp/customer-final.js
           grep -q 'menu-lines' /tmp/customer-final.js
           grep -q 'aria-controls="mobile-drawer"' /tmp/customer-final.js
-          grep -q 'document.addEventListener("pointerup"' /tmp/customer-final.js
+          grep -q 'document.addEventListener("click",handleMenuAction,true)' /tmp/customer-final.js
           grep -q 'open-room-introductions' /tmp/customer-final.js
           grep -q 'RESERVATION MOBILE WIDTH FIX 2026-08-19' /tmp/final.css
           grep -q 'RESPONSIVE RELIABILITY 2026-10-19' /tmp/final.css
+          grep -q 'DRAWER TOUCH RELIABILITY 2026-10-19' /tmp/final.css
           ! grep -q '난이도</dt>' /tmp/customer-final.js
           ! grep -q 'theme.difficulty' /tmp/customer-final.js
           grep -q 'data-route="home"' /tmp/home.html
