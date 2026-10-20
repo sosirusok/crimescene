@@ -13,7 +13,7 @@ type Handler = (req: Request) => Response | Promise<Response>;
 type Step = { name: string; target: "customer" | "api"; request: () => Request };
 type Result = { name: string; status: number; headers: Record<string, string | null>; text: string };
 
-const BASE = Deno.env.get("GOLDEN_BASE") ?? "51434e8"; // production code before the in-process change
+const BASE = Deno.env.get("GOLDEN_BASE") ?? "210e83a"; // production code before the in-process change (on main, so a squash merge keeps it reachable)
 const SNAPSHOT = new URL("./golden/original-responses.json", import.meta.url);
 const FILES = ["api/index.ts", "api/core.ts", "api/public.ts", "api/payment.ts", "api/admin.ts", "customer-api/index.ts"];
 
@@ -121,6 +121,13 @@ async function scenario(handlers: { api: Handler; customer: Handler }) {
   for (const variant of variants) out[variant.name] = (await run(handlers, variant.tables(structuredClone(seed)), variant.steps, variant.setup)).results;
   return { out, main };
 }
+
+// The deploy workflow checks out full history and sets GOLDEN_REQUIRE_BASE=1, so the comparison cannot quietly become a skip.
+Deno.test({
+  name: `golden: base commit ${BASE} is in the checkout`,
+  ignore: Deno.env.get("GOLDEN_REQUIRE_BASE") !== "1",
+  fn: () => assert(original !== null, `git show ${BASE}:supabase/functions/... failed; fetch full history or set GOLDEN_BASE`),
+});
 
 Deno.test({
   name: `golden: new code answers exactly like the original (${BASE}) for bootstrap/availability/lookup and every customer path`,

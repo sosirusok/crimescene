@@ -1,4 +1,4 @@
-import { accessHash, db, encrypt, hhmm, limited, mask, paymentState, phone, publicSettings, publicTheme, readBody, reply, reservableDate, room, settingsRow, sha, signSession, themeRows } from "./core.ts";
+import { accessHash, db, encrypt, hhmm, limited, mask, paymentState, phone, publicSettings, publicTheme, readBody, RELEASED, reply, reservableDate, room, settingsRow, sha, signSession, themeRows } from "./core.ts";
 import { reconcileNicepayVerifying } from "./payment.ts";
 
 const ONSITE_PAYMENT = { provider: "ONSITE", status: "READY", mode: "ONSITE", label: "매장 결제", enabled: false };
@@ -63,7 +63,9 @@ async function existingReservation(id: string, phoneHash: string) {
   const { data, error } = await db.from("reservations").select("id,theme_id,play_date,start_time,party_size,total_amount,status,payment_status,booking_mode").eq("id", id).eq("phone_hash", phoneHash).maybeSingle(); if (error) throw error; return data;
 }
 
+// A key whose reservation was since canceled (or marked no-show) is spent: replaying it would read as a confirmed booking.
 async function replayReservation(req: Request, r: any, t: any) {
+  if (RELEASED.includes(r.status)) return reply(req, { error: "이전 예약 요청이 취소되었습니다. 다시 예약해 주세요." }, 409);
   const time = hhmm(r.start_time), { data: s } = await db.from("availability").select("capacity,booked_count,open_room,status").eq("theme_id", r.theme_id).eq("play_date", r.play_date).eq("start_time", time).maybeSingle();
   const paymentStatus = r.payment_status ?? "READY";
   return reply(req, { reservation: { id: r.id, themeTitle: t.title, playDate: r.play_date, startTime: time, partySize: r.party_size, totalAmount: r.total_amount, status: r.status, paymentStatus, bookingMode: r.booking_mode, room: room(s, t.min_players) }, payment: { ...ONSITE_PAYMENT, status: paymentStatus } }, 200);

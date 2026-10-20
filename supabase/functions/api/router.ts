@@ -4,7 +4,7 @@ import { adminAction } from "./admin.ts";
 import { abortNicepay, nicepayResult, nicepayReturn, nicepayWebhook, prepareNicepay } from "./payment.ts";
 
 // Bump on every server change so a deploy can be verified from /health (keep version "5.0.0" for existing checks).
-export const REVISION = "inprocess-20261020.1";
+export const REVISION = "inprocess-20261020.2";
 
 // customer: true adds the customer-site fields (settings.businessName on /bootstrap, slot.openRoomIntroductions on /availability).
 export type RouteOptions = { customer?: boolean };

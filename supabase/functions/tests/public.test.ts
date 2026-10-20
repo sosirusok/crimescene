@@ -54,6 +54,32 @@ Deno.test("a retried keyed request returns the same reservation (200) without bo
   await fake.idle();
 });
 
+const SPENT = { status: 409, body: { error: "이전 예약 요청이 취소되었습니다. 다시 예약해 주세요." } };
+for (const status of ["CANCELED", "NO_SHOW"]) {
+  Deno.test(`a keyed retry after the reservation became ${status} is refused (409), not replayed as a booking`, async () => {
+    const fake = await freshDb();
+    const body = reservationBody({ idempotencyKey: KEY });
+    const created = await post(body);
+    assertEquals(created.status, 201);
+    const row = fake.tables.reservations.find((r) => r.id === created.body.reservation.id)!;
+    row.status = status; // canceled by the customer (lookup/cancel) or an admin; the slot is freed
+    Object.assign(fake.tables.availability.find((s) => s.theme_id === "A" && s.play_date === body.playDate && s.start_time === "11:30:00")!, { booked_count: 0, open_room: false, status: "OPEN" });
+    assertEquals(await post(body), SPENT);
+    assertEquals(fake.callsOf("rpc", "reserve_crimescene_slot").length, 1, "no second booking attempt with the spent id");
+    // The client drops the key on a 4xx; a fresh key books normally.
+    assertEquals((await post({ ...body, idempotencyKey: `${KEY}-new` })).status, 201);
+    await fake.idle();
+  });
+}
+
+Deno.test("a concurrent keyed retry whose raced reservation is already canceled is refused (409)", async () => {
+  const fake = await freshDb();
+  const body = reservationBody({ idempotencyKey: KEY });
+  fake.rpcs.reserve_crimescene_slot = (args, db) => { reserveSlot(args, db); db.tables.reservations.find((x) => x.id === args.p_reservation_id)!.status = "CANCELED"; throw uniqueViolation("reservations_pkey", `Key (id)=(${args.p_reservation_id}) already exists.`); };
+  assertEquals(await post(body), SPENT);
+  await fake.idle();
+});
+
 Deno.test("a different payload or phone with the same key is a different booking", async () => {
   const fake = await freshDb();
   const body = reservationBody({ idempotencyKey: KEY, partySize: 2, openRoom: true, specialRequest: "같이 해요" });
