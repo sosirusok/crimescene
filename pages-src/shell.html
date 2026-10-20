@@ -15,6 +15,7 @@
   <title>{{TITLE}} | 크라임씬플레이 서면1호점</title>
   <link rel="preconnect" href="https://jhjbiejqtbidloxcwryr.supabase.co" crossorigin>
   <link rel="icon" type="image/svg+xml" href="{{BASE}}/favicon.svg?v={{ASSET_VERSION}}">
+  {{PRELOAD}}
   <link rel="stylesheet" href="{{BASE}}/assets/final.css?v={{ASSET_VERSION}}">
   {{CUSTOMER_STYLE}}
   <script defer src="{{BASE}}/assets/{{SCRIPT}}?v={{ASSET_VERSION}}"></script>
@@ -25,7 +26,7 @@
   <script>
     window.setTimeout(function () {
       var root = document.getElementById("app");
-      if (!root || !root.querySelector(".boot-screen")) return;
+      if (!root || !root.querySelector(".boot-screen") || window.__CRIMESCENE_READY__) return;
       root.innerHTML = '<main class="fatal-page"><section><h1>페이지를 불러오지 못했습니다.</h1><p>잠시 후 새로고침해 주세요. 같은 문제가 계속되면 070-4304-4340으로 문의해 주세요.</p><div><button type="button" onclick="location.reload()">새로고침</button><a href="{{FALLBACK_LINK}}">{{FALLBACK_LABEL}}</a></div></section></main>';
     }, 10000);
   </script>
