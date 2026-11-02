@@ -12,28 +12,34 @@
 - NICEPAY 키가 없으면 매장 결제, 키를 등록하면 국내 일반 신용·체크카드 온라인 결제
 - 실제 Google 지도와 네이버 지도 연결
 
-## GitHub Pages 배포 소스
+## 구성
 
 ```text
+pages-src/build.mjs           17개 정적 페이지를 _site/에 빌드
+pages-src/shell.html          HTML 문서 셸
 pages-src/customer-final.js   고객 화면과 예약 기능
 pages-src/final.css           공통 디자인
 pages-src/customer-polish.css 브랜드·폰트·모바일 가독성 보강
-pages-src/shell.html          HTML 문서 셸
-pages-src/build.mjs           17개 정적 페이지 빌드
 public/images/                사이트 이미지와 예약 시간표용 썸네일(*-thumb.webp)
 public/fonts/                 self-hosted Pretendard 웹폰트와 사이트 글자 부분 폰트(SiteSubset-*.woff2)
+scripts/smoke-*.cjs           빌드 결과·결제 흐름·모바일 레이아웃 검사
 scripts/subset-fonts.py       사이트 글자 부분 폰트와 @font-face 규칙 생성
+supabase/functions/           고객·운영 API(Supabase Edge Functions)
+supabase/migrations/          데이터베이스 마이그레이션
 .github/workflows/pages.yml   빌드·검증·GitHub Pages 배포
 ```
 
-로컬 검증:
+로컬 빌드와 검사(Node.js 22, 별도 패키지 설치 없음):
 
 ```bash
 node pages-src/build.mjs
-node scripts/smoke-customer.cjs
-node scripts/smoke-responsive.cjs
 node --check _site/assets/customer-final.js
+node scripts/smoke-customer.cjs
+node scripts/smoke-nicepay.cjs
+node scripts/smoke-responsive.cjs
 ```
+
+`npm test`로 빌드와 검사를 한 번에 실행할 수도 있습니다.
 
 ### 웹폰트 부분 집합
 

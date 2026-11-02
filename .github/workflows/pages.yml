@@ -87,10 +87,10 @@ jobs:
           grep -q 'document.addEventListener("click",handleMenuAction,true)' _site/assets/customer-final.js
           grep -q 'open-room-introductions' _site/assets/customer-final.js
           grep -q '예약 시간표의 해당 오픈룸과 합류 화면에 표시됩니다' _site/assets/customer-final.js
-          grep -q 'RESERVATION MOBILE WIDTH FIX 2026-08-19' _site/assets/final.css
-          grep -q 'OWNER FEEDBACK FINAL 2026-08-19' _site/assets/final.css
-          grep -q 'RESPONSIVE RELIABILITY 2026-10-19' _site/assets/final.css
-          grep -q 'DRAWER TOUCH RELIABILITY 2026-10-19' _site/assets/final.css
+          grep -qF '.date-row{width:100%;overflow-x:auto' _site/assets/final.css
+          grep -qF '.mobile-drawer.is-open{right:0!important;transform:translateX(0)' _site/assets/final.css
+          grep -qF '.boot-screen,.fatal-page,.complete-page{min-height:100dvh}' _site/assets/final.css
+          grep -qF 'html.drawer-open,body.drawer-open{overflow:hidden}' _site/assets/final.css
 
           ! grep -q '난이도</dt>' _site/assets/customer-final.js
           ! grep -q 'theme.difficulty' _site/assets/customer-final.js
@@ -215,9 +215,9 @@ jobs:
           grep -q 'aria-controls="mobile-drawer"' /tmp/customer-final.js
           grep -q 'document.addEventListener("click",handleMenuAction,true)' /tmp/customer-final.js
           grep -q 'open-room-introductions' /tmp/customer-final.js
-          grep -q 'RESERVATION MOBILE WIDTH FIX 2026-08-19' /tmp/final.css
-          grep -q 'RESPONSIVE RELIABILITY 2026-10-19' /tmp/final.css
-          grep -q 'DRAWER TOUCH RELIABILITY 2026-10-19' /tmp/final.css
+          grep -qF '.date-row{width:100%;overflow-x:auto' /tmp/final.css
+          grep -qF '.boot-screen,.fatal-page,.complete-page{min-height:100dvh}' /tmp/final.css
+          grep -qF 'html.drawer-open,body.drawer-open{overflow:hidden}' /tmp/final.css
           ! grep -q '난이도</dt>' /tmp/customer-final.js
           ! grep -q 'theme.difficulty' /tmp/customer-final.js
           grep -q 'data-route="home"' /tmp/home.html

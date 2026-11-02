@@ -81,7 +81,7 @@ html.admin-ui body{background:#e8e5df;color:#191b1f;font-size:15px}
 @media(max-width:600px){:root{--shell:calc(100% - 28px)}html{font-size:15px}.site-header{height:68px}.header-inner{width:calc(100% - 24px)}.brand-symbol{width:38px;height:38px}.brand b{font-size:15px}.brand small{font-size:12px}.hero{height:auto;min-height:670px}.hero-overlay{background:linear-gradient(90deg,rgba(5,7,10,.88),rgba(5,7,10,.45)),linear-gradient(0deg,rgba(5,7,10,.68),transparent)}.hero-content{width:calc(100% - 28px);padding-top:78px}.hero-content>p{font-size:13px}.hero-content h1{font-size:43px;line-height:1.07}.hero-content>span{font-size:15px;line-height:1.75}.hero-content>div{flex-direction:column;align-items:stretch}.hero-content .button{width:100%}.quick-facts{grid-template-columns:1fr}.quick-facts>div{min-height:105px;border-right:0!important;border-bottom:1px solid var(--line)}.section{padding:72px 0}.section-heading{align-items:flex-start;flex-direction:column}.section-heading h2,.how-it-works header h2,.open-room-explain h2,.final-cta h2,.theme-list h2,.theme-story h2,.before-play h2,.guide-overview h2,.open-room-guide h2,.guide-notes h2,.inquiry-card h2,.location-layout h2{font-size:32px}.theme-cards figure{height:280px}.theme-cards article>a>div{padding:21px}.theme-cards dl{grid-template-columns:1fr}.how-it-works li{grid-template-columns:42px 1fr}.open-room-explain,.final-cta,.open-room-guide{padding-left:14px;padding-right:14px}.room-example article{grid-template-columns:1fr}.room-example article b{grid-row:auto}.page-title{padding:125px 14px 55px}.page-title h1{font-size:38px}.page-title span{font-size:15px}.theme-list-image{height:340px}.theme-list blockquote{font-size:17px}.theme-list dl{grid-template-columns:1fr}.theme-actions{align-items:stretch;flex-direction:column}.theme-hero{height:650px}.theme-hero>article{left:14px;bottom:45px;width:calc(100% - 28px)}.theme-hero h1{font-size:43px}.theme-hero blockquote{font-size:17px}.theme-detail aside{grid-template-columns:1fr 1fr}.reservation-nav{overflow-x:auto}.reservation-nav a{min-width:120px}.reservation-guide{grid-template-columns:1fr}.schedule-heading{align-items:flex-start;flex-direction:column}.schedule-legend{justify-content:flex-start}.schedule-theme>header{grid-template-columns:80px 1fr;gap:13px;padding:14px}.schedule-theme>header img{width:80px;height:80px}.schedule-theme>header h3{font-size:18px}.slot-grid{grid-template-columns:1fr 1fr;padding:10px}.slot{min-height:140px;padding:14px}.slot time{font-size:20px}.booking-summary{display:block}.booking-summary>img{height:220px}.form-section{padding:21px 17px}.form-section>header{align-items:flex-start}.party-buttons{grid-template-columns:repeat(3,1fr)}.field-grid,.order-summary{grid-template-columns:1fr}.complete-page>section{padding:27px 20px}.complete-page h1{font-size:31px}.complete-page dl{grid-template-columns:1fr}.complete-page>section>div:last-child{flex-direction:column}.lookup-form{grid-template-columns:1fr}.reservation-results dl{grid-template-columns:1fr 1fr;gap:12px}.guide-steps{grid-template-columns:1fr}.guide-notes li{grid-template-columns:1fr;gap:5px}.faq-list summary{grid-template-columns:30px 1fr 25px;padding:0 15px}.faq-list details p{padding:0 15px 20px 45px}.inquiry-card{padding:22px 18px}.map-frame,.map-frame iframe{min-height:400px}.policy-layout>aside{grid-template-columns:1fr}.policy-layout>article{padding:23px 18px}.footer-main{grid-template-columns:1fr;gap:35px;padding:48px 0}.footer-columns{grid-template-columns:1fr 1fr}.footer-legal{align-items:flex-start;flex-direction:column}.footer-legal nav{flex-wrap:wrap}.toast-host{left:14px;right:14px}.toast{min-width:0;max-width:none}.admin-login{padding:14px}.admin-login>section{padding:30px 21px}.admin-login h1{font-size:34px}.admin-login footer{flex-direction:column}.admin-top{padding:0 10px}.admin-top>a{display:none}.admin-content{padding-left:10px;padding-right:10px}.admin-heading h1{font-size:30px}.admin-metrics{grid-template-columns:1fr}.admin-quick>div{grid-template-columns:1fr}.admin-card>footer{grid-template-columns:1fr}.admin-card>footer button{width:100%}.admin-slot-grid,.admin-theme-tabs{grid-template-columns:1fr}.admin-schedule-head{align-items:flex-start;flex-direction:column}.admin-card-body dl{grid-template-columns:1fr}.admin-openroom-grid,.admin-card-grid{grid-template-columns:1fr}.admin-audit{grid-template-columns:1fr}.admin-audit small{text-align:left}.admin-modal-backdrop{padding:8px}.admin-modal{max-height:calc(100vh - 16px)}.admin-modal .admin-form-grid{grid-template-columns:1fr}.admin-toast-host{left:10px;right:10px}.admin-toast{min-width:0;max-width:none}}
 
 
-/* CUSTOMER CLARITY NOTICE 2026-08-18 */
+/* Visitor notice bar and booking notices */
 :root{--customer-clarity-height:52px}
 .customer-ui body{padding-top:var(--customer-clarity-height)}
 .customer-ui .site-header{top:var(--customer-clarity-height)}
@@ -106,7 +106,7 @@ html.admin-ui body{background:#e8e5df;color:#191b1f;font-size:15px}
 @media(max-width:480px){:root{--customer-clarity-height:96px}.customer-clarity-inner{grid-template-columns:1fr;gap:2px}.customer-clarity strong{grid-row:auto}.customer-clarity span{font-size:10.5px}.crime-scene-definition{padding:48px 20px}.crime-scene-definition h2{font-size:34px}.booking-critical-notice,.complete-refund-notice{padding:17px}}
 
 
-/* OWNER FEEDBACK FINAL 2026-08-19 */
+/* Header stacking, mobile drawer and open-room introductions */
 .customer-clarity{z-index:2400!important;height:auto!important;min-height:52px;overflow:visible}
 .customer-ui .site-header{z-index:2300!important;top:var(--customer-clarity-height)!important}
 .menu-open{position:relative;z-index:2310;pointer-events:auto!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -134,7 +134,7 @@ body.drawer-open .mobile-drawer,body.drawer-open .drawer-backdrop{pointer-events
 @media(max-width:600px){.theme-list dl{grid-template-columns:1fr}.slot .open-room-introductions{margin-top:8px}.open-room-introductions p{grid-template-columns:1fr;gap:1px}}
 
 
-/* RESERVATION MOBILE WIDTH FIX 2026-08-19 */
+/* Reservation page width on phones */
 html{max-width:100%;overflow-x:hidden}
 body{max-width:100%;overflow-x:clip}
 .reservation-shell,.schedule-controls,.schedule-controls>section,.date-row,.theme-filter,.schedule-heading,.schedule,.schedule-theme,.slot-grid{min-width:0;max-width:100%}
@@ -144,7 +144,7 @@ body{max-width:100%;overflow-x:clip}
 .schedule-theme{width:100%}
 @media(max-width:600px){.reservation-shell{overflow-x:clip}.slot-grid{width:100%}.schedule-theme>header{width:100%}}
 
-/* NICEPAY CUSTOMER FLOW 2026-08-21 */
+/* Card payment states */
 .form-message.success{padding:12px 14px;background:#e8f4ef;color:#285e4c;border-radius:6px;font-weight:750}
 .payment-abort{width:100%;min-height:46px;margin-top:10px;padding:8px 14px;border:1px solid #c5bfb7;background:#fff;color:#5c3c38;border-radius:7px;font-weight:750}
 .payment-abort:hover{border-color:var(--red);color:var(--red)}
@@ -154,20 +154,20 @@ body{max-width:100%;overflow-x:clip}
 .lookup-payment-note{margin:0 20px 18px;padding:12px 14px;border:1px solid #e4d7c4;border-radius:6px;background:#fff8ed;color:#72583a;font-size:13px;line-height:1.65}
 @media(max-width:600px){.complete-actions{flex-direction:column}.complete-actions .button{width:100%}.reservation-results dl{grid-template-columns:1fr 1fr}}
 
-/* RESPONSIVE RELIABILITY 2026-10-19 */
+/* Form controls and full-height screens */
 .open-choice,.consents label,.simple-check{position:relative}
 .open-choice input,.consents input,.simple-check input{width:1px;height:1px;margin:0;padding:0}
 .boot-screen,.fatal-page,.complete-page{min-height:100dvh}
 @media(max-width:860px){.header-actions{margin-left:auto}}
 @media(pointer:coarse),(max-width:600px){input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px!important}}
 
-/* DRAWER TOUCH RELIABILITY 2026-10-19 */
+/* Mobile drawer scrolling */
 html.drawer-open,body.drawer-open{overflow:hidden}
 .drawer-backdrop{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .mobile-drawer{display:flex;flex-direction:column;overflow-y:auto}
 .mobile-drawer footer{position:static;margin-top:auto;margin-bottom:4px}
 
-/* MOBILE POLISH 2026-10-19 */
+/* Long text wrapping */
 .open-room-introductions p span,.lookup-room small,.notice-list p,.store-notice p{overflow-wrap:anywhere;word-break:break-word}
 .notice-list h2{overflow-wrap:anywhere}
 h1,h2,h3,.footer-columns a{word-break:keep-all;overflow-wrap:break-word}

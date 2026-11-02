@@ -1,7 +1,7 @@
 const fs=require("node:fs");
 const path=require("node:path");
 
-// Static guards for the mobile layout regressions fixed on 2026-10-19. Run after `node pages-src/build.mjs`.
+// Static guards for the mobile layout. Run after `node pages-src/build.mjs`.
 const site="_site";
 const read=file=>fs.readFileSync(path.join(site,file),"utf8");
 const fail=message=>{throw new Error(message);};
@@ -13,7 +13,7 @@ const code=read("assets/customer-final.js");
 if(css.includes(":has("))fail("final.css에 :has() 선택자가 있습니다. 미지원 모바일 브라우저에서 규칙 전체가 무시됩니다.");
 if(/body\{[^}]*min-width:320px/.test(css))fail("body min-width:320px가 남아 있어 320px 미만 화면의 오른쪽이 잘립니다.");
 if(!css.includes("-webkit-text-size-adjust:100%"))fail("iOS 가로 모드 글자 자동 확대 방지가 없습니다.");
-if(!css.includes("RESPONSIVE RELIABILITY 2026-10-19"))fail("반응형 안정화 규칙이 빌드에 포함되지 않았습니다.");
+if(!css.includes(".boot-screen,.fatal-page,.complete-page{min-height:100dvh}"))fail("반응형 안정화 규칙이 빌드에 포함되지 않았습니다.");
 if(!css.includes("@media(max-width:860px){.header-actions{margin-left:auto}}"))fail("모바일 메뉴 버튼 오른쪽 정렬 규칙이 없습니다.");
 if(!/@media\(pointer:coarse\),\(max-width:600px\)\{input:not\(\[type=checkbox\]\):not\(\[type=radio\]\),select,textarea\{font-size:16px!important\}\}/.test(css))fail("모바일 입력칸 16px 규칙이 없어 iPhone에서 입력 시 화면이 확대됩니다.");
 if(!css.includes(".open-choice,.consents label,.simple-check{position:relative}"))fail("숨김 체크박스가 라벨 밖으로 벗어나 가로 스크롤을 만들 수 있습니다.");
